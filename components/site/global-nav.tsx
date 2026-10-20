@@ -10,7 +10,7 @@ export async function GlobalNav() {
     <header className="material-bar sticky top-0 z-40">
       <nav className="mx-auto flex h-12 max-w-[1024px] items-center justify-between px-4 text-micro" aria-label="전체 메뉴">
         <Logo size="sm" />
-        <div className="flex items-center gap-3.5 font-medium text-foreground sm:gap-5">
+        <div className="flex items-center gap-2 whitespace-nowrap font-medium text-foreground min-[400px]:gap-3 sm:gap-5">
           <Link className="pressable hover:text-foreground" href="/bookings/new">부킹</Link>
           <Link className="pressable hover:text-foreground" href="/memberships">회원권</Link>
           <Link className="pressable hover:text-foreground" href="/groups">모임</Link>
