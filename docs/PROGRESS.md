@@ -3,7 +3,7 @@
 > 새 세션은 이 파일부터 읽는다. 작업 단위가 끝날 때마다 갱신한다.
 
 - 브랜치: `claude/affectionate-maxwell-vs76ph` (PR: https://github.com/NextChans/golf/pull/1, draft)
-- 원격 Supabase: 프로젝트 `sacsqmsfwujuuudwjhbp`(https://sacsqmsfwujuuudwjhbp.supabase.co, 리전 미확인) 생성됨. dev/prod 구분은 오너 확인 대기(D-33).
+- 원격 Supabase: **prod(운영)** 프로젝트 `sacsqmsfwujuuudwjhbp`(https://sacsqmsfwujuuudwjhbp.supabase.co, D-33). 개발은 로컬 Supabase. prod 반영은 `db-deploy`(target=prod, 승인자 필수)로만.
   **마이그레이션은 아직 원격 미적용**이라 M1 파일을 수정해도 된다. `db-deploy` 워크플로로 처음 적용한 뒤부터는 기존 파일을 고치지 않고 새 파일로만 변경한다.
 - 클라우드 작업 컨테이너는 HTTPS만 나갈 수 있어 원격 Postgres(5432)에 직접 접속할 수 없다. 원격 반영은 GitHub Actions `db-deploy`(수동 실행)로만 한다(D-32).
 
@@ -12,8 +12,8 @@
 | 마일스톤 | 상태 | 비고 |
 |---|---|---|
 | M0 계획 | 완료·승인 | docs/PLAN.md, DECISIONS.md |
-| M1 스키마·RLS·상태 함수 | **완료, 오너 승인 대기** | pgTAP 106/106, 동시성 2×50회 |
-| M2 인증 | 대기 | D-26 관리자 이메일+TOTP 반영 |
+| M1 스키마·RLS·상태 함수 | 완료·승인 | pgTAP 106/106, 동시성 2×50회, GitHub CI 통과 |
+| M2 인증 | **진행 중** | D-26 관리자 이메일+TOTP 반영 |
 | M3 고객 부킹 | 대기 | |
 | M4 어드민 부킹·CRM | 대기 | |
 | M5 회원권 | 대기 | |
@@ -46,7 +46,8 @@
 | M2 | 최초 owner로 쓸 이메일 주소 | — |
 | M2 | (선택) Sentry 무료 계정 DSN | 무료 |
 | M6 | Slack(또는 Discord) Incoming Webhook URL | 무료 |
-| 배포 시 | Supabase 무료 프로젝트 2개(dev/prod), Vercel Hobby | 무료(제약 있음) |
+| 배포 시 | GitHub Environment `prod`: secrets `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, variable `SUPABASE_PROJECT_REF=sacsqmsfwujuuudwjhbp`, Required reviewers | 무료 |
+| 배포 시 | Vercel 프로젝트 연결 완료(golf). 환경변수는 M2 이후 등록 | 무료(Hobby) |
 
 ## 출시 전 유료 전환 체크리스트 (D-25)
 
