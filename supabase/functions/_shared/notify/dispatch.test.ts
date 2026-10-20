@@ -104,7 +104,7 @@ describe("templates", () => {
   it("DB가 쌓는 모든 템플릿 코드를 렌더할 수 있다", async () => {
     const { readFileSync, readdirSync } = await import("node:fs");
     const sql = readdirSync("supabase/migrations").map((f) => readFileSync(`supabase/migrations/${f}`, "utf8")).join("\n");
-    const codes = new Set([...sql.matchAll(/'((?:ADMIN_|BOOKING_|DEAL_)[A-Z_]+)'/g)].map((m) => m[1]!));
+    const codes = new Set([...sql.matchAll(/'((?:ADMIN_|BOOKING_|DEAL_|GROUP_)[A-Z_]+)'/g)].map((m) => m[1]!));
     for (const code of codes) expect(KNOWN_TEMPLATES, code).toContain(code);
   });
   it("제안 알림: KST 시각·금액·링크", () => {

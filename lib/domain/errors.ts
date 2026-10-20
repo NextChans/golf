@@ -6,7 +6,8 @@ export type AppErrorCode =
   | "unauthenticated" | "forbidden" | "onboarding_required" | "not_found"
   | "version_conflict" | "invalid_state" | "proposal_expired" | "listing_unavailable"
   | "duplicate_inquiry" | "idempotency_key_reused" | "invalid_input" | "rate_limited"
-  | "phone_not_verified" | "terms_required" | "contact_required" | "duplicate_name" | "unknown";
+  | "phone_not_verified" | "terms_required" | "contact_required" | "duplicate_name"
+  | "limit_exceeded" | "group_full" | "meeting_full" | "duplicate_report" | "unknown";
 
 export type AppError = { code: AppErrorCode; message: string };
 
@@ -27,6 +28,10 @@ const MESSAGES: Record<AppErrorCode, string> = {
   terms_required: "필수 약관에 동의해 주세요.",
   contact_required: "확인 전화를 받을 휴대폰 번호를 입력해 주세요.",
   duplicate_name: "같은 이름이 이미 등록되어 있습니다.",
+  limit_exceeded: "모임은 3개까지 만들고 10개까지 가입할 수 있습니다.",
+  group_full: "모임 정원이 가득 찼습니다.",
+  meeting_full: "정모 정원이 가득 찼습니다.",
+  duplicate_report: "이미 신고한 대상입니다. 운영자가 확인 중입니다.",
   unknown: "일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.",
 };
 

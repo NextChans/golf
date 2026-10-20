@@ -21,7 +21,7 @@
 | M4 어드민 부킹·CRM | 완료·머지(NextChans/golf#6) | pgTAP 177, Vitest 120, Playwright 23. D-49~52 |
 | M5 회원권 | 완료·머지(NextChans/golf#7) | pgTAP 194, Vitest 158, Playwright 36. D-53~62 |
 | M6 알림 outbox | 완료·머지(NextChans/golf#8) | D-63~66 |
-| M7 골프 커뮤니티(후보) | 기획 전 | 요구사항 확정 필요(docs/research/somoim-analysis.md) |
+| M7 골프 모임 커뮤니티 | **진행 중** | 범위 D-67(오너 위임), D-68~72 |
 
 ## M1 결과 요약
 
