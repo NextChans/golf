@@ -20,7 +20,12 @@ function timingSafeEqual(a: string, b: string): boolean {
 Deno.serve(async (req) => {
   if (req.method !== "POST") return new Response("method not allowed", { status: 405 });
   const secret = env("NOTIFY_DISPATCH_SECRET");
-  if (!secret || !timingSafeEqual(req.headers.get("x-dispatch-secret") ?? "", secret)) {
+  // 비밀값 미설정(운영 설정 누락)과 불일치(Vault 값과 다름)를 응답으로 구분한다. net._http_response만 보고 원인을 알 수 있게
+  if (!secret) {
+    console.error(JSON.stringify({ event: "notify.dispatch.misconfigured", missing: "NOTIFY_DISPATCH_SECRET" }));
+    return new Response("dispatch secret not configured", { status: 500 });
+  }
+  if (!timingSafeEqual(req.headers.get("x-dispatch-secret") ?? "", secret)) {
     return new Response("unauthorized", { status: 401 });
   }
 
