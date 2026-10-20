@@ -22,6 +22,7 @@ const deal = (p: Record<string, unknown>, site: string) => `${site}/deals/${str(
 const adminBooking = (p: Record<string, unknown>, site: string) => `${site}/admin/bookings/${str(p.request_id)}`;
 const adminDeal = (p: Record<string, unknown>, site: string) => `${site}/admin/deals/${str(p.deal_id)}`;
 const course = (p: Record<string, unknown>) => str(p.course_name, "골프장");
+const group = (p: Record<string, unknown>, site: string) => `${site}/groups/${str(p.group_id)}`;
 
 const TEMPLATES: Record<string, Render> = {
   BOOKING_IN_REVIEW: (p, s) => ({ title: "부킹 요청 확인 중", text: `${course(p)} ${str(p.play_date)} 요청을 담당자가 확인하고 있습니다.`, url: booking(p, s) }),
@@ -44,6 +45,12 @@ const TEMPLATES: Record<string, Render> = {
   ADMIN_SLA_BREACHED: (p, s) => ({ title: "SLA 초과", text: `${course(p)} ${str(p.play_date)} 요청이 응답 기한을 넘겼습니다.`, url: adminBooking(p, s) }),
   ADMIN_DEAL_REQUESTED: (p, s) => ({ title: "새 회원권 상담", text: `${str(p.product_name, "회원권")} ${p.side === "sell" ? "매도" : "매수"} 상담`, url: adminDeal(p, s) }),
   ADMIN_DEAL_CANCELLED: (p, s) => ({ title: "고객 상담 취소", text: `${str(p.product_name, "회원권")} 상담`, url: adminDeal(p, s) }),
+  GROUP_JOIN_APPROVED: (p, s) => ({ title: "모임 가입 승인", text: `'${str(p.group_name, "모임")}' 가입이 승인되었습니다.`, url: group(p, s) }),
+  GROUP_MEETING_CREATED: (p, s) => ({ title: "새 정모", text: `'${str(p.group_name, "모임")}' ${str(p.title)} — ${kst(p.starts_at)}`, url: group(p, s) }),
+  GROUP_MEETING_CANCELLED: (p, s) => ({ title: "정모 취소", text: `'${str(p.group_name, "모임")}' ${str(p.title)}(${kst(p.starts_at)}) 정모가 취소되었습니다.`, url: group(p, s) }),
+  GROUP_HIDDEN: (p, s) => ({ title: "모임 비공개 처리", text: `'${str(p.group_name, "모임")}' 모임이 운영 정책에 따라 비공개되었습니다. 사유: ${str(p.reason, "-")}`, url: group(p, s) }),
+  ADMIN_GROUP_REVIEW: (p, s) => ({ title: "모임 검수 필요", text: `'${str(p.group_name)}' 금칙어 자동 보류`, url: `${s}/admin/community` }),
+  ADMIN_COMMUNITY_REPORTED: (p, s) => ({ title: "커뮤니티 신고", text: `${str(p.target_type)} 신고(${str(p.reason)}), 누적 ${p.open_count ?? "?"}건`, url: `${s}/admin/community` }),
   ADMIN_NOTIFICATION_DEAD: (p) => ({
     title: "알림 발송 실패",
     text: `${str(p.template_code)} 알림(#${p.outbox_id ?? "?"})이 ${p.attempts ?? "?"}회 실패했습니다. 오류: ${str(p.last_error, "-")}`,

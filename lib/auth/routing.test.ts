@@ -77,6 +77,23 @@ describe("decideRoute: 고객 경로", () => {
     expect(decideRoute("/memberships/seller", null)).toEqual({ type: "next" });
     expect(decideRoute("/deals/1", null)).toEqual({ type: "redirect", to: "/login?next=%2Fdeals%2F1" });
   });
+  it("모임: 목록·상세는 공개, 만들기·수정·정모 개설은 로그인 필요", () => {
+    const id = "00000000-0000-4000-d000-000000000001";
+    expect(decideRoute("/groups", null)).toEqual({ type: "next" });
+    expect(decideRoute(`/groups/${id}`, null)).toEqual({ type: "next" });
+    expect(decideRoute("/groups/new", null)).toEqual({ type: "redirect", to: "/login?next=%2Fgroups%2Fnew" });
+    expect(decideRoute("/groups/new", customer())).toEqual({ type: "next" });
+    expect(decideRoute("/groups/new", customer({ onboarded: false }))).toEqual({
+      type: "redirect", to: "/onboarding?next=%2Fgroups%2Fnew",
+    });
+    expect(decideRoute(`/groups/${id}/edit`, null)).toEqual({ type: "redirect", to: `/login?next=${encodeURIComponent(`/groups/${id}/edit`)}` });
+    expect(decideRoute(`/groups/${id}/meetings/new`, null)).toEqual({
+      type: "redirect", to: `/login?next=${encodeURIComponent(`/groups/${id}/meetings/new`)}`,
+    });
+    expect(decideRoute(`/groups/${id}/meetings/new`, admin())).toEqual({ type: "redirect", to: "/admin" });
+    expect(decideRoute(`/groups/${id}/editor`, null)).toEqual({ type: "next" });
+    expect(decideRoute("/groups/newest", null)).toEqual({ type: "next" });
+  });
   it("공개 경로는 통과", () => {
     expect(decideRoute("/", null)).toEqual({ type: "next" });
     expect(decideRoute("/auth/callback", null)).toEqual({ type: "next" });

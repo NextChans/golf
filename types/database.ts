@@ -151,6 +151,38 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"community_reports": {
+                  Row: {
+                    "created_at": string,"detail": string | null,"group_id": string | null,"id": number,"reason": Database["public"]['Enums']["report_reason"],"reporter_id": string,"resolved_at": string | null,"resolved_by": string | null,"status": Database["public"]['Enums']["report_status"],"target_id": string,"target_type": Database["public"]['Enums']["report_target"]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"detail"?: string | null,"group_id"?: string | null,"id"?: never,"reason": Database["public"]['Enums']["report_reason"],"reporter_id": string,"resolved_at"?: string | null,"resolved_by"?: string | null,"status"?: Database["public"]['Enums']["report_status"],"target_id": string,"target_type": Database["public"]['Enums']["report_target"]
+                  }
+                  Update: {
+                    "created_at"?: string,"detail"?: string | null,"group_id"?: string | null,"id"?: never,"reason"?: Database["public"]['Enums']["report_reason"],"reporter_id"?: string,"resolved_at"?: string | null,"resolved_by"?: string | null,"status"?: Database["public"]['Enums']["report_status"],"target_id"?: string,"target_type"?: Database["public"]['Enums']["report_target"]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "community_reports_group_id_fkey"
+      columns: ["group_id"]
+isOneToOne: false
+      referencedRelation: "groups"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "community_reports_reporter_id_fkey"
+      columns: ["reporter_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "community_reports_resolved_by_fkey"
+      columns: ["resolved_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"deal_events": {
                   Row: {
                     "created_at": string,"deal_id": string,"from_status": Database["public"]['Enums']["deal_status"] | null,"id": number,"message": string | null,"to_status": Database["public"]['Enums']["deal_status"]
@@ -185,6 +217,110 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"group_meetings": {
+                  Row: {
+                    "attendee_count": number,"capacity": number,"created_at": string,"created_by": string,"fee_per_person": number | null,"golf_course_id": string | null,"group_id": string,"id": string,"note": string | null,"place_free": string | null,"starts_at": string,"status": Database["public"]['Enums']["meeting_status"],"title": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "attendee_count"?: number,"capacity": number,"created_at"?: string,"created_by": string,"fee_per_person"?: number | null,"golf_course_id"?: string | null,"group_id": string,"id"?: string,"note"?: string | null,"place_free"?: string | null,"starts_at": string,"status"?: Database["public"]['Enums']["meeting_status"],"title": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "attendee_count"?: number,"capacity"?: number,"created_at"?: string,"created_by"?: string,"fee_per_person"?: number | null,"golf_course_id"?: string | null,"group_id"?: string,"id"?: string,"note"?: string | null,"place_free"?: string | null,"starts_at"?: string,"status"?: Database["public"]['Enums']["meeting_status"],"title"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "group_meetings_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "group_meetings_golf_course_id_fkey"
+      columns: ["golf_course_id"]
+isOneToOne: false
+      referencedRelation: "golf_courses"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "group_meetings_group_id_fkey"
+      columns: ["group_id"]
+isOneToOne: false
+      referencedRelation: "groups"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"group_members": {
+                  Row: {
+                    "created_at": string,"display_name": string,"group_id": string,"join_message": string | null,"joined_at": string | null,"role": Database["public"]['Enums']["group_role"],"status": Database["public"]['Enums']["group_member_status"],"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"display_name": string,"group_id": string,"join_message"?: string | null,"joined_at"?: string | null,"role"?: Database["public"]['Enums']["group_role"],"status"?: Database["public"]['Enums']["group_member_status"],"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"display_name"?: string,"group_id"?: string,"join_message"?: string | null,"joined_at"?: string | null,"role"?: Database["public"]['Enums']["group_role"],"status"?: Database["public"]['Enums']["group_member_status"],"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "group_members_group_id_fkey"
+      columns: ["group_id"]
+isOneToOne: false
+      referencedRelation: "groups"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "group_members_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"group_posts": {
+                  Row: {
+                    "author_id": string,"body": string,"created_at": string,"group_id": string,"id": string,"is_notice": boolean,"is_pinned": boolean,"status": string,"title": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "author_id": string,"body": string,"created_at"?: string,"group_id": string,"id"?: string,"is_notice"?: boolean,"is_pinned"?: boolean,"status"?: string,"title": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "author_id"?: string,"body"?: string,"created_at"?: string,"group_id"?: string,"id"?: string,"is_notice"?: boolean,"is_pinned"?: boolean,"status"?: string,"title"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "group_posts_author_id_fkey"
+      columns: ["author_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "group_posts_group_id_fkey"
+      columns: ["group_id"]
+isOneToOne: false
+      referencedRelation: "groups"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"groups": {
+                  Row: {
+                    "capacity": number,"created_at": string,"description": string,"id": string,"join_policy": Database["public"]['Enums']["group_join_policy"],"member_count": number,"name": string,"open_chat_url": string | null,"owner_id": string,"region": Database["public"]['Enums']["region"],"status": Database["public"]['Enums']["group_status"],"status_reason": string | null,"type": Database["public"]['Enums']["group_type"],"updated_at": string,"version": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "capacity"?: number,"created_at"?: string,"description": string,"id"?: string,"join_policy"?: Database["public"]['Enums']["group_join_policy"],"member_count"?: number,"name": string,"open_chat_url"?: string | null,"owner_id": string,"region": Database["public"]['Enums']["region"],"status"?: Database["public"]['Enums']["group_status"],"status_reason"?: string | null,"type": Database["public"]['Enums']["group_type"],"updated_at"?: string,"version"?: number
+                  }
+                  Update: {
+                    "capacity"?: number,"created_at"?: string,"description"?: string,"id"?: string,"join_policy"?: Database["public"]['Enums']["group_join_policy"],"member_count"?: number,"name"?: string,"open_chat_url"?: string | null,"owner_id"?: string,"region"?: Database["public"]['Enums']["region"],"status"?: Database["public"]['Enums']["group_status"],"status_reason"?: string | null,"type"?: Database["public"]['Enums']["group_type"],"updated_at"?: string,"version"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "groups_owner_id_fkey"
+      columns: ["owner_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"idempotency_keys": {
                   Row: {
                     "action": string,"created_at": string,"key": string,"request_hash": string,"result": Json | null,"user_id": string
@@ -198,6 +334,32 @@ isOneToOne: false
                   }
                   Relationships: [
                     
+                  ]
+                },"meeting_attendees": {
+                  Row: {
+                    "created_at": string,"meeting_id": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"meeting_id": string,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"meeting_id"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "meeting_attendees_meeting_id_fkey"
+      columns: ["meeting_id"]
+isOneToOne: false
+      referencedRelation: "group_meetings"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "meeting_attendees_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
                   ]
                 },"membership_deals": {
                   Row: {
@@ -515,12 +677,58 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"attend_meeting":
+{ Args: { "p_meeting_id": string }; Returns: {
+              "attendee_count": number,
+"capacity": number,
+"created_at": string,
+"created_by": string,
+"fee_per_person": number | null,
+"golf_course_id": string | null,
+"group_id": string,
+"id": string,
+"note": string | null,
+"place_free": string | null,
+"starts_at": string,
+"status": Database["public"]['Enums']["meeting_status"],
+"title": string,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "group_meetings"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "before_user_created_hook":
 { Args: { "event": Json }; Returns: Json
                            },
 "bootstrap_owner":
 { Args: { "p_user_id": string }; Returns: undefined
                            },
+"cancel_attendance":
+{ Args: { "p_meeting_id": string }; Returns: {
+              "attendee_count": number,
+"capacity": number,
+"created_at": string,
+"created_by": string,
+"fee_per_person": number | null,
+"golf_course_id": string | null,
+"group_id": string,
+"id": string,
+"note": string | null,
+"place_free": string | null,
+"starts_at": string,
+"status": Database["public"]['Enums']["meeting_status"],
+"title": string,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "group_meetings"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "cancel_booking":
 { Args: { "p_expected_version": number,"p_reason"?: string,"p_request_id": string }; Returns: {
               "assignee_id": string | null,
@@ -572,6 +780,29 @@ isOneToOne: false
                           SetofOptions: {
         from: "*"
         to: "membership_deals"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"cancel_meeting":
+{ Args: { "p_meeting_id": string,"p_reason": string }; Returns: {
+              "attendee_count": number,
+"capacity": number,
+"created_at": string,
+"created_by": string,
+"fee_per_person": number | null,
+"golf_course_id": string | null,
+"group_id": string,
+"id": string,
+"note": string | null,
+"place_free": string | null,
+"starts_at": string,
+"status": Database["public"]['Enums']["meeting_status"],
+"title": string,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "group_meetings"
         isOneToOne: true
         isSetofReturn: false
       } },
@@ -654,6 +885,89 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"create_group":
+{ Args: { "p_capacity": number,"p_description": string,"p_idempotency_key": string,"p_join_policy": Database["public"]['Enums']["group_join_policy"],"p_name": string,"p_open_chat_url": string,"p_region": Database["public"]['Enums']["region"],"p_type": Database["public"]['Enums']["group_type"] }; Returns: {
+              "capacity": number,
+"created_at": string,
+"description": string,
+"id": string,
+"join_policy": Database["public"]['Enums']["group_join_policy"],
+"member_count": number,
+"name": string,
+"open_chat_url": string | null,
+"owner_id": string,
+"region": Database["public"]['Enums']["region"],
+"status": Database["public"]['Enums']["group_status"],
+"status_reason": string | null,
+"type": Database["public"]['Enums']["group_type"],
+"updated_at": string,
+"version": number
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "groups"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"create_meeting":
+{ Args: { "p_capacity": number,"p_fee_per_person": number,"p_golf_course_id": string,"p_group_id": string,"p_note": string,"p_place_free": string,"p_starts_at": string,"p_title": string }; Returns: {
+              "attendee_count": number,
+"capacity": number,
+"created_at": string,
+"created_by": string,
+"fee_per_person": number | null,
+"golf_course_id": string | null,
+"group_id": string,
+"id": string,
+"note": string | null,
+"place_free": string | null,
+"starts_at": string,
+"status": Database["public"]['Enums']["meeting_status"],
+"title": string,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "group_meetings"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"create_post":
+{ Args: { "p_body": string,"p_group_id": string,"p_is_notice": boolean,"p_title": string }; Returns: {
+              "author_id": string,
+"body": string,
+"created_at": string,
+"group_id": string,
+"id": string,
+"is_notice": boolean,
+"is_pinned": boolean,
+"status": string,
+"title": string,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "group_posts"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"decide_join":
+{ Args: { "p_approve": boolean,"p_group_id": string,"p_user_id": string }; Returns: {
+              "created_at": string,
+"display_name": string,
+"group_id": string,
+"join_message": string | null,
+"joined_at": string | null,
+"role": Database["public"]['Enums']["group_role"],
+"status": Database["public"]['Enums']["group_member_status"],
+"user_id": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "group_members"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "decline_proposal":
 { Args: { "p_expected_version": number,"p_proposal_id": string,"p_reason"?: string }; Returns: {
               "assignee_id": string | null,
@@ -683,8 +997,34 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"delete_post":
+{ Args: { "p_post_id": string }; Returns: undefined
+                           },
 "fail_notification":
 { Args: { "p_error": string,"p_id": number }; Returns: Database["public"]['Enums']["outbox_status"]
+                           },
+"join_group":
+{ Args: { "p_group_id": string,"p_message"?: string }; Returns: {
+              "created_at": string,
+"display_name": string,
+"group_id": string,
+"join_message": string | null,
+"joined_at": string | null,
+"role": Database["public"]['Enums']["group_role"],
+"status": Database["public"]['Enums']["group_member_status"],
+"user_id": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "group_members"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"kick_member":
+{ Args: { "p_group_id": string,"p_user_id": string }; Returns: undefined
+                           },
+"leave_group":
+{ Args: { "p_group_id": string }; Returns: undefined
                            },
 "list_assignable_staff":
 { Args: Record<PropertyKey, never>; Returns: {
@@ -695,6 +1035,33 @@ isOneToOne: false
 { Args: Record<PropertyKey, never>; Returns: {
               "created_at": string,"email": string,"id": string,"last_sign_in_at": string,"mfa_enabled": boolean,"password_change_required": boolean,"role": string
             }[]
+                           },
+"moderate_group":
+{ Args: { "p_group_id": string,"p_reason": string,"p_status": Database["public"]['Enums']["group_status"] }; Returns: {
+              "capacity": number,
+"created_at": string,
+"description": string,
+"id": string,
+"join_policy": Database["public"]['Enums']["group_join_policy"],
+"member_count": number,
+"name": string,
+"open_chat_url": string | null,
+"owner_id": string,
+"region": Database["public"]['Enums']["region"],
+"status": Database["public"]['Enums']["group_status"],
+"status_reason": string | null,
+"type": Database["public"]['Enums']["group_type"],
+"updated_at": string,
+"version": number
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "groups"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"moderate_post":
+{ Args: { "p_hidden": boolean,"p_post_id": string }; Returns: undefined
                            },
 "propose_booking":
 { Args: { "p_expected_version": number,"p_green_fee_per_person": number,"p_memo"?: string,"p_request_id": string,"p_tee_time": string,"p_valid_minutes"?: number }; Returns: {
@@ -748,6 +1115,29 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"report_content":
+{ Args: { "p_detail": string,"p_reason": Database["public"]['Enums']["report_reason"],"p_target_id": string,"p_target_type": Database["public"]['Enums']["report_target"] }; Returns: {
+              "created_at": string,
+"detail": string | null,
+"group_id": string | null,
+"id": number,
+"reason": Database["public"]['Enums']["report_reason"],
+"reporter_id": string,
+"resolved_at": string | null,
+"resolved_by": string | null,
+"status": Database["public"]['Enums']["report_status"],
+"target_id": string,
+"target_type": Database["public"]['Enums']["report_target"]
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "community_reports"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"resolve_report":
+{ Args: { "p_report_id": number,"p_status": Database["public"]['Enums']["report_status"] }; Returns: undefined
+                           },
 "retry_notification":
 { Args: { "p_id": number }; Returns: {
               "attempts": number,
@@ -794,6 +1184,12 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"set_member_role":
+{ Args: { "p_group_id": string,"p_role": Database["public"]['Enums']["group_role"],"p_user_id": string }; Returns: undefined
+                           },
+"set_post_pinned":
+{ Args: { "p_pinned": boolean,"p_post_id": string }; Returns: undefined
+                           },
 "set_staff_role":
 { Args: { "p_role": string,"p_user_id": string }; Returns: undefined
                            },
@@ -822,6 +1218,9 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"unban_member":
+{ Args: { "p_group_id": string,"p_user_id": string }; Returns: undefined
+                           },
 "update_contact_phone":
 { Args: { "p_contact_phone": string }; Returns: {
               "created_at": string,
@@ -861,6 +1260,30 @@ isOneToOne: false
                           SetofOptions: {
         from: "*"
         to: "membership_deals"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"update_group":
+{ Args: { "p_capacity": number,"p_description": string,"p_expected_version": number,"p_group_id": string,"p_join_policy": Database["public"]['Enums']["group_join_policy"],"p_name": string,"p_open_chat_url": string,"p_region": Database["public"]['Enums']["region"] }; Returns: {
+              "capacity": number,
+"created_at": string,
+"description": string,
+"id": string,
+"join_policy": Database["public"]['Enums']["group_join_policy"],
+"member_count": number,
+"name": string,
+"open_chat_url": string | null,
+"owner_id": string,
+"region": Database["public"]['Enums']["region"],
+"status": Database["public"]['Enums']["group_status"],
+"status_reason": string | null,
+"type": Database["public"]['Enums']["group_type"],
+"updated_at": string,
+"version": number
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "groups"
         isOneToOne: true
         isSetofReturn: false
       } },
@@ -935,7 +1358,7 @@ isOneToOne: false
       } }
           }
           Enums: {
-            "booking_status": "requested"|"in_review"|"proposed"|"confirmed"|"rejected"|"cancelled","deal_side": "buy"|"sell","deal_status": "inquiry"|"negotiating"|"contract_scheduled"|"contracted"|"transferring"|"completed"|"cancelled","listing_status": "listed"|"reserved"|"sold"|"hidden","notify_channel": "alimtalk"|"sms"|"slack"|"email","outbox_status": "pending"|"sending"|"sent"|"failed"|"dead","proposal_status": "offered"|"accepted"|"declined"|"expired"|"withdrawn","region": "seoul_gyeonggi"|"gangwon"|"chungcheong"|"jeolla"|"gyeongsang"|"jeju","time_pref": "part_1"|"part_2"|"range"
+            "booking_status": "requested"|"in_review"|"proposed"|"confirmed"|"rejected"|"cancelled","deal_side": "buy"|"sell","deal_status": "inquiry"|"negotiating"|"contract_scheduled"|"contracted"|"transferring"|"completed"|"cancelled","group_join_policy": "open"|"approval","group_member_status": "pending"|"active"|"banned","group_role": "owner"|"manager"|"member","group_status": "active"|"review"|"hidden"|"closed","group_type": "round"|"screen"|"practice"|"join"|"level"|"membership","listing_status": "listed"|"reserved"|"sold"|"hidden","meeting_status": "scheduled"|"cancelled","notify_channel": "alimtalk"|"sms"|"slack"|"email","outbox_status": "pending"|"sending"|"sent"|"failed"|"dead","proposal_status": "offered"|"accepted"|"declined"|"expired"|"withdrawn","region": "seoul_gyeonggi"|"gangwon"|"chungcheong"|"jeolla"|"gyeongsang"|"jeju","report_reason": "not_golf"|"spam"|"abuse"|"illegal"|"other","report_status": "open"|"resolved"|"dismissed","report_target": "group"|"post"|"user","time_pref": "part_1"|"part_2"|"range"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -1051,7 +1474,7 @@ export type CompositeTypes<
 export const Constants = {
   "public": {
           Enums: {
-            "booking_status": ["requested", "in_review", "proposed", "confirmed", "rejected", "cancelled"],"deal_side": ["buy", "sell"],"deal_status": ["inquiry", "negotiating", "contract_scheduled", "contracted", "transferring", "completed", "cancelled"],"listing_status": ["listed", "reserved", "sold", "hidden"],"notify_channel": ["alimtalk", "sms", "slack", "email"],"outbox_status": ["pending", "sending", "sent", "failed", "dead"],"proposal_status": ["offered", "accepted", "declined", "expired", "withdrawn"],"region": ["seoul_gyeonggi", "gangwon", "chungcheong", "jeolla", "gyeongsang", "jeju"],"time_pref": ["part_1", "part_2", "range"]
+            "booking_status": ["requested", "in_review", "proposed", "confirmed", "rejected", "cancelled"],"deal_side": ["buy", "sell"],"deal_status": ["inquiry", "negotiating", "contract_scheduled", "contracted", "transferring", "completed", "cancelled"],"group_join_policy": ["open", "approval"],"group_member_status": ["pending", "active", "banned"],"group_role": ["owner", "manager", "member"],"group_status": ["active", "review", "hidden", "closed"],"group_type": ["round", "screen", "practice", "join", "level", "membership"],"listing_status": ["listed", "reserved", "sold", "hidden"],"meeting_status": ["scheduled", "cancelled"],"notify_channel": ["alimtalk", "sms", "slack", "email"],"outbox_status": ["pending", "sending", "sent", "failed", "dead"],"proposal_status": ["offered", "accepted", "declined", "expired", "withdrawn"],"region": ["seoul_gyeonggi", "gangwon", "chungcheong", "jeolla", "gyeongsang", "jeju"],"report_reason": ["not_golf", "spam", "abuse", "illegal", "other"],"report_status": ["open", "resolved", "dismissed"],"report_target": ["group", "post", "user"],"time_pref": ["part_1", "part_2", "range"]
           }
         }
 } as const

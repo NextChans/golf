@@ -21,7 +21,7 @@
 | M4 어드민 부킹·CRM | 완료·머지(NextChans/golf#6) | pgTAP 177, Vitest 120, Playwright 23. D-49~52 |
 | M5 회원권 | 완료·머지(NextChans/golf#7) | pgTAP 194, Vitest 158, Playwright 36. D-53~62 |
 | M6 알림 outbox | 완료·머지(NextChans/golf#8) | D-63~66 |
-| M7 골프 커뮤니티(후보) | 기획 전 | 요구사항 확정 필요(docs/research/somoim-analysis.md) |
+| M7 골프 모임 커뮤니티 | **완료, 오너 승인 대기** | pgTAP 260, Vitest 201, Playwright 42. D-67~73 |
 
 ## M1 결과 요약
 
@@ -35,7 +35,7 @@
 
 ## 운영 반영 상태
 
-- 운영 DB: 001~012 적용 완료(오너, 2026-10-20). 013(M6)도 적용 완료, 운영 발송 켜짐(2026-10-20, 함수 배포·비밀값·Vault, 고객 채널은 console). 절차·장애 대응은 `deploy/README.md` 6장. 010(M4)도 적용 완료(`deploy/2026-10-20-03-admin-ops.sql`, 머지 전 선반영). 절차·상태는 `deploy/README.md` 1-1
+- 운영 DB: 001~014 적용 완료(오너, 2026-10-20). 013(M6)도 적용 완료, 운영 발송 켜짐(2026-10-20, 함수 배포·비밀값·Vault, 고객 채널은 console). 절차·장애 대응은 `deploy/README.md` 6장. 010(M4)도 적용 완료(`deploy/2026-10-20-03-admin-ops.sql`, 머지 전 선반영). 절차·상태는 `deploy/README.md` 1-1
 - 운영 데이터 정리 필요: `golf_courses`의 README 예시 행 "실제 골프장명" — M4 배포 후 골프장 화면에서 수정하거나 운영 중지
 - 카카오 앱·Supabase Kakao provider 설정: 오너 완료(2026-10-20)
 
