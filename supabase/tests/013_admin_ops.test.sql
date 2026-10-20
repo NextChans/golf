@@ -36,7 +36,8 @@ select is((public.upsert_golf_course(:'gid', '새 골프장', 'jeju', '제주시
   110000::bigint, '골프장 수정');
 
 -- 통화 메모
-select is((public.add_activity_note(:'cust', 'booking', :'bid', '  고객 통화: 2부 선호  ')).body, '고객 통화: 2부 선호', '부킹 메모 작성');
+select n.id as nid, n.body as nbody from public.add_activity_note(:'cust', 'booking', :'bid', '  고객 통화: 2부 선호  ') n \gset
+select is(:'nbody'::text, '고객 통화: 2부 선호'::text, '부킹 메모 작성');
 select throws_ok(format($q$select public.add_activity_note(%L, 'booking', %L, '남의 건')$q$, :'cust', :'obid'),
   'GB422', 'invalid_input', '다른 고객의 부킹에 메모 불가');
 select throws_ok(format($q$select public.add_activity_note(%L, 'customer', null, '   ')$q$, :'cust'),
@@ -47,7 +48,7 @@ select ok(not exists(select 1 from public.list_assignable_staff() s where s.id =
 
 select tests.clear_authentication();
 select is((select count(*)::int from public.audit_logs
-            where (entity_type = 'golf_course' and entity_id = :'gid') or entity_type = 'activity_note'), 3,
+            where (entity_type = 'golf_course' and entity_id = :'gid') or (entity_type = 'activity_note' and entity_id = :'nid'::text)), 3,
   '골프장 생성·수정, 메모 작성이 감사 로그에 기록');
 
 select * from finish();

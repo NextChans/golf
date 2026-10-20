@@ -18,7 +18,7 @@
 | M3 고객 부킹 | 완료·머지(NextChans/golf#3) | pgTAP 150, Vitest 78, Playwright 12 |
 | 디자인 개선(apple.com 스타일 + apple-design 스킬) | 완료·머지 | D-43 |
 | 연락처 입력(D-48) | 완료·머지(NextChans/golf#5) | |
-| M4 어드민 부킹·CRM | **진행 중** | 인박스·상세·골프장·CRM, D-49~52 |
+| M4 어드민 부킹·CRM | **완료, 오너 승인 대기** | pgTAP 177, Vitest 120, Playwright 23. D-49~52 |
 | M5 회원권 | 대기 | |
 | M6 알림 outbox | 대기 | 무료 단계: console + Slack 웹훅 |
 | M7 골프 커뮤니티(후보) | 기획 전 | 요구사항 확정 필요(docs/research/somoim-analysis.md) |
@@ -39,7 +39,7 @@
 - 운영 데이터 정리 필요: `golf_courses`의 README 예시 행 "실제 골프장명" — M4 배포 후 골프장 화면에서 수정하거나 운영 중지
 - 카카오 앱·Supabase Kakao provider 설정: 오너 완료(2026-10-20)
 
-## M4 결과 요약(진행 중)
+## M4 결과 요약
 
 - DB: `20261020000010_admin_ops.sql` — `upsert_golf_course`, `add_activity_note`, `list_assignable_staff`, `profiles_phone_idx`. pgTAP `013_admin_ops`
 - 화면: `/admin`(신규·내 담당·SLA 카운트), `/admin/bookings`(인박스 탭, D-51), `/admin/bookings/[id]`(배정·제안·불가·취소·제안 이력·타임라인), `/admin/courses`, `/admin/customers`
