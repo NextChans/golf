@@ -14,3 +14,4 @@ test-results/
 e2e/.users.json
 next-env.d.ts
 *.tsbuildinfo
+*.tmp.mts
