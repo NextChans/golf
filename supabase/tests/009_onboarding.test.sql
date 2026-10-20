@@ -1,6 +1,6 @@
 -- M2: 공개 가입 차단 훅, 온보딩(휴대폰 인증 + 약관), 운영자 판별 강화
 begin;
-select plan(16);
+select plan(21);
 
 -- 가입 훅: 카카오만 허용
 select is(public.before_user_created_hook('{"user":{"app_metadata":{"provider":"kakao"}}}'), '{}'::jsonb, '카카오 가입 허용');
@@ -11,6 +11,9 @@ select is((public.before_user_created_hook('{}') -> 'error' ->> 'http_code')::in
 select tests.create_kakao_user('k1@test.local', '821000000001') as k1 \gset
 select tests.create_kakao_user('k2@test.local') as k2 \gset
 select tests.create_email_user('e1@test.local') as e1 \gset
+
+-- 휴대폰 인증 필수 모드(SMS 대행사 계약 후, D-42)
+update public.app_settings set value = 'true' where key = 'phone_verification_required';
 
 -- 휴대폰 미인증
 select tests.authenticate_as(:'k2', 'aal1');
@@ -33,6 +36,23 @@ select is((public.complete_onboarding('홍길동2', array['service','privacy','m
 select tests.clear_authentication();
 select is((select raw_app_meta_data ->> 'onboarded' from auth.users where id = :'k1'), 'true', 'app_metadata.onboarded 반영');
 select is((select count(*) from public.audit_logs where entity_type = 'profile' and entity_id = :'k1')::int, 2, '온보딩 감사 로그');
+
+-- 휴대폰 인증 생략 모드(현재 운영 기본값, D-42): 번호 없이 온보딩
+update public.app_settings set value = 'false' where key = 'phone_verification_required';
+select tests.authenticate_as(:'k2', 'aal1');
+select lives_ok($q$select public.complete_onboarding('김철수', array['service','privacy'])$q$, '휴대폰 인증 생략 모드에서는 번호 없이 온보딩');
+select tests.clear_authentication();
+select is((select phone from public.profiles where id = :'k2'), null, '번호 없이 프로필 생성');
+select isnt((select onboarded_at from public.profiles where id = :'k2'), null, '온보딩 완료');
+
+-- 설정 변경은 owner만(감사 로그)
+select tests.create_user('owner9@test.local', 'owner') as owner9 \gset
+select tests.authenticate_as(:'k1', 'aal1');
+select throws_ok($q$select public.set_app_setting('phone_verification_required', 'true')$q$, 'GB403', 'forbidden', '고객은 설정 변경 불가');
+select tests.authenticate_as(:'owner9');
+select public.set_app_setting('phone_verification_required', 'true');
+select tests.clear_authentication();
+select is((select count(*) from public.audit_logs where entity_type = 'app_setting' and action = 'update')::int, 1, '설정 변경 감사 로그');
 
 -- 카카오 계정에 role=admin이 들어가도(DB 직접 조작 가정) 운영자로 인정하지 않는다
 update auth.users set raw_app_meta_data = raw_app_meta_data || '{"role":"admin"}' where id = :'k2';

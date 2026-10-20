@@ -31,6 +31,20 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"app_settings": {
+                  Row: {
+                    "description": string | null,"key": string,"updated_at": string,"value": NonNullable<Json>
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "description"?: string | null,"key": string,"updated_at"?: string,"value": NonNullable<Json>
+                  }
+                  Update: {
+                    "description"?: string | null,"key"?: string,"updated_at"?: string,"value"?: NonNullable<Json>
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"audit_logs": {
                   Row: {
                     "action": string,"actor_id": string | null,"actor_role": string,"after": Json | null,"before": Json | null,"entity_id": string,"entity_type": string,"id": number,"ip": unknown,"occurred_at": string,"user_agent": string | null
@@ -677,6 +691,9 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"set_app_setting":
+{ Args: { "p_key": string,"p_value": Json }; Returns: undefined
+                           },
 "set_listing_visibility":
 { Args: { "p_listing_id": string,"p_visible": boolean }; Returns: {
               "asking_price": number,
