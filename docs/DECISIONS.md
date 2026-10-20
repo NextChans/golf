@@ -71,3 +71,4 @@ PRD와 충돌하면 이 문서가 우선한다. 새 결정은 번호를 이어�
 | D-59 | 매물 목록 필터 | 가격 필터는 만원 단위(`?min=&max=`), 상담 희망가 입력은 원(쉼표 허용). 잘못된 필터 값은 무시, 최소>최대면 교환. 목록 최대 60건 | 기본값(오너 권장안) | `lib/domain/membership/schema.ts` |
 | D-60 | 고객 거래 취소 | 고객은 inquiry·negotiating에서만 직접 취소, 사유는 선택. 이후 단계는 담당자 문의(운영자 취소는 사유 필수) | 기본값 | `cancel_deal` |
 | D-61 | 거래 상태 라벨 | DB `app.deal_status_label`을 화면 라벨(협의 중·계약 예정·계약 완료·명의 이전 중·취소됨 등)로 통일. Vitest가 두 정의를 대조 | 확정(오너 권장안) | `20261020000012_deal_status_label.sql` |
+| D-62 | 같은 화면 갱신과 Suspense | Next 15.5.28(React 19.2.0-canary-0bdb9206) 운영 빌드에서 이미 보이는 Suspense 경계(loading.tsx 또는 `<Suspense>`) 안을 다시 그리는 전환(router.refresh, revalidatePath가 실린 액션 응답, 같은 페이지 검색 파라미터 이동)이 커밋되지 않고 멈춘다(dev 서버에선 재현 안 됨). 제자리 갱신이 있는 운영자 회원권 목록은 loading.tsx·Suspense를 두지 않고 `memberships/page.tsx`로 옮긴다(로딩 표시는 버튼·폼 pending). 회원권 액션은 `revalidatePath`를 다시 부른다(클라이언트 라우터·prefetch 캐시를 비워야 저장 후 이동한 목록이 최신). 클라이언트 router.refresh는 쓰지 않는다 | 확정(조사 결과) | `memberships/page.tsx`, `memberships/actions.ts` |

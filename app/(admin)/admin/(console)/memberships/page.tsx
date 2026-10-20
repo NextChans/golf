@@ -8,9 +8,13 @@ import { formatWon } from "@/lib/domain/booking/money";
 import { formatKstDate } from "@/lib/format/kst";
 import { LISTING_STATUS_ADMIN_LABEL, type ListingStatus } from "@/lib/domain/membership/admin-schema";
 import { cn } from "@/lib/utils";
-import { VisibilityButton } from "../visibility-button";
+import { VisibilityButton } from "./visibility-button";
 
 export const metadata: Metadata = { title: "매물·시세 관리", robots: { index: false } };
+
+// 이 화면에는 loading.tsx·<Suspense>를 두지 않는다(D-62).
+// 이미 보이는 Suspense 경계 안을 같은 화면에서 다시 그리는 전환(공개 전환 후 갱신, 탭 이동, 저장 후 목록 이동)이
+// Next 15.5.28(React 19.2 canary) 운영 빌드에서 커밋되지 않고 멈춘다. 로딩 표시는 버튼·폼의 pending 상태가 맡는다.
 
 const TABS = ["listings", "products"] as const;
 type Tab = (typeof TABS)[number];
@@ -125,7 +129,7 @@ function ListingList({ rows }: { rows: ListingRow[] }) {
         const title = `${l.product?.golf_course?.name ?? "골프장"} ${l.product?.kind ?? ""}`.trim();
         return (
           <li key={l.id} className="flex items-center gap-3 pr-4 hover:bg-section/60">
-            <Link prefetch={false} href={`/admin/memberships/listings/${l.id}`} className="pressable flex min-w-0 flex-1 items-center justify-between gap-3 py-4 pl-5">
+            <Link href={`/admin/memberships/listings/${l.id}`} className="pressable flex min-w-0 flex-1 items-center justify-between gap-3 py-4 pl-5">
               <div className="min-w-0 space-y-1">
                 <div className="flex items-center gap-2">
                   <p className="truncate text-body font-semibold">{title}</p>
@@ -153,7 +157,7 @@ function ProductList({ rows }: { rows: ProductRow[] }) {
         const q = p.quotes[0];
         return (
           <li key={p.id}>
-            <Link prefetch={false} href={`/admin/memberships/products/${p.id}`} className="pressable flex items-center justify-between gap-3 px-5 py-4 hover:bg-section/60">
+            <Link href={`/admin/memberships/products/${p.id}`} className="pressable flex items-center justify-between gap-3 px-5 py-4 hover:bg-section/60">
               <div className="min-w-0 space-y-1">
                 <div className="flex items-center gap-2">
                   <p className="truncate text-body font-semibold">{p.golf_course?.name ?? "골프장"} {p.kind}</p>

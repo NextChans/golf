@@ -73,9 +73,11 @@ test.describe("회원권 공개 화면", () => {
   });
 
   test("시드 매물은 공개, 비공개·없는 매물은 404", async ({ page }) => {
-    // 시드 001(호가 3억 1,800만 원, listed)·003(hidden). 다른 테스트 매물이 쌓여도 보이도록 호가로 거른다
-    await page.goto("/memberships?min=17500&max=31800");
+    // 시드 001(호가 3억 1,800만 원, listed)·003(호가 1억 7,500만 원, hidden).
+    // 다른 테스트가 남긴 매물이 목록 상한(60건)을 채워도 영향받지 않게 각 시드의 호가로만 거른다
+    await page.goto("/memberships?min=31800&max=31800");
     await expect(page.locator('a[href="/memberships/00000000-0000-4000-c000-000000000001"]')).toBeVisible();
+    await page.goto("/memberships?min=17500&max=17500");
     await expect(page.locator('a[href="/memberships/00000000-0000-4000-c000-000000000003"]')).toHaveCount(0);
     const seeded = await page.goto("/memberships/00000000-0000-4000-c000-000000000001");
     expect(seeded?.status()).toBe(200);
