@@ -18,8 +18,8 @@
 | M3 고객 부킹 | 완료·머지(NextChans/golf#3) | pgTAP 150, Vitest 78, Playwright 12 |
 | 디자인 개선(apple.com 스타일 + apple-design 스킬) | 완료·머지 | D-43 |
 | 연락처 입력(D-48) | 완료·머지(NextChans/golf#5) | |
-| M4 어드민 부킹·CRM | **완료, 오너 승인 대기** | pgTAP 177, Vitest 120, Playwright 23. D-49~52 |
-| M5 회원권 | 대기 | |
+| M4 어드민 부킹·CRM | 완료·머지(NextChans/golf#6) | pgTAP 177, Vitest 120, Playwright 23. D-49~52 |
+| M5 회원권 | **완료, 오너 승인 대기** | pgTAP 194, Vitest 158, Playwright 36. D-53~62 |
 | M6 알림 outbox | 대기 | 무료 단계: console + Slack 웹훅 |
 | M7 골프 커뮤니티(후보) | 기획 전 | 요구사항 확정 필요(docs/research/somoim-analysis.md) |
 
@@ -35,7 +35,7 @@
 
 ## 운영 반영 상태
 
-- 운영 DB: 001~010 적용 완료(오너, 2026-10-20). 010(M4)도 적용 완료(`deploy/2026-10-20-03-admin-ops.sql`, 머지 전 선반영). 절차·상태는 `deploy/README.md` 1-1
+- 운영 DB: 001~012 적용 완료(오너, 2026-10-20). 010(M4)도 적용 완료(`deploy/2026-10-20-03-admin-ops.sql`, 머지 전 선반영). 절차·상태는 `deploy/README.md` 1-1
 - 운영 데이터 정리 필요: `golf_courses`의 README 예시 행 "실제 골프장명" — M4 배포 후 골프장 화면에서 수정하거나 운영 중지
 - 카카오 앱·Supabase Kakao provider 설정: 오너 완료(2026-10-20)
 
@@ -104,3 +104,5 @@
 - outbox 발송은 at-least-once. 발송 후 상태 기록 전에 장애가 나면 재발송 가능(M6에서 lease + dedupe로 완화)
 - IP/UA는 위조 가능한 참고값(D-09)
 - 운영자 역할 회수는 최대 JWT 만료(15분)까지 지연(M2에서 세션 강제 종료 추가)
+- D-62: loading.tsx(또는 `<Suspense>`) 아래에서 같은 화면을 다시 그리는 전환이 운영 빌드에서 멈춘다. 운영자 회원권 목록은 경계를 없애 해결(admin-memberships 20/20). 운영자 골프장 목록·고객 bookings/deals/memberships 목록도 loading.tsx가 있어 같은 위험이 있다(골프장 목록에서 router.refresh 재현). 지금은 그 화면들에서 제자리 갱신을 하지 않아 E2E는 통과한다. 화면에 제자리 갱신을 넣거나 Next를 올릴 때 다시 확인한다
+- E2E 데이터 누적: admin-memberships가 실행마다 호가 1.9억 공개 매물을 남긴다. 로컬 DB에 60건 넘게 쌓이면 membership.spec "시드 매물은 공개"(1.75~3.18억 필터, 최대 60건)가 시드 매물을 못 찾는다. `pnpm db:reset` 하거나 테스트 필터를 좁혀야 한다

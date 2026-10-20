@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireStaff } from "@/lib/auth/guards";
 import { toAppError } from "@/lib/domain/errors";
@@ -41,6 +40,7 @@ export async function saveCourse(_prev: SaveCourseState, formData: FormData): Pr
     p_is_active: v.isActive,
   });
   if (error || !data) return { error: toAppError(error).message };
-  revalidatePath("/admin/courses");
+  // revalidatePath를 부르지 않는다: 클라이언트의 router.replace(목록 이동)와 경합한다(createBooking 주석 참고).
+  // 목록은 쿠키를 읽는 동적 페이지라 이동 시 새로 렌더된다. 고객 부킹 폼의 골프장 목록도 동적이다.
   return { savedId: data.id };
 }

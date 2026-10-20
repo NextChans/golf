@@ -490,6 +490,31 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"assign_deal":
+{ Args: { "p_assignee_id": string,"p_deal_id": string,"p_expected_version": number }; Returns: {
+              "agreed_price": number | null,
+"assignee_id": string | null,
+"close_reason": string | null,
+"contact_window": string | null,
+"contract_date": string | null,
+"created_at": string,
+"desired_price": number | null,
+"id": string,
+"listing_id": string | null,
+"note": string | null,
+"product_id": string | null,
+"side": Database["public"]['Enums']["deal_side"],
+"status": Database["public"]['Enums']["deal_status"],
+"updated_at": string,
+"user_id": string,
+"version": number
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "membership_deals"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "before_user_created_hook":
 { Args: { "event": Json }; Returns: Json
                            },
@@ -819,6 +844,55 @@ isOneToOne: false
                           SetofOptions: {
         from: "*"
         to: "golf_courses"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"upsert_listing":
+{ Args: { "p_asking_price": number,"p_description": string,"p_id": string,"p_product_id": string }; Returns: {
+              "asking_price": number,
+"created_at": string,
+"created_by": string | null,
+"description": string | null,
+"id": string,
+"product_id": string,
+"status": Database["public"]['Enums']["listing_status"],
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "membership_listings"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"upsert_membership_product":
+{ Args: { "p_golf_course_id": string,"p_id": string,"p_is_active": boolean,"p_kind": string,"p_name": string }; Returns: {
+              "created_at": string,
+"golf_course_id": string,
+"id": string,
+"is_active": boolean,
+"kind": string,
+"name": string,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "membership_products"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"upsert_quote":
+{ Args: { "p_buy_price": number,"p_product_id": string,"p_quoted_on": string,"p_sell_price": number }; Returns: {
+              "buy_price": number | null,
+"created_at": string,
+"created_by": string | null,
+"id": number,
+"product_id": string,
+"quoted_on": string,
+"sell_price": number | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "membership_quotes"
         isOneToOne: true
         isSetofReturn: false
       } }

@@ -65,6 +65,18 @@ describe("decideRoute: 고객 경로", () => {
     expect(decideRoute("/login", customer({ onboarded: false }))).toEqual({ type: "redirect", to: "/onboarding" });
     expect(decideRoute("/login", admin())).toEqual({ type: "redirect", to: "/admin" });
   });
+  it("회원권: 목록·상세는 공개, 매도 상담·내 거래는 로그인 필요", () => {
+    expect(decideRoute("/memberships", null)).toEqual({ type: "next" });
+    expect(decideRoute("/memberships/00000000-0000-4000-c000-000000000001", null)).toEqual({ type: "next" });
+    expect(decideRoute("/memberships/sell", null)).toEqual({ type: "redirect", to: "/login?next=%2Fmemberships%2Fsell" });
+    expect(decideRoute("/memberships/sell", customer())).toEqual({ type: "next" });
+    expect(decideRoute("/memberships/sell", customer({ onboarded: false }))).toEqual({
+      type: "redirect", to: "/onboarding?next=%2Fmemberships%2Fsell",
+    });
+    expect(decideRoute("/memberships/sell", admin())).toEqual({ type: "redirect", to: "/admin" });
+    expect(decideRoute("/memberships/seller", null)).toEqual({ type: "next" });
+    expect(decideRoute("/deals/1", null)).toEqual({ type: "redirect", to: "/login?next=%2Fdeals%2F1" });
+  });
   it("공개 경로는 통과", () => {
     expect(decideRoute("/", null)).toEqual({ type: "next" });
     expect(decideRoute("/auth/callback", null)).toEqual({ type: "next" });

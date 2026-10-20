@@ -62,3 +62,13 @@ PRD와 충돌하면 이 문서가 우선한다. 새 결정은 번호를 이어�
 | D-50 | 운영 반영 순서 | 추가만 하는 DB 변경(함수·컬럼·인덱스)은 DB 먼저 → 앱 배포. 기존 동작을 막는 변경(트리거·제약 강화)은 그 에러 코드를 처리하는 앱을 먼저 배포 → DB. PR 설명에 구분을 적는다(009 사고 재발 방지) | 확정 | `deploy/README.md` 1-1 |
 | D-51 | 운영자 인박스 | 탭: 신규(requested)·내 담당·SLA 초과(requested이고 응답 기한 경과 — cron 표시 전에도 보이게 sla_due_at으로 판정)·진행 중·전체. 대기열은 오래된 순, 최대 100건. 목록 전화번호 마스킹, 상세는 전체 번호(전화 확인용) | 기본값 | `app/(admin)/admin/(console)/bookings` |
 | D-52 | 제안 입력 | 티타임은 datetime-local을 KST로 해석해 `+09:00` ISO로 전송(브라우저 시간대 무관). 그린피 기본값은 골프장 주중/주말 단가(라운딩 날짜의 KST 요일). 제안은 담당자·owner만(DB와 동일), 다른 담당 건은 안내만 표시 | 기본값 | `lib/domain/booking/admin.ts` |
+| D-53 | 매물 등록·수정 | 새 매물은 hidden으로 만들고 공개는 `set_listing_visibility`로만. 상담 중(reserved)에는 호가·상품 변경 금지(설명만), 판매완료는 수정 불가 | 기본값 | `upsert_listing` |
+| D-54 | 시세 | 상품·일자당 1건, 같은 날은 덮어쓰기(감사 로그에 이전 값). 미래 날짜 금지. 차트(F-08)는 P1 | 기본값 | `upsert_quote` |
+| D-55 | 거래 배정 | 모든 운영자가 배정 가능(D-15), 상태 변경 없음(version+1, 감사 로그, 알림 없음). 협의 시작 시 담당자가 없으면 시작한 운영자 | 기본값 | `assign_deal`, `start_deal` |
+| D-56 | 마스터 데이터 알림 | 상품·매물·시세 저장은 알림(outbox)을 만들지 않는다(고객 상태 변경이 아님, 감사 로그만). 매물 상태 전이 알림은 거래 함수가 담당 | 확정(오너 2026-10-20) | `upsert_*` |
+| D-57 | 운영 목록 상한 | 인박스·매물·상품 최대 100~200건, 시세 30건, 페이지네이션 없음. 물량이 늘면 커서 페이지네이션 추가 | 확정(오너, 후속) | 운영자 화면 |
+| D-58 | 매물별 상담 목록 | 매물 상세의 상담 목록에 고객 이름 + 마스킹 번호 표시(규칙 9) | 확정(오너) | `memberships/listings/[id]` |
+| D-59 | 매물 목록 필터 | 가격 필터는 만원 단위(`?min=&max=`), 상담 희망가 입력은 원(쉼표 허용). 잘못된 필터 값은 무시, 최소>최대면 교환. 목록 최대 60건 | 기본값(오너 권장안) | `lib/domain/membership/schema.ts` |
+| D-60 | 고객 거래 취소 | 고객은 inquiry·negotiating에서만 직접 취소, 사유는 선택. 이후 단계는 담당자 문의(운영자 취소는 사유 필수) | 기본값 | `cancel_deal` |
+| D-61 | 거래 상태 라벨 | DB `app.deal_status_label`을 화면 라벨(협의 중·계약 예정·계약 완료·명의 이전 중·취소됨 등)로 통일. Vitest가 두 정의를 대조 | 확정(오너 권장안) | `20261020000012_deal_status_label.sql` |
+| D-62 | 같은 화면 갱신과 Suspense | Next 15.5.28(React 19.2.0-canary-0bdb9206) 운영 빌드에서 이미 보이는 Suspense 경계(loading.tsx 또는 `<Suspense>`) 안을 다시 그리는 전환(router.refresh, revalidatePath가 실린 액션 응답, 같은 페이지 검색 파라미터 이동)이 커밋되지 않고 멈춘다(dev 서버에선 재현 안 됨). 제자리 갱신이 있는 운영자 회원권 목록은 loading.tsx·Suspense를 두지 않고 `memberships/page.tsx`로 옮긴다(로딩 표시는 버튼·폼 pending). 회원권 액션은 `revalidatePath`를 다시 부른다(클라이언트 라우터·prefetch 캐시를 비워야 저장 후 이동한 목록이 최신). 클라이언트 router.refresh는 쓰지 않는다 | 확정(조사 결과) | `memberships/page.tsx`, `memberships/actions.ts` |
