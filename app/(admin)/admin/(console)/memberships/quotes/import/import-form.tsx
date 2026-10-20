@@ -44,12 +44,19 @@ export function QuoteImportForm({ products, today }: { products: QuoteProductRef
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
-      const value = typeof reader.result === "string" ? reader.result : "";
+      const bytes = reader.result instanceof ArrayBuffer ? reader.result : new ArrayBuffer(0);
+      // Excel 기본 "CSV(쉼표로 분리)"는 CP949로 저장된다: UTF-8로 읽다 깨지면 CP949(euc-kr)로 다시 읽는다
+      let value: string;
+      try {
+        value = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+      } catch {
+        value = new TextDecoder("euc-kr").decode(bytes);
+      }
       setText(value);
       runPreview(value);
     };
     reader.onerror = () => setError("파일을 읽지 못했습니다. 다시 선택해 주세요.");
-    reader.readAsText(file, "utf-8");
+    reader.readAsArrayBuffer(file);
   };
 
   const submit = () => {

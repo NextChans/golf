@@ -1,6 +1,6 @@
 -- 체결가 자동 기록, 시세 일괄 입력, 개인정보 열람 기록
 begin;
-select plan(13);
+select plan(15);
 
 select tests.create_user('buyer@test.local') as buyer \gset
 select tests.create_user('admin@test.local', 'admin') as admin \gset
@@ -29,6 +29,8 @@ select is((select traded_on from public.membership_trades where deal_id = :'d'),
 select tests.authenticate_anon();
 select ok(exists(select price from public.membership_trades where product_id = :'product' and price = 91500000), '비로그인도 체결가 조회');
 select throws_ok('select deal_id from public.membership_trades limit 1', '42501', null, '거래 id 컬럼은 비공개');
+select lives_ok('select source from public.membership_quotes limit 1', '비로그인도 시세 출처 조회(화면 표시)');
+select throws_ok('select created_by from public.membership_quotes limit 1', '42501', null, '시세 등록자는 비공개');
 select throws_ok(format($q$insert into public.membership_trades (deal_id, product_id, side, price, traded_on) values (%L, %L, 'buy', 1, current_date)$q$, :'d', :'product'),
   '42501', null, '체결가 직접 입력 불가');
 
