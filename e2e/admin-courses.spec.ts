@@ -1,36 +1,14 @@
 import { randomBytes } from "node:crypto";
-import { expect, test, type Page } from "@playwright/test";
-import { generate } from "otplib";
-import { adminClient } from "./fixtures";
+import { expect, test } from "@playwright/test";
+import { createStaff, signInStaffWithNewTotp } from "./staff";
 
-// 이 파일 전용 운영자(admin) 계정. 다른 spec(auth.spec의 owner 흐름)과 상태를 공유하지 않는다.
 const stamp = `${Date.now()}-${randomBytes(3).toString("hex")}`;
-const staff = { email: `e2e-courses-${stamp}@test.local`, password: "E2e-courses-pass-1234" };
-
-test.beforeAll(async () => {
-  // 테스트 픽스처: 역할을 Admin API로 직접 부여(운영에서는 set_staff_role로만)
-  const { error } = await adminClient().auth.admin.createUser({
-    email: staff.email, password: staff.password, email_confirm: true, app_metadata: { role: "admin" },
-  });
-  if (error) throw error;
-});
-
-/** 로그인 → 최초 OTP 등록까지 마치고 운영자 홈에 도착한다 */
-async function signInWithNewTotp(page: Page) {
-  await page.goto("/admin/login");
-  await page.getByLabel("이메일").fill(staff.email);
-  await page.getByLabel("비밀번호", { exact: true }).fill(staff.password);
-  await page.getByRole("button", { name: "로그인" }).click();
-  await expect(page).toHaveURL(/\/admin\/mfa$/);
-  const secret = (await page.getByTestId("totp-secret").textContent())!.trim();
-  await page.getByLabel("6자리 코드").fill(await generate({ secret }));
-  await page.getByRole("button", { name: "확인" }).click();
-  await expect(page).toHaveURL(/\/admin$/);
-}
 
 test("운영자는 골프장을 추가·수정하고 중복 이름은 거부된다", async ({ page }) => {
   const name = `E2E 골프장 ${stamp}`;
-  await signInWithNewTotp(page);
+  // 이 테스트 전용 운영자(admin) 계정. 다른 spec과 상태를 공유하지 않는다.
+  const staff = await createStaff("courses");
+  await signInStaffWithNewTotp(page, staff);
 
   await test.step("골프장 추가", async () => {
     await page.goto("/admin/courses");
