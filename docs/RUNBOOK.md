@@ -107,7 +107,17 @@ select * from public.assign_booking('<request_id>', '<admin_id>', 1);
 rollback;   -- 확인만 하고 되돌린다
 ```
 
-## 6. 트러블슈팅
+## 6. 원격 배포(마이그레이션)
+
+1. GitHub 저장소 → Settings → Environments에서 `dev`(필요 시 `prod`) 생성
+2. 각 environment에 secrets `SUPABASE_ACCESS_TOKEN`(supabase.com/dashboard/account/tokens), `SUPABASE_DB_PASSWORD`, variable `SUPABASE_PROJECT_REF` 등록. prod에는 Required reviewers 설정
+3. Actions → `db-deploy` → Run workflow: 먼저 `dry_run=true`로 적용 대상 확인 → `dry_run=false`로 적용
+4. 적용 후 원격 점검: 대시보드 SQL Editor에서 4절의 "RLS 꺼진 테이블", "DML 권한" 점검 쿼리 실행(0행이어야 정상)
+
+- 첫 적용 이후 기존 마이그레이션 파일은 수정 금지. 변경은 `supabase migration new`로 새 파일
+- Auth 설정(카카오, MFA, jwt_expiry 등)은 db push로 반영되지 않는다. 대시보드 또는 `supabase config push`(M2에서 정리)
+
+## 7. 트러블슈팅
 
 | 증상 | 원인·조치 |
 |---|---|
@@ -117,3 +127,4 @@ rollback;   -- 확인만 하고 되돌린다
 | `Bad plan. You planned N tests but ran M` | `select plan(N)` 수 불일치 또는 중간 에러로 중단 |
 | CI에서 `git diff --exit-code types/database.ts` 실패 | 스키마 변경 후 `pnpm db:types` 미실행 |
 | SVG가 깨져 보임 | XML 주석 안에 `--` 금지 |
+| 클라우드 세션에서 원격 DB 접속 불가 | 컨테이너는 HTTPS 프록시만 허용(5432 차단). `db-deploy` 워크플로 사용 |

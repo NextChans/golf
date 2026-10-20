@@ -40,3 +40,5 @@ PRD와 충돌하면 이 문서가 우선한다. 새 결정은 번호를 이어�
 | D-29 | 서버 역할의 DML | `service_role`도 테이블 DML 권한 없음. 서버 admin 클라이언트는 Auth 관리용이고 데이터 변경은 함수로만 | 기본값 | `0006_rls_grants_cron.sql` |
 | D-30 | 대안 날짜 제안 | 운영자는 요청 날짜와 다른 날짜의 티타임을 제안할 수 있다(PRD "대안 수락") | 기본값 | `propose_booking` |
 | D-31 | bigint 금액의 TS 타입 | 생성 타입은 `number`. 원 단위 최대값(약 9×10^15)은 안전 정수 범위 안이라 허용 | 기본값 | `types/database.ts` |
+| D-32 | 원격 DB 반영 경로 | GitHub Actions `db-deploy.yml`(workflow_dispatch, 기본 dry-run). 시크릿은 GitHub Environments(dev/prod)에 두고 prod는 승인자 필수. 로컬·클라우드 세션에서 직접 `db push` 하지 않는다 | 기본값 | `.github/workflows/db-deploy.yml` |
+| D-33 | 원격 프로젝트 매핑 | `sacsqmsfwujuuudwjhbp`를 dev로 사용(제안). prod는 출시 전 별도 생성 | 오너 확인 대기 | PROGRESS.md |

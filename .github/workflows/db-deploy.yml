@@ -1,0 +1,55 @@
+name: db-deploy
+
+# 원격 Supabase에 마이그레이션을 반영한다. 수동 실행만 허용한다.
+# 필요한 설정(GitHub → Settings → Environments → dev / prod 각각):
+#   secrets: SUPABASE_ACCESS_TOKEN(개인 액세스 토큰), SUPABASE_DB_PASSWORD
+#   variables: SUPABASE_PROJECT_REF
+# prod environment에는 Required reviewers를 걸어 승인 후에만 실행되게 한다.
+# seed.sql은 원격에 적용하지 않는다(db push는 seed를 실행하지 않음).
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "배포 대상"
+        type: choice
+        options: [dev, prod]
+        default: dev
+      dry_run:
+        description: "dry-run만 실행(적용될 마이그레이션 목록만 출력)"
+        type: boolean
+        default: true
+
+concurrency:
+  group: db-deploy-${{ inputs.target }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: ${{ inputs.target }}
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Check configuration
+        run: |
+          test -n "$SUPABASE_ACCESS_TOKEN" || { echo "SUPABASE_ACCESS_TOKEN 없음"; exit 1; }
+          test -n "$SUPABASE_DB_PASSWORD" || { echo "SUPABASE_DB_PASSWORD 없음"; exit 1; }
+          test -n "$PROJECT_REF" || { echo "SUPABASE_PROJECT_REF 없음"; exit 1; }
+      - name: Link
+        run: pnpm exec supabase link --project-ref "$PROJECT_REF" --password "$SUPABASE_DB_PASSWORD"
+      - name: Pending migrations (dry-run)
+        run: pnpm exec supabase db push --dry-run --password "$SUPABASE_DB_PASSWORD"
+      - name: Apply migrations
+        if: ${{ !inputs.dry_run }}
+        run: pnpm exec supabase db push --password "$SUPABASE_DB_PASSWORD"

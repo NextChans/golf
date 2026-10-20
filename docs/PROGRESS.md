@@ -3,7 +3,9 @@
 > 새 세션은 이 파일부터 읽는다. 작업 단위가 끝날 때마다 갱신한다.
 
 - 브랜치: `claude/affectionate-maxwell-vs76ph` (PR: https://github.com/NextChans/golf/pull/1, draft)
-- 원격 Supabase: **아직 없음**(로컬만). 마이그레이션은 원격 미적용이라 M1 파일을 수정해도 된다. 원격에 처음 적용한 뒤부터는 새 파일로만 변경한다.
+- 원격 Supabase: 프로젝트 `sacsqmsfwujuuudwjhbp`(https://sacsqmsfwujuuudwjhbp.supabase.co, 리전 미확인) 생성됨. dev/prod 구분은 오너 확인 대기(D-33).
+  **마이그레이션은 아직 원격 미적용**이라 M1 파일을 수정해도 된다. `db-deploy` 워크플로로 처음 적용한 뒤부터는 기존 파일을 고치지 않고 새 파일로만 변경한다.
+- 클라우드 작업 컨테이너는 HTTPS만 나갈 수 있어 원격 Postgres(5432)에 직접 접속할 수 없다. 원격 반영은 GitHub Actions `db-deploy`(수동 실행)로만 한다(D-32).
 
 ## 마일스톤 상태
 
