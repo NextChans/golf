@@ -42,24 +42,36 @@ export function ProposalCard({ proposal, requestVersion, players, idempotencyKey
   };
 
   return (
-    <section className="space-y-3 rounded-xl border-2 border-primary p-4" aria-label="티타임 제안">
-      <div className="flex items-center justify-between">
-        <p className="font-semibold">티타임 제안이 도착했습니다</p>
-        <p className="text-sm tabular-nums" aria-live="polite" data-testid="proposal-remaining">
+    <section className="rounded-tile-lg border-2 border-primary bg-card p-6 md:p-8" aria-label="티타임 제안">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-small font-semibold text-primary">티타임 제안이 도착했습니다</p>
+        <p
+          className="rounded-full bg-section px-3 py-1 text-small tabular-nums empty:hidden"
+          aria-live="polite" data-testid="proposal-remaining"
+        >
           {left === null ? "" : expired ? "만료됨" : `${formatRemaining(left)} 남음`}
         </p>
       </div>
-      <dl className="grid grid-cols-[5rem_1fr] gap-y-1 text-sm">
-        <dt className="text-muted-foreground">티타임</dt><dd className="font-semibold">{formatKst(proposal.tee_time)}</dd>
-        <dt className="text-muted-foreground">그린피</dt>
-        <dd>1인 {formatWon(proposal.green_fee_per_person)} · 총 {formatWon(totalGreenFee(proposal.green_fee_per_person, players))}</dd>
-        {proposal.memo && (<><dt className="text-muted-foreground">안내</dt><dd className="whitespace-pre-wrap">{proposal.memo}</dd></>)}
-        <dt className="text-muted-foreground">유효시간</dt><dd>{formatKst(proposal.expires_at)}까지</dd>
+      <p className="mt-4 text-title font-semibold tracking-tight tabular-nums md:text-headline">{formatKst(proposal.tee_time)}</p>
+      <p className="mt-2 text-eyebrow">
+        1인 {formatWon(proposal.green_fee_per_person)} · 총 {formatWon(totalGreenFee(proposal.green_fee_per_person, players))}
+      </p>
+      <dl className="mt-5 space-y-2 text-small">
+        {proposal.memo && (
+          <div className="flex gap-3">
+            <dt className="w-16 shrink-0 text-muted-foreground">안내</dt>
+            <dd className="min-w-0 whitespace-pre-wrap">{proposal.memo}</dd>
+          </div>
+        )}
+        <div className="flex gap-3">
+          <dt className="w-16 shrink-0 text-muted-foreground">유효시간</dt>
+          <dd>{formatKst(proposal.expires_at)}까지</dd>
+        </div>
       </dl>
-      {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-      <div className="grid grid-cols-2 gap-2">
+      {error && <p role="alert" className="mt-4 text-small text-destructive">{error}</p>}
+      <div className="mt-6 grid gap-3 sm:grid-cols-2">
         <Button
-          variant="outline" disabled={pending || expired}
+          variant="secondary" disabled={pending || expired}
           onClick={() => run(() => declineProposal({ proposalId: proposal.id, expectedVersion: requestVersion, reason: null }))}
         >
           다른 시간 요청
@@ -71,7 +83,7 @@ export function ProposalCard({ proposal, requestVersion, players, idempotencyKey
           {pending ? "처리 중…" : "이 시간으로 확정"}
         </Button>
       </div>
-      {expired && <p className="text-xs text-muted-foreground">유효시간이 지났습니다. 담당자가 다시 확인합니다.</p>}
+      {expired && <p className="mt-3 text-micro text-muted-foreground">유효시간이 지났습니다. 담당자가 다시 확인합니다.</p>}
     </section>
   );
 }

@@ -1,17 +1,19 @@
 import Link from "next/link";
-import { CustomerHeader } from "@/components/customer/customer-header";
+import { GlobalNav } from "@/components/site/global-nav";
+import { SiteFooter } from "@/components/site/site-footer";
 import { Button } from "@/components/ui/button";
 
 // 없거나 남의 예약(RLS로 0행)은 같은 화면으로 응답한다(존재 여부 비노출).
 export default function BookingNotFound() {
   return (
     <>
-      <CustomerHeader />
-      <main className="mx-auto flex max-w-md flex-col items-start gap-3 px-4 py-16">
-        <h1 className="text-xl font-bold">예약을 찾을 수 없습니다</h1>
-        <p className="text-sm text-muted-foreground">주소가 정확한지 확인해 주세요.</p>
-        <Button asChild><Link href="/bookings">내 예약으로</Link></Button>
+      <GlobalNav />
+      <main className="mx-auto flex min-h-[60vh] max-w-[1024px] flex-col items-center justify-center px-4 py-20 text-center md:py-28">
+        <h1 className="text-title font-semibold tracking-tight md:text-headline">예약을 찾을 수 없습니다</h1>
+        <p className="mt-3 text-eyebrow text-muted-foreground">주소가 정확한지 확인해 주세요.</p>
+        <Button asChild className="mt-8"><Link href="/bookings">내 예약으로</Link></Button>
       </main>
+      <SiteFooter />
     </>
   );
 }

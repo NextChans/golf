@@ -3,8 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FloatingInput } from "@/components/site/field";
 import { createClient } from "@/lib/supabase/client";
 import { recordMfaVerified } from "./actions";
 
@@ -39,8 +38,8 @@ export function MfaForm() {
     })();
   }, []);
 
-  if (mode.kind === "loading") return <p className="text-sm text-muted-foreground" aria-live="polite">불러오는 중…</p>;
-  if (mode.kind === "error") return <p role="alert" className="text-sm text-destructive">{mode.message}</p>;
+  if (mode.kind === "loading") return <div className="space-y-3" aria-live="polite"><span className="sr-only">불러오는 중…</span><div className="h-14 animate-pulse rounded-tile bg-section" /><div className="h-[52px] animate-pulse rounded-full bg-section" /></div>;
+  if (mode.kind === "error") return <p role="alert" className="rounded-tile bg-destructive/10 px-5 py-4 text-small text-destructive">{mode.message}</p>;
 
   const submit = () =>
     start(async () => {
@@ -56,24 +55,22 @@ export function MfaForm() {
   return (
     <form className="flex flex-col gap-4" onSubmit={(e) => { e.preventDefault(); submit(); }}>
       {mode.kind === "enroll" && (
-        <div className="space-y-3 rounded-lg border p-4">
-          <p className="text-sm">Google Authenticator 등 OTP 앱으로 QR 코드를 스캔하세요.</p>
+        <div className="space-y-4 rounded-tile-lg bg-section p-6 text-center">
+          <p className="text-body">Google Authenticator 등 OTP 앱으로 QR 코드를 스캔하세요.</p>
           {/* eslint-disable-next-line @next/next/no-img-element -- Auth가 주는 data URL SVG */}
-          <img src={mode.qr} alt="OTP 등록 QR 코드" className="mx-auto size-44 rounded bg-white p-2" />
-          <p className="text-xs text-muted-foreground">
+          <img src={mode.qr} alt="OTP 등록 QR 코드" className="mx-auto size-44 rounded-tile bg-white p-2" />
+          <p className="text-micro text-muted-foreground">
             스캔이 안 되면 키 직접 입력: <code data-testid="totp-secret" className="break-all font-mono">{mode.secret}</code>
           </p>
         </div>
       )}
-      <div className="space-y-1.5">
-        <Label htmlFor="otp">6자리 코드</Label>
-        <Input
-          id="otp" inputMode="numeric" autoComplete="one-time-code" maxLength={6} autoFocus
-          value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
-        />
-      </div>
-      {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-      <Button type="submit" size="lg" disabled={pending || code.length !== 6}>{pending ? "확인 중…" : "확인"}</Button>
+      <FloatingInput
+        id="otp" label="6자리 코드" inputMode="numeric" autoComplete="one-time-code" maxLength={6} autoFocus
+        className="[&_input]:tracking-[0.3em] [&_input]:tabular-nums"
+        value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+      />
+      {error && <p role="alert" className="rounded-tile bg-destructive/10 px-5 py-4 text-small text-destructive">{error}</p>}
+      <Button type="submit" size="lg" className="mt-3" disabled={pending || code.length !== 6}>{pending ? "확인 중…" : "확인"}</Button>
     </form>
   );
 }
