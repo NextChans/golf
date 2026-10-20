@@ -23,8 +23,8 @@ select jobname from cron.job order by 1;   -- expire-proposals, mark-sla-breache
 
 | 위치 | 설정 |
 |---|---|
-| Authentication → **URL Configuration** | Site URL `https://golf-lac-delta.vercel.app`, Redirect URLs에 `https://golf-lac-delta.vercel.app/auth/callback` 추가(preview까지 쓰려면 `https://*-babadung-6380s-projects.vercel.app/auth/callback`) |
-| Authentication → **Sign In / Providers → Kakao** | Enable, REST API Key, Client Secret Code, **Allow users without an email** 켜기 (완료) |
+| Authentication → **URL Configuration** | Site URL `https://golf-lac-delta.vercel.app`. Redirect URLs에 `https://golf-lac-delta.vercel.app/**`와 preview용 `https://*-babadung-6380s-projects.vercel.app/**` 추가(preview에서 로그인 테스트 시 필수, D-45) |
+| Authentication → **Sign In / Providers → Kakao** | Enable, REST API Key, Client Secret Code, **Allow users without an email** 켜기 (완료). 카카오 콘솔 동의항목에 닉네임(필수)·프로필 사진(선택)·카카오계정 이메일(선택) 모두 설정 — 없으면 KOE205 (D-46) |
 | Authentication → **Sign In / Providers → Email** | Enable 유지(운영자 로그인용). "Allow new users to sign up"은 켜 둬도 된다 — 공개 가입은 아래 훅이 막는다 |
 | Authentication → **Sign In / Providers → Phone** | 끔(D-42, 고객 휴대폰 인증 생략) |
 | Authentication → **Auth Hooks → Before User Created** | Hook type: **Postgres**, Schema `public`, Function `before_user_created_hook` → Enable |
