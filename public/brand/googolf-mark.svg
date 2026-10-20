@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Googolf">
+  <title>Googolf</title>
+  <!-- 그린 위 홀컵과 깃발. 브랜드 색: green #1B6B45, lime #C6E26B -->
+  <rect width="64" height="64" rx="16" fill="#1B6B45"/>
+  <ellipse cx="32" cy="46" rx="20" ry="6" fill="#C6E26B"/>
+  <ellipse cx="32" cy="46" rx="4.5" ry="1.8" fill="#0F3D27"/>
+  <rect x="31" y="14" width="2.4" height="32" rx="1.2" fill="#FFFFFF"/>
+  <path d="M33.4 14 L48 19.5 L33.4 25 Z" fill="#C6E26B"/>
+</svg>

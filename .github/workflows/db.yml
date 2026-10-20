@@ -1,0 +1,37 @@
+name: db
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: db-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  db:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Start Supabase (DB, Auth, REST만)
+        run: pnpm exec supabase start -x studio,imgproxy,storage-api,edge-runtime,mailpit,postgres-meta,vector,supavisor,realtime,logflare
+      - name: Migrations + seed
+        run: pnpm exec supabase db reset
+      - name: pgTAP
+        run: pnpm exec supabase test db
+      - name: Concurrency
+        run: pnpm test:concurrency
+      - name: Generated types are up to date
+        run: |
+          pnpm -s db:types
+          git diff --exit-code types/database.ts
+      - name: Typecheck
+        run: pnpm typecheck

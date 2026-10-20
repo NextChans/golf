@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 64" role="img" aria-label="Googolf">
+  <title>Googolf</title>
+  <!-- 워드마크 임시본: 시스템 폰트 텍스트. 정식 오픈 전 디자이너가 아웃라인(path) 버전으로 교체한다. -->
+  <rect width="64" height="64" rx="16" fill="#1B6B45"/>
+  <ellipse cx="32" cy="46" rx="20" ry="6" fill="#C6E26B"/>
+  <ellipse cx="32" cy="46" rx="4.5" ry="1.8" fill="#0F3D27"/>
+  <rect x="31" y="14" width="2.4" height="32" rx="1.2" fill="#FFFFFF"/>
+  <path d="M33.4 14 L48 19.5 L33.4 25 Z" fill="#C6E26B"/>
+  <text x="78" y="44" font-family="'Pretendard','Apple SD Gothic Neo','Noto Sans KR',system-ui,sans-serif"
+        font-size="34" font-weight="800" letter-spacing="-0.5" fill="#1B6B45">Goo<tspan fill="#5E8C2A">golf</tspan></text>
+</svg>
