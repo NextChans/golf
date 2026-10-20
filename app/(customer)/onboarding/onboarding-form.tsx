@@ -11,7 +11,9 @@ import { completeOnboarding, sendPhoneOtp, verifyPhoneOtp } from "./actions";
 
 type Term = { code: string; title: string; required: boolean };
 
-export function OnboardingForm({ terms, verifiedPhone, next }: { terms: Term[]; verifiedPhone: string | null; next: string }) {
+export function OnboardingForm({ terms, verifiedPhone, next, phoneRequired }: {
+  terms: Term[]; verifiedPhone: string | null; next: string; phoneRequired: boolean;
+}) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +40,7 @@ export function OnboardingForm({ terms, verifiedPhone, next }: { terms: Term[]; 
 
   return (
     <div className="flex flex-col gap-6">
-      <section className="space-y-3" aria-labelledby="phone-title">
+      {phoneRequired && <section className="space-y-3" aria-labelledby="phone-title">
         <h2 id="phone-title" className="font-semibold">1. 휴대폰 인증</h2>
         {verified ? (
           <p className="rounded-lg bg-secondary px-3 py-2 text-sm">인증 완료: {formatPhone(verified)}</p>
@@ -80,10 +82,10 @@ export function OnboardingForm({ terms, verifiedPhone, next }: { terms: Term[]; 
             )}
           </>
         )}
-      </section>
+      </section>}
 
       <section className="space-y-3" aria-labelledby="profile-title">
-        <h2 id="profile-title" className="font-semibold">2. 이름과 약관</h2>
+        <h2 id="profile-title" className="font-semibold">{phoneRequired ? "2. 이름과 약관" : "이름과 약관"}</h2>
         <div className="space-y-1.5">
           <Label htmlFor="displayName">이름(예약자명)</Label>
           <Input id="displayName" autoComplete="name" maxLength={50} value={name} onChange={(e) => setName(e.target.value)} disabled={pending} />
@@ -108,7 +110,7 @@ export function OnboardingForm({ terms, verifiedPhone, next }: { terms: Term[]; 
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
 
       <Button
-        size="lg" disabled={pending || !verified || !allRequired || !name.trim()}
+        size="lg" disabled={pending || (phoneRequired && !verified) || !allRequired || !name.trim()}
         onClick={() => run(async () => {
           const r = await completeOnboarding({ displayName: name, agreed: [...agreed] });
           if (!r.ok) return setError(r.error.message);

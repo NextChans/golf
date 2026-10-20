@@ -50,4 +50,5 @@ PRD와 충돌하면 이 문서가 우선한다. 새 결정은 번호를 이어�
 | D-39 | 휴대폰 인증 확인 | Auth `sms.enable_confirmations=true` 필수. false면 OTP 없이 번호가 인증 처리됨(M2 실험으로 확인) | 확정(보안) | config.toml, prod 대시보드 |
 | D-40 | 최초 owner | `pnpm seed:owner`(service_role) → `bootstrap_owner`는 owner가 0명일 때만 동작 | 기본값 | `scripts/seed-owner.ts` |
 | D-41 | E2E 로그인 | 앱에 테스트용 백도어를 두지 않는다. E2E는 Admin API로 만든 이메일 계정 + 실제 로그인 화면 + otplib TOTP로 진행. 카카오 경로는 pgTAP·단위 테스트로 검증 | 기본값(D-20 대체) | `e2e/` |
+| D-42 | 고객 휴대폰 인증 | 운영 환경에서는 일단 생략(오너 지시). `app_settings.phone_verification_required=false`(기본). SMS 대행사 계약 후 owner가 `set_app_setting`으로 켠다. 꺼져 있으면 온보딩은 이름·약관만, 번호는 null | 확정 | `20261020000008_app_settings.sql` |
 

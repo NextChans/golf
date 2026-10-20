@@ -10,6 +10,8 @@ export default defineConfig({
   workers: 1,
   retries: 0,
   timeout: 60_000,
+  // Server Action 후 router.replace는 다음 페이지 RSC를 받은 뒤 URL이 바뀐다. CI 부하를 감안해 10초.
+  expect: { timeout: 10_000 },
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
   globalSetup: "./e2e/global-setup.ts",
   use: {
