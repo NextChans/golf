@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Tile } from "@/components/site/section";
 import { createClient } from "@/lib/supabase/server";
+import { logPiiView } from "@/lib/admin/pii";
 import { requireStaff } from "@/lib/auth/guards";
 import { formatKst, formatKstDate } from "@/lib/format/kst";
 import { formatPhone } from "@/lib/domain/phone";
@@ -60,7 +61,8 @@ export default async function AdminBookingDetailPage({ params }: { params: Promi
   if (error) throw new Error("admin booking detail query failed");
   if (!b) notFound();
 
-  const authors = await fetchNoteAuthors(supabase, notes ?? []);
+  // 상세 화면은 고객 전체 번호를 보여 주므로 열람을 기록한다(D-75)
+  const [authors] = await Promise.all([fetchNoteAuthors(supabase, notes ?? []), logPiiView(supabase, "booking", b.id)]);
   const isAssignee = b.assignee_id === session.userId;
   const actions = adminActions(b.status, { isAssignee, isOwner: session.role === "owner" });
   const course = b.golf_courses;

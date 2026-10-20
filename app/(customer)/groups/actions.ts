@@ -261,5 +261,7 @@ export async function reportContent(_prev: FormState, formData: FormData): Promi
     p_target_type: v.targetType, p_target_id: v.targetId, p_reason: v.reason, p_detail: v.detail as string,
   });
   if (error) return { error: toAppError(error).message };
+  // 신고 누적으로 글·모임이 자동 비노출되면 신고한 사람 화면에도 바로 반영한다(모임 상세는 Suspense 없음, D-62)
+  revalidatePath("/groups/[id]", "page");
   return { done: Date.now() };
 }

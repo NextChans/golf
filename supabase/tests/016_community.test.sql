@@ -124,6 +124,9 @@ select tests.authenticate_as(:'b', 'aal1');
 select throws_ok(format('select public.kick_member(%L, %L)', :'g', :'e'), 'GB403', 'forbidden', '운영진은 운영진 강퇴 불가');
 
 -- ── 모임장 탈퇴 → 가장 먼저 가입한 운영진이 승계 ──
+-- 한 트랜잭션 안이라 now()가 같으므로 가입 순서를 명시한다(운영에서는 가입마다 시각이 다르다)
+select tests.clear_authentication();
+update public.group_members set joined_at = now() + interval '1 minute' where group_id = :'g' and user_id = :'e';
 select tests.authenticate_as(:'owner', 'aal1');
 select public.leave_group(:'g');
 select tests.clear_authentication();

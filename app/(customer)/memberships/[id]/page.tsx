@@ -21,6 +21,8 @@ export const metadata: Metadata = { title: "회원권 매물" };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const QUOTE_ROWS = 12;
+const TRADE_ROWS = 5;
+const QUOTE_SOURCE_LABEL = { admin: "운영자 조사", csv: "운영자 조사" } as const;
 
 export default async function MembershipDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -36,11 +38,15 @@ export default async function MembershipDetailPage({ params }: { params: Promise
       .from("membership_listings")
       .select(`id, status, asking_price, description, created_at,
         membership_products!inner(id, kind, name, golf_courses!inner(name, region, address),
-          membership_quotes(id, quoted_on, buy_price, sell_price))`)
+          membership_quotes(id, quoted_on, buy_price, sell_price, source),
+          membership_trades(id, price, traded_on))`)
       .eq("id", id)
-      .in("status", [...PUBLIC_LISTING_STATUSES])
+      // 판매 완료 매물도 보여 준다(남은 상담·공유 링크가 404가 되지 않게). 상담 신청만 막는다
+      .in("status", [...PUBLIC_LISTING_STATUSES, "sold"])
       .order("quoted_on", { referencedTable: "membership_products.membership_quotes", ascending: false })
       .limit(QUOTE_ROWS, { referencedTable: "membership_products.membership_quotes" })
+      .order("traded_on", { referencedTable: "membership_products.membership_trades", ascending: false })
+      .limit(TRADE_ROWS, { referencedTable: "membership_products.membership_trades" })
       .maybeSingle(),
     isCustomer
       ? supabase.from("profiles").select("phone, onboarded_at").eq("id", session.userId).maybeSingle()
@@ -58,19 +64,27 @@ export default async function MembershipDetailPage({ params }: { params: Promise
   ]);
 
   if (error) throw new Error("membership detail query failed");
-  // 없음·비공개(hidden, RLS로 0행)·판매 완료는 같은 화면(존재 여부 비노출)
+  // 없음·비공개(hidden, RLS로 0행)는 같은 화면(존재 여부 비노출)
   if (!l) notFound();
 
   const p = l.membership_products;
   const course = p.golf_courses;
   const quotes = p.membership_quotes;
+  const trades = p.membership_trades;
   const latest = quotes[0] ?? null;
   const profile = profileRes?.data ?? null;
   const openDeal = openDealRes?.data ?? null;
   const loginHref = `/login?next=${encodeURIComponent(`/memberships/${l.id}`)}`;
 
   let cta: React.ReactNode;
-  if (l.status === "reserved") {
+  if (l.status === "sold") {
+    cta = (
+      <div className="space-y-4 text-center">
+        <p className="text-body text-muted-foreground">거래가 완료된 매물입니다. 같은 회원권의 다른 매물을 찾아보세요.</p>
+        <Button asChild variant="secondary"><Link href="/memberships">다른 매물 보기</Link></Button>
+      </div>
+    );
+  } else if (l.status === "reserved") {
     cta = (
       <p className="text-body text-muted-foreground">
         다른 고객과 상담이 진행 중인 매물입니다. 비슷한 조건의 매물은 담당자에게 문의해 주세요.
@@ -132,8 +146,8 @@ export default async function MembershipDetailPage({ params }: { params: Promise
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-3">
             <h1 className="text-title font-semibold tracking-tight md:text-headline">{p.name}</h1>
-            {l.status === "reserved" && (
-              <Badge variant="secondary" className="px-3 py-1 text-small">{LISTING_STATUS_LABEL.reserved}</Badge>
+            {(l.status === "reserved" || l.status === "sold") && (
+              <Badge variant="secondary" className="px-3 py-1 text-small" data-testid="listing-status">{LISTING_STATUS_LABEL[l.status]}</Badge>
             )}
           </div>
           <p className="mt-6 text-title font-semibold tracking-tight tabular-nums md:text-headline">{formatWon(l.asking_price)}</p>
@@ -165,7 +179,9 @@ export default async function MembershipDetailPage({ params }: { params: Promise
                       <dt className="w-20 shrink-0 text-muted-foreground">최근 시세</dt>
                       <dd className="tabular-nums">
                         매수 {formatKoreanPrice(latest.buy_price)} · 매도 {formatKoreanPrice(latest.sell_price)}
-                        <span className="block text-small text-muted-foreground">{formatKstDate(latest.quoted_on)} 기준</span>
+                        <span className="block text-small text-muted-foreground">
+                          {formatKstDate(latest.quoted_on)} 기준 · {QUOTE_SOURCE_LABEL[latest.source as keyof typeof QUOTE_SOURCE_LABEL] ?? "운영자 조사"}
+                        </span>
                       </dd>
                     </div>
                   )}
@@ -206,7 +222,28 @@ export default async function MembershipDetailPage({ params }: { params: Promise
                       </table>
                     </div>
                   )}
-                  <p className="mt-4 text-micro text-muted-foreground">시세는 참고용이며 실제 거래가는 상담으로 정해집니다.</p>
+                  <p className="mt-4 text-micro text-muted-foreground">
+                    시세는 Googolf 운영자가 조사한 참고값이며 실제 거래가는 상담으로 정해집니다.
+                  </p>
+                </section>
+              </Tile>
+
+              <Tile className="bg-card p-6 md:p-8">
+                <section aria-labelledby="trades-title">
+                  <h2 id="trades-title" className="text-eyebrow font-semibold tracking-tight">Googolf 체결가</h2>
+                  {trades.length === 0 ? (
+                    <p className="mt-4 text-body text-muted-foreground">아직 Googolf에서 거래가 완료된 기록이 없습니다.</p>
+                  ) : (
+                    <ul aria-label="최근 체결가" className="mt-4 divide-y divide-border/70 text-small tabular-nums">
+                      {trades.map((t) => (
+                        <li key={t.id} className="flex justify-between gap-3 py-2.5">
+                          <span>{formatKstDate(t.traded_on)}</span>
+                          <span className="font-semibold">{formatKoreanPrice(t.price)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <p className="mt-4 text-micro text-muted-foreground">Googolf에서 계약·명의개서까지 완료된 거래의 합의가입니다(최근 {TRADE_ROWS}건).</p>
                 </section>
               </Tile>
             </div>
