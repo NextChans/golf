@@ -51,4 +51,6 @@ PRD와 충돌하면 이 문서가 우선한다. 새 결정은 번호를 이어�
 | D-40 | 최초 owner | `pnpm seed:owner`(service_role) → `bootstrap_owner`는 owner가 0명일 때만 동작 | 기본값 | `scripts/seed-owner.ts` |
 | D-41 | E2E 로그인 | 앱에 테스트용 백도어를 두지 않는다. E2E는 Admin API로 만든 이메일 계정 + 실제 로그인 화면 + otplib TOTP로 진행. 카카오 경로는 pgTAP·단위 테스트로 검증 | 기본값(D-20 대체) | `e2e/` |
 | D-42 | 고객 휴대폰 인증 | 운영 환경에서는 일단 생략(오너 지시). `app_settings.phone_verification_required=false`(기본). SMS 대행사 계약 후 owner가 `set_app_setting`으로 켠다. 꺼져 있으면 온보딩은 이름·약관만, 번호는 null | 확정 | `20261020000008_app_settings.sql` |
+| D-43 | 디자인 | apple.com 웹 스타일(오너 지시, iOS 앱 스타일 아님). 흰/연회색 섹션, 큰 헤드라인, 알약 CTA, 큰 타일, 플로팅 라벨 입력. 강조색은 브랜드 그린. 가이드·테스트 계약은 docs/DESIGN.md | 확정 | `app/globals.css`, `components/site/*` |
+| D-44 | 운영 DB 최초 반영 | 클라우드 세션에서 DB 직접 접속이 안 되므로 `deploy/prod-schema.sql`(마이그레이션 묶음 + 적용 이력 기록)을 오너가 SQL Editor에서 실행. 이후 변경은 db-deploy 또는 `bundle-migrations.mjs --from` | 기본값 | `deploy/README.md` |
 

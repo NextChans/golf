@@ -48,7 +48,8 @@ export async function createBooking(_prev: CreateBookingState, formData: FormDat
     p_note: v.note as string,
   });
   if (error || !data) return { error: toAppError(error).message };
-  revalidatePath("/bookings");
+  // revalidatePath를 부르지 않는다: 응답과 함께 현재 경로 갱신이 일어나 클라이언트의 router.replace(상세 이동)와
+  // 경합해 이동이 버려지는 경우가 있었다(E2E 간헐 실패). /bookings 계열은 쿠키를 읽는 동적 페이지라 캐시되지 않는다.
   return { createdId: data.id };
 }
 

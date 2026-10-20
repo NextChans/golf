@@ -9,6 +9,8 @@ Googolf는 회사명이자 브랜드명이다. 전화로 받던 골프 부킹과
 4. `docs/DECISIONS.md` — 확정된 결정과 기본값. PRD와 충돌하면 이 문서가 우선한다
 5. `docs/state-machine.md` — 상태 전이 표. DB 함수와 1:1로 맞춘다
 6. `docs/RUNBOOK.md` — 환경 구성, 명령어, 자주 쓰는 SQL
+7. `docs/DESIGN.md` — apple.com 스타일 디자인 가이드와 **E2E 테스트 계약**(UI를 바꿀 때 필수)
+8. `deploy/README.md` — 운영 Supabase 반영 절차
 
 ## 작업 방식
 
@@ -55,6 +57,9 @@ Googolf는 회사명이자 브랜드명이다. 전화로 받던 골프 부킹과
 - service_role 클라이언트(`lib/supabase/admin.ts`)는 Auth Admin API 전용. ESLint가 그 외 위치의 import를 막는다.
 - 운영자 화면은 `app/(admin)/admin/(console)` 아래에 둔다(레이아웃이 `requireStaff`). 로그인·MFA·비밀번호 화면만 그 밖에 있다.
 - 로컬·E2E 주소는 `http://localhost:3000`(127.0.0.1 아님 — `next start`의 request.url이 localhost로 고정됨).
+
+- UI는 `docs/DESIGN.md`를 따른다. 공통 컴포넌트는 `components/site/*`, 글자 크기는 토큰(`text-body` 등). 새 글자 크기 토큰을 만들면 `lib/utils.ts`의 tailwind-merge 설정에도 추가한다(안 하면 글자 색 클래스가 지워진다).
+- 마이그레이션을 추가하면 `node scripts/bundle-migrations.mjs --from <새 버전> > deploy/<이름>.sql`로 운영 반영용 SQL을 함께 만든다(D-44).
 
 ## 테스트 규약
 
