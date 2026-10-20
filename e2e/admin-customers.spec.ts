@@ -46,13 +46,13 @@ test.describe("운영자 고객 CRM(A-06)", () => {
     await expect(page.getByText("아직 남긴 메모가 없습니다.")).toBeVisible();
 
     const body = `E2E 통화 메모 ${Date.now()} — 다음 주 주말 라운딩 희망`;
-    await page.getByLabel("통화 메모").fill(body);
+    await page.getByRole("textbox", { name: "통화 메모" }).fill(body);
     await page.getByRole("button", { name: "메모 남기기" }).click();
 
     const timeline = page.getByRole("list", { name: "메모 타임라인" });
     await expect(timeline.getByText(body)).toBeVisible();
     await expect(timeline.getByText(admin.displayName)).toBeVisible();
-    await expect(page.getByLabel("통화 메모")).toHaveValue("");
+    await expect(page.getByRole("textbox", { name: "통화 메모" })).toHaveValue("");
   });
 
   test("숫자 일부만 넣으면 전체 번호를 안내하고, 없는 고객은 404", async ({ page }) => {

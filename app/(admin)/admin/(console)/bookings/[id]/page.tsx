@@ -10,6 +10,8 @@ import { formatPhone } from "@/lib/domain/phone";
 import { formatWon } from "@/lib/domain/booking/money";
 import { BOOKING_STATUS_LABEL, BOOKING_STATUS_VARIANT, describeTimePref } from "@/lib/domain/booking/status";
 import { adminActions } from "@/lib/domain/booking/admin";
+import { ActivityNoteForm } from "@/components/admin/activity-note-form";
+import { ActivityNotes, fetchNoteAuthors } from "@/components/admin/activity-notes";
 import { AssignForm } from "./assign-form";
 import { CancelForm, ProposeForm, RejectForm } from "./decision-forms";
 
@@ -32,7 +34,7 @@ export default async function AdminBookingDetailPage({ params }: { params: Promi
 
   const supabase = await createClient();
   // 요청·고객·담당자·제안·타임라인을 한 번에 조회하고, 배정 대상 목록만 따로 가져온다
-  const [{ data: b, error }, { data: staff }] = await Promise.all([
+  const [{ data: b, error }, { data: staff }, { data: notes }] = await Promise.all([
     supabase
       .from("booking_requests")
       .select(`id, user_id, status, version, play_date, time_pref, time_from, time_to, players, budget_per_person, note,
@@ -47,10 +49,18 @@ export default async function AdminBookingDetailPage({ params }: { params: Promi
       .order("id", { referencedTable: "booking_events", ascending: true })
       .maybeSingle(),
     supabase.rpc("list_assignable_staff"),
+    supabase
+      .from("activity_notes")
+      .select("id, subject_type, subject_id, body, author_id, created_at")
+      .eq("subject_type", "booking")
+      .eq("subject_id", id)
+      .order("created_at", { ascending: false })
+      .limit(50),
   ]);
   if (error) throw new Error("admin booking detail query failed");
   if (!b) notFound();
 
+  const authors = await fetchNoteAuthors(supabase, notes ?? []);
   const isAssignee = b.assignee_id === session.userId;
   const actions = adminActions(b.status, { isAssignee, isOwner: session.role === "owner" });
   const course = b.golf_courses;
@@ -133,6 +143,12 @@ export default async function AdminBookingDetailPage({ params }: { params: Promi
                 ))}
               </ul>
             )}
+          </section>
+
+          <section aria-labelledby="notes-title" className="space-y-3">
+            <h2 id="notes-title" className="text-eyebrow tracking-tight">통화 메모</h2>
+            <ActivityNoteForm customerId={b.user_id} subjectType="booking" subjectId={b.id} />
+            <ActivityNotes notes={notes ?? []} authors={authors} showSubject={false} />
           </section>
 
           {(actions.canReject || actions.canCancel) && (
