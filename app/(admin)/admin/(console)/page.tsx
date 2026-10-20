@@ -13,16 +13,18 @@ export default async function AdminHome() {
   const nowIso = new Date().toISOString();
   const count = (q: PromiseLike<{ count: number | null }>) => q.then((r) => r.count);
   const base = () => supabase.from("booking_requests").select("id", { count: "exact", head: true });
-  const [fresh, mine, sla] = await Promise.all([
+  const [fresh, mine, sla, deals] = await Promise.all([
     count(base().eq("status", "requested")),
     count(base().eq("assignee_id", session.userId).in("status", OPEN_STATUSES)),
     count(base().eq("status", "requested").lt("sla_due_at", nowIso)),
+    count(supabase.from("membership_deals").select("id", { count: "exact", head: true }).eq("status", "inquiry")),
   ]);
 
   const tiles = [
     { href: "/admin/bookings?tab=new", title: "신규 요청", value: fresh },
     { href: "/admin/bookings?tab=mine", title: "내 담당", value: mine },
     { href: "/admin/bookings?tab=sla", title: "SLA 초과", value: sla, alert: (sla ?? 0) > 0 },
+    { href: "/admin/deals?tab=new", title: "신규 회원권 상담", value: deals },
   ] as const;
 
   return (
@@ -31,7 +33,7 @@ export default async function AdminHome() {
         <h1 className="text-title tracking-tight">운영자 홈</h1>
         <p className="mt-2 text-body text-muted-foreground">오늘 처리할 요청과 상담을 한곳에서 확인합니다.</p>
       </div>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {tiles.map((t) => (
           <Link key={t.href} href={t.href} className="pressable block rounded-tile-lg">
             <Tile className="p-6 hover:bg-border/40">
@@ -43,11 +45,6 @@ export default async function AdminHome() {
           </Link>
         ))}
       </div>
-      <Tile className="p-6 md:p-8">
-        <p className="text-micro font-semibold text-muted-foreground">준비 중</p>
-        <h2 className="mt-1 text-eyebrow tracking-tight">회원권 상담</h2>
-        <p className="mt-3 text-small text-muted-foreground">회원권 매수·매도 상담 관리는 M5에서 열립니다.</p>
-      </Tile>
     </div>
   );
 }
