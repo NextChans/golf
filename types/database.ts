@@ -575,6 +575,14 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"claim_notifications":
+{ Args: { "p_limit"?: number }; Returns: {
+              "attempts": number,"channel": Database["public"]['Enums']["notify_channel"],"dedupe_key": string,"event_type": string,"id": number,"payload": Json,"recipient_kind": string,"recipient_phone": string,"template_code": string
+            }[]
+                           },
+"complete_notification":
+{ Args: { "p_channel": Database["public"]['Enums']["notify_channel"],"p_id": number,"p_provider_message_id": string }; Returns: undefined
+                           },
 "complete_onboarding":
 { Args: { "p_agreed_codes": (string)[],"p_contact_phone"?: string,"p_display_name": string }; Returns: {
               "created_at": string,
@@ -675,6 +683,9 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"fail_notification":
+{ Args: { "p_error": string,"p_id": number }; Returns: Database["public"]['Enums']["outbox_status"]
+                           },
 "list_assignable_staff":
 { Args: Record<PropertyKey, never>; Returns: {
               "display_name": string,"email": string,"id": string,"is_me": boolean
@@ -734,6 +745,32 @@ isOneToOne: false
                           SetofOptions: {
         from: "*"
         to: "booking_requests"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"retry_notification":
+{ Args: { "p_id": number }; Returns: {
+              "attempts": number,
+"channel": Database["public"]['Enums']["notify_channel"],
+"created_at": string,
+"dedupe_key": string,
+"event_type": string,
+"id": number,
+"last_error": string | null,
+"locked_at": string | null,
+"next_attempt_at": string,
+"payload": NonNullable<Json>,
+"provider_message_id": string | null,
+"recipient_kind": string,
+"recipient_user_id": string | null,
+"sent_at": string | null,
+"status": Database["public"]['Enums']["outbox_status"],
+"template_code": string,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "notification_outbox"
         isOneToOne: true
         isSetofReturn: false
       } },
