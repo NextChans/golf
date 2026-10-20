@@ -14,8 +14,8 @@
 |---|---|---|
 | M0 계획 | 완료·승인 | docs/PLAN.md, DECISIONS.md |
 | M1 스키마·RLS·상태 함수 | 완료·승인 | pgTAP 106/106, 동시성 2×50회, GitHub CI 통과 |
-| M2 인증 | **완료, 오너 승인 대기** | pgTAP 145, Vitest 33, Playwright 7 |
-| M3 고객 부킹 | 대기 | |
+| M2 인증 | 완료·머지(NextChans/golf#2) | pgTAP 145, Vitest 33, Playwright 7 |
+| M3 고객 부킹 | **완료, 오너 승인 대기** | pgTAP 150, Vitest 78, Playwright 12 |
 | M4 어드민 부킹·CRM | 대기 | |
 | M5 회원권 | 대기 | |
 | M6 알림 outbox | 대기 | 무료 단계: console + Slack 웹훅 |
@@ -30,6 +30,15 @@
 - 생성물: `types/database.ts`
 - CI: `.github/workflows/db.yml`
 - 브랜드: `public/brand/googolf-logo.svg`, `googolf-mark.svg`
+
+## M3 결과 요약
+
+- 화면: `/bookings`(목록·빈/로딩/에러), `/bookings/new`(요청 폼), `/bookings/[id]`(상세·타임라인·제안 카드·취소, 남의 예약은 404)
+- 액션: `app/(customer)/bookings/actions.ts` — createBooking/acceptProposal/declineProposal/cancelBooking(모두 requireCustomer → zod → rpc)
+- 도메인: `lib/domain/booking/{schema,status,money}.ts` (+ 테스트 45건)
+- 설정 플래그: `app_settings.phone_verification_required`(D-42)
+- E2E 픽스처: `e2e/customer.ts` — 카카오 온보딩 고객을 DB로 재현하고 @supabase/ssr 쿠키로 로그인, 운영자 제안 시드
+- 주의: `/bookings/[id]`에는 loading.tsx를 두지 않는다(스트리밍이 먼저 시작되면 notFound가 200이 됨). 목록 로딩은 `(list)` route group에 둔다
 
 ## M2 결과 요약
 
