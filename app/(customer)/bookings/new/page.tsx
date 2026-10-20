@@ -3,7 +3,9 @@ import { randomUUID } from "node:crypto";
 import { GlobalNav } from "@/components/site/global-nav";
 import { LocalNav } from "@/components/site/local-nav";
 import { SiteFooter } from "@/components/site/site-footer";
+import Link from "next/link";
 import { Tile } from "@/components/site/section";
+import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { requireCustomer } from "@/lib/auth/guards";
 import { addDaysIso, MAX_ADVANCE_DAYS, todayKst } from "@/lib/domain/booking/schema";
@@ -12,10 +14,14 @@ import { BookingForm } from "./booking-form";
 export const metadata: Metadata = { title: "부킹 요청" };
 
 export default async function NewBookingPage() {
-  await requireCustomer();
+  const session = await requireCustomer();
   const supabase = await createClient();
-  const { data: courses, error } = await supabase
-    .from("golf_courses").select("id, name, region").eq("is_active", true).order("name");
+  const [{ data: courses, error }, { data: profile }] = await Promise.all([
+    supabase.from("golf_courses").select("id, name, region").eq("is_active", true).order("name"),
+    supabase.from("profiles").select("phone").eq("id", session.userId).maybeSingle(),
+  ]);
+  // 연락처가 없으면 요청을 받을 수 없다(D-48, DB 트리거가 최종 차단)
+  const needsContact = !profile?.phone;
   const today = todayKst();
 
   return (
@@ -29,7 +35,13 @@ export default async function NewBookingPage() {
             영업시간(평일 09~18시) 기준 30분 안에 담당자가 확인을 시작합니다.
           </p>
         </div>
-        {error ? (
+        {needsContact ? (
+          <Tile className="text-center" data-testid="contact-required">
+            <p className="text-eyebrow font-semibold">연락처를 먼저 입력해 주세요</p>
+            <p className="mt-2 text-body text-muted-foreground">담당자가 티타임을 확인해 전화를 드려야 해서 휴대폰 번호가 필요합니다.</p>
+            <Button asChild className="mt-6"><Link href="/me#contact">연락처 입력하기</Link></Button>
+          </Tile>
+        ) : error ? (
           <Tile className="text-center">
             <p role="alert" className="text-body text-destructive">골프장 목록을 불러오지 못했습니다. 새로고침해 주세요.</p>
           </Tile>

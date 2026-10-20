@@ -34,7 +34,7 @@
 
 ## 운영 반영 상태
 
-- 운영 DB: `deploy/prod-schema.sql`을 SQL Editor에서 실행해야 한다(미실행). 절차는 `deploy/README.md`
+- 운영 DB: 001~008 적용 완료(오너, 2026-10-20). 009(연락처)는 `deploy/2026-10-20-02-contact-phone.sql` 미적용. 절차·상태는 `deploy/README.md` 1-1
 - 카카오 앱·Supabase Kakao provider 설정: 오너 완료(2026-10-20)
 
 ## M3 결과 요약

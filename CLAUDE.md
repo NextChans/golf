@@ -59,7 +59,7 @@ Googolf는 회사명이자 브랜드명이다. 전화로 받던 골프 부킹과
 - 로컬·E2E 주소는 `http://localhost:3000`(127.0.0.1 아님 — `next start`의 request.url이 localhost로 고정됨).
 
 - UI는 `docs/DESIGN.md`를 따른다. 공통 컴포넌트는 `components/site/*`, 글자 크기는 토큰(`text-body` 등). 새 글자 크기 토큰을 만들면 `lib/utils.ts`의 tailwind-merge 설정에도 추가한다(안 하면 글자 색 클래스가 지워진다).
-- 마이그레이션을 추가하면 `node scripts/bundle-migrations.mjs --from <새 버전> > deploy/<이름>.sql`로 운영 반영용 SQL을 함께 만든다(D-44).
+- 마이그레이션을 추가하면 `node scripts/bundle-migrations.mjs --from <새 버전> > deploy/<날짜>-<순번>-<이름>.sql`로 운영 반영용 SQL을 함께 만들고 `deploy/README.md` 1-1 표에 추가한다(D-44). 오너가 SQL Editor에서 적용하면 표의 상태를 갱신한다.
 
 ## 테스트 규약
 
