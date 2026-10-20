@@ -19,7 +19,7 @@
 | 디자인 개선(apple.com 스타일 + apple-design 스킬) | 완료·머지 | D-43 |
 | 연락처 입력(D-48) | 완료·머지(NextChans/golf#5) | |
 | M4 어드민 부킹·CRM | 완료·머지(NextChans/golf#6) | pgTAP 177, Vitest 120, Playwright 23. D-49~52 |
-| M5 회원권 | **완료, 오너 승인 대기** | pgTAP 194, Vitest 158, Playwright 36. D-53~62 |
+| M5 회원권 | 완료·머지(NextChans/golf#7) | pgTAP 194, Vitest 158, Playwright 36. D-53~62 |
 | M6 알림 outbox | 대기 | 무료 단계: console + Slack 웹훅 |
 | M7 골프 커뮤니티(후보) | 기획 전 | 요구사항 확정 필요(docs/research/somoim-analysis.md) |
 
