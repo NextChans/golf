@@ -44,12 +44,27 @@ Googolf는 회사명이자 브랜드명이다. 전화로 받던 골프 부킹과
 - RLS 정책 안에서는 `(select auth.uid())`, `(select app.is_admin())`처럼 감싸 쿼리당 1회만 평가되게 한다.
 - 알림 dedupe_key는 전이마다 결정적으로 만든다(예: `booking:<id>:confirmed`).
 
+## 앱(Next.js) 규약
+
+- 인증 판단은 `lib/auth/claims.ts`(JWT claim → Session)와 `lib/auth/routing.ts`(순수 함수 `decideRoute`) 한 곳에 둔다. middleware와 `lib/auth/guards.ts`가 같은 규칙을 쓴다. 분기를 바꾸면 `routing.test.ts`를 같이 고친다.
+- 세션은 `supabase.auth.getClaims()`(서명 검증)로만 읽는다. `getSession()`의 미검증 값으로 권한을 판단하지 않는다.
+- **Server Action 안에서 보호 경로로 `redirect()` 하지 않는다.** 결과(`ActionResult`)를 돌려주고 클라이언트가 `router.replace`로 이동한다(내부 요청이 localhost로 렌더되어 호스트가 어긋남). 외부 URL(카카오 OAuth)로의 redirect는 괜찮다.
+- middleware는 Server Action 요청(`next-action` 헤더)에 리다이렉트를 적용하지 않는다. 그래서 **모든 Server Action은 첫 줄에서 가드(`requireCustomer/requireStaff/requireOwner` 등)를 호출**해야 한다.
+- `"use server"` 파일은 async 함수만 export한다(스키마·상수는 `lib/domain/*`).
+- DB 에러는 `toAppError()`로 사용자 메시지로 바꾼다. 내부 메시지·detail을 화면에 노출하지 않는다.
+- service_role 클라이언트(`lib/supabase/admin.ts`)는 Auth Admin API 전용. ESLint가 그 외 위치의 import를 막는다.
+- 운영자 화면은 `app/(admin)/admin/(console)` 아래에 둔다(레이아웃이 `requireStaff`). 로그인·MFA·비밀번호 화면만 그 밖에 있다.
+- 로컬·E2E 주소는 `http://localhost:3000`(127.0.0.1 아님 — `next start`의 request.url이 localhost로 고정됨).
+
 ## 테스트 규약
 
 - pgTAP: `supabase/tests/NNN_<주제>.test.sql`. `000_setup.test.sql`이 `tests` 스키마 헬퍼를 커밋한다(가장 먼저 실행). 나머지는 `begin; ... rollback;`.
 - 헬퍼: `tests.create_user(email, role, onboarded)`, `tests.authenticate_as(uid, aal)`, `tests.authenticate_anon()`, `tests.clear_authentication()`, `tests.new_booking()`.
 - psql 변수 비교 시 타입을 명시한다(`:'x'::uuid`). plan 수를 정확히 맞춘다.
 - 동시성: `scripts/concurrency/run.ts`(두 커넥션 경쟁, 50회 반복).
+- pgTAP는 로컬 DB에 남은 데이터(E2E 계정 등)에 의존하지 않게 쓴다. 전체 개수 대신 테스트가 만든 id로 센다.
+- 단위: Vitest(`lib/**/*.test.ts`). E2E: Playwright(`e2e/`, 모바일 Pixel 7). E2E는 `pnpm build` 후 실행하며 서버를 항상 새로 띄운다(예전 빌드 서버 재사용 금지).
+- E2E 계정은 `e2e/global-setup.ts`가 실행마다 새로 만든다. 앱에 테스트용 로그인 백도어를 두지 않는다(D-41).
 
 ## 명령어
 
@@ -62,6 +77,10 @@ pnpm db:test                          # pgTAP
 pnpm test:concurrency                 # 동시성 스크립트
 pnpm db:types                         # types/database.ts 재생성(스키마 바꾸면 반드시)
 pnpm typecheck
+pnpm lint
+pnpm test                             # Vitest
+pnpm build && pnpm test:e2e           # Playwright (클라우드 컨테이너: PW_CHROMIUM_PATH=/opt/pw-browsers/chromium-1194/chrome-linux/chrome)
+pnpm seed:owner                       # 최초 owner(OWNER_EMAIL, service_role 필요)
 ```
 
 ## 디렉터리

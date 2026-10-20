@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+/* Googolf 테마. 브랜드: green #1B6B45, lime #C6E26B (D-27) */
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --radius: 0.75rem;
+  --background: #ffffff;
+  --foreground: #14201a;
+  --card: #ffffff;
+  --card-foreground: #14201a;
+  --popover: #ffffff;
+  --popover-foreground: #14201a;
+  --primary: #1b6b45;
+  --primary-foreground: #ffffff;
+  --secondary: #eef5e1;
+  --secondary-foreground: #1b3d2b;
+  --muted: #f3f5f4;
+  --muted-foreground: #5f6b65;
+  --accent: #c6e26b;
+  --accent-foreground: #14201a;
+  --destructive: #c62f2f;
+  --border: #e2e7e4;
+  --input: #d5dcd8;
+  --ring: #1b6b45;
+  --brand-green: #1b6b45;
+  --brand-lime: #c6e26b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0f1512;
+    --foreground: #e8efea;
+    --card: #151d19;
+    --card-foreground: #e8efea;
+    --popover: #151d19;
+    --popover-foreground: #e8efea;
+    --primary: #4cae7c;
+    --primary-foreground: #0b130f;
+    --secondary: #1f2a24;
+    --secondary-foreground: #d7e8c4;
+    --muted: #1b2420;
+    --muted-foreground: #9aa8a0;
+    --accent: #c6e26b;
+    --accent-foreground: #0b130f;
+    --destructive: #ef6b6b;
+    --border: #26322c;
+    --input: #2e3b34;
+    --ring: #4cae7c;
+  }
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-brand-green: var(--brand-green);
+  --color-brand-lime: var(--brand-lime);
+  --font-sans: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}

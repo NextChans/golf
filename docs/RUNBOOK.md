@@ -30,6 +30,18 @@ pnpm exec supabase status -o env   # 로컬 URL·키 확인 → .env.local에 �
 | psql 접속 | `psql postgresql://postgres:postgres@127.0.0.1:54322/postgres` |
 | 새 마이그레이션 | `pnpm exec supabase migration new <설명>` |
 
+## 2-1. 앱 실행
+
+```bash
+cp .env.example .env.local   # 값은 `pnpm exec supabase status -o env`의 API_URL/ANON_KEY/SERVICE_ROLE_KEY
+pnpm dev                     # http://localhost:3000
+OWNER_EMAIL=me@example.com pnpm seed:owner   # 최초 owner(임시 비밀번호 1회 출력) → /admin/login
+```
+
+- 로컬 휴대폰 인증: 테스트 번호 `010-0000-0001`~`0003`, 인증번호 `123456`(config.toml `auth.sms.test_otp`)
+- 로컬 카카오 로그인은 카카오 앱 키(`SUPABASE_AUTH_EXTERNAL_KAKAO_CLIENT_ID/SECRET`)를 셸 env로 주고 `supabase start`해야 동작
+- E2E: `pnpm build && pnpm test:e2e`. 3000 포트에 예전 서버가 떠 있으면 먼저 종료(`pgrep -f "next-server"` → `kill <pid>`; `pkill -f "next start"`는 실행 중인 셸까지 죽일 수 있어 쓰지 않는다)
+
 ## 3. 에러 코드(SQLSTATE)
 
 | 코드 | message | 의미 | HTTP 매핑(M3 예정) |
@@ -117,7 +129,21 @@ rollback;   -- 확인만 하고 되돌린다
 - 첫 적용 이후 기존 마이그레이션 파일은 수정 금지. 변경은 `supabase migration new`로 새 파일
 - Auth 설정(카카오, MFA, jwt_expiry 등)은 db push로 반영되지 않는다. 대시보드 또는 `supabase config push`(M2에서 정리)
 
-## 7. 트러블슈팅
+## 7. prod(Supabase 대시보드) Auth 설정 — `config.toml`은 prod에 push하지 않는다
+
+| 항목 | 값 |
+|---|---|
+| Authentication → URL Configuration → Site URL | `https://golf-lac-delta.vercel.app` |
+| Redirect URLs | `https://golf-lac-delta.vercel.app/auth/callback` (preview 쓰면 `https://*-babadung-6380s-projects.vercel.app/auth/callback`) |
+| Providers → Kakao | 사용, REST API 키/Client Secret, "Allow users without an email" 켜기 |
+| Providers → Email | 사용(관리자 로그인), Confirm email 끄기 불필요(Admin API가 email_confirm=true로 생성) |
+| Providers → Phone | SMS 대행사 계약 전까지 끔 → 고객 온보딩 불가(D-25). 켤 때 **Confirm phone 반드시 켜기**(D-39) |
+| Auth Hooks → Before User Created | Postgres 함수 `public.before_user_created_hook` |
+| Multi-Factor → TOTP | 사용 |
+| JWT expiry | 900초(D-07) |
+| 카카오 Developers Redirect URI | `https://sacsqmsfwujuuudwjhbp.supabase.co/auth/v1/callback` |
+
+## 8. 트러블슈팅
 
 | 증상 | 원인·조치 |
 |---|---|
@@ -127,4 +153,8 @@ rollback;   -- 확인만 하고 되돌린다
 | `Bad plan. You planned N tests but ran M` | `select plan(N)` 수 불일치 또는 중간 에러로 중단 |
 | CI에서 `git diff --exit-code types/database.ts` 실패 | 스키마 변경 후 `pnpm db:types` 미실행 |
 | SVG가 깨져 보임 | XML 주석 안에 `--` 금지 |
+| 로그인 후 `localhost`/`127.0.0.1`이 섞이며 세션이 풀림 | 로컬은 `localhost:3000`만 사용(SITE_URL, Playwright baseURL) |
+| Server Action 호출 시 "An unexpected response was received from the server" | middleware가 액션 POST를 리다이렉트함 → `next-action` 요청은 리다이렉트 제외(이미 반영) |
+| 페이지는 뜨는데 JS 청크 404/MIME 오류 | 예전 빌드로 뜬 서버가 포트를 점유 → 프로세스 종료 후 재기동 |
+| `phone_change` 없이 번호가 바로 인증됨 | `[auth.sms] enable_confirmations=false` → 반드시 true(D-39) |
 | 클라우드 세션에서 원격 DB 접속 불가 | 컨테이너는 HTTPS 프록시만 허용(5432 차단). `db-deploy` 워크플로 사용 |
