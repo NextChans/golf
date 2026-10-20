@@ -66,8 +66,8 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
       </div>
 
       <Tile className="p-5 md:p-7">
-        {/* 상태가 바뀌면(공개 전환 등) 폼을 새 값으로 다시 그린다 */}
-        <ListingForm key={`${listing.status}-${listing.updated_at}`} listing={listing} products={products} />
+        {/* 상태가 바뀌면(상담 시작 등) 잠금 여부가 달라지므로 다시 그린다. updated_at은 key에 넣지 않는다(저장 직후 리렌더로 폼이 다시 마운트되면 이동 처리가 사라진다) */}
+        <ListingForm key={listing.status} listing={listing} products={products} />
       </Tile>
 
       <section aria-labelledby="deals-heading" className="space-y-4">

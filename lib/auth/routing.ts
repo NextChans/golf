@@ -12,7 +12,8 @@ export type RouteDecision =
 const ADMIN_LOGIN = "/admin/login";
 const ADMIN_MFA = "/admin/mfa";
 const ADMIN_PASSWORD = "/admin/password";
-const CUSTOMER_PROTECTED = ["/me", "/onboarding", "/bookings", "/deals"];
+// /memberships는 공개(D-16)지만 매도 상담 신청(/memberships/sell)은 로그인 고객 전용
+const CUSTOMER_PROTECTED = ["/me", "/onboarding", "/bookings", "/deals", "/memberships/sell"];
 
 const startsWithSegment = (path: string, base: string) => path === base || path.startsWith(base + "/");
 

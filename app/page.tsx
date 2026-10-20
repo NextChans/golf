@@ -61,10 +61,22 @@ export default async function Home() {
           <p className="mx-auto mt-5 max-w-[600px] text-eyebrow text-[#a1a1a6]">
             매수·매도 상담은 온라인으로 접수하고, 계약은 담당자와 오프라인에서 안전하게 진행합니다.
           </p>
-          <p className="mt-8 inline-flex items-center gap-0.5 text-body text-[#4cc38a]">
-            곧 열립니다
-            <span aria-hidden className="text-[1.1em] leading-none">›</span>
-          </p>
+          <div className="mt-8 flex flex-col items-center justify-center gap-5 sm:flex-row sm:gap-8">
+            <Link
+              href="/memberships"
+              className="pressable inline-flex items-center gap-0.5 text-body text-[#4cc38a] hover:underline underline-offset-4"
+            >
+              회원권 매물 보기
+              <span aria-hidden className="text-[1.1em] leading-none">›</span>
+            </Link>
+            <Link
+              href={(session ? "/memberships/sell" : "/login?next=/memberships/sell") as never}
+              className="pressable inline-flex items-center gap-0.5 text-body text-[#4cc38a] hover:underline underline-offset-4"
+            >
+              매도 상담 신청
+              <span aria-hidden className="text-[1.1em] leading-none">›</span>
+            </Link>
+          </div>
         </Section>
       </main>
       <SiteFooter />
