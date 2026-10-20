@@ -28,7 +28,7 @@ select jobname from cron.job order by 1;   -- expire-proposals, mark-sla-breache
 | `2026-10-20-03-admin-ops.sql` | 010: 골프장 저장·통화 메모·배정 대상 목록(M4) | 적용 완료(머지 전 선반영, D-50) |
 | `2026-10-20-04-membership-admin.sql` | 011: 회원권 상품·매물·시세 저장, 거래 담당자 배정(M5) | 적용 완료(머지 전 선반영, D-50) |
 | `2026-10-20-05-deal-status-label.sql` | 012: 거래 상태 라벨을 화면과 통일(D-61) | 적용 완료(머지 전 선반영) |
-| `2026-10-20-06-outbox-dispatch.sql` | 013: 알림 발송(claim·성공·실패·재시도, pg_net, 1분 cron)(M6) | **미적용** — 추가만 있으므로 M6 머지 전에 실행. 실행해도 6장의 Vault 비밀값을 넣기 전까지는 아무것도 보내지 않는다 |
+| `2026-10-20-06-outbox-dispatch.sql` | 013: 알림 발송(claim·성공·실패·재시도, pg_net, 1분 cron)(M6) | 적용 완료, 발송 켜기 완료(2026-10-20 22:24 UTC 첫 발송 10건) |
 
 **순서 규칙(D-50)**: 추가만 하는 변경(새 함수·컬럼·인덱스)은 DB 먼저, 기존 동작을 막는 변경(트리거·제약 강화)은 그 에러를 처리하는 앱을 먼저 배포한 뒤 DB. 각 PR 설명에 어느 쪽인지 적는다.
 
@@ -110,7 +110,15 @@ values ('실제 골프장명', 'seoul_gyeonggi', '주소', 180000, 240000, '위�
    select status, count(*) from public.notification_outbox group by 1;          -- pending이 줄고 sent가 늘어야 정상
    select status_code, left(content, 200) from net._http_response order by id desc limit 3;  -- 200 + {"claimed":..}
    ```
-   운영자 화면 **알림**(`/admin/notifications`)에서 상태별 건수와 실패 목록을 본다. 401이면 4와 5의 비밀값이 다르다.
+   운영자 화면 **알림**(`/admin/notifications`)에서 상태별 건수와 실패 목록을 본다.
+
+   | `net._http_response` | 원인·조치 |
+   |---|---|
+   | 행 없음 | 보낼 알림이 없으면 호출하지 않는다(정상). Vault 이름 두 개가 있는지 `select name from vault.secrets;` |
+   | 404 `NOT_FOUND` | 함수 미배포 또는 Vault URL 오타 |
+   | 500 `dispatch secret not configured` | 함수 비밀값 `NOTIFY_DISPATCH_SECRET` 미등록(이름 철자 확인) |
+   | 401 `unauthorized` | 함수 비밀값과 Vault `notify_dispatch_secret` 값이 다름. Vault 값을 `select decrypted_secret ...`으로 다시 복사해 붙이고(앞뒤 공백 없이), **functions-deploy를 다시 실행**한다(이미 떠 있는 인스턴스가 예전 값을 쓸 수 있음) |
+   | 200 `{"claimed":N,"sent":N,...}` | 정상 |
 
 > 끄기: `select cron.unschedule('notify-dispatch');` (켜기: 마이그레이션 013의 `cron.schedule` 문을 다시 실행)
 > 비밀값 교체: 4의 `NOTIFY_DISPATCH_SECRET`과 `vault.update_secret((select id from vault.secrets where name = 'notify_dispatch_secret'), '<새 값>')`을 함께 바꾼다
