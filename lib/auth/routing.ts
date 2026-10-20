@@ -13,7 +13,9 @@ const ADMIN_LOGIN = "/admin/login";
 const ADMIN_MFA = "/admin/mfa";
 const ADMIN_PASSWORD = "/admin/password";
 // /memberships는 공개(D-16)지만 매도 상담 신청(/memberships/sell)은 로그인 고객 전용
-const CUSTOMER_PROTECTED = ["/me", "/onboarding", "/bookings", "/deals", "/memberships/sell"];
+const CUSTOMER_PROTECTED = ["/me", "/onboarding", "/bookings", "/deals", "/memberships/sell", "/groups/new"];
+// /groups·/groups/<id>는 공개(활성 모임 탐색)지만 모임 관리 화면(수정·정모 개설)은 로그인 고객 전용
+const CUSTOMER_PROTECTED_PATTERNS = [/^\/groups\/[^/]+\/(edit|meetings)(\/|$)/];
 
 const startsWithSegment = (path: string, base: string) => path === base || path.startsWith(base + "/");
 
@@ -50,7 +52,10 @@ export function decideRoute(path: string, session: Session | null): RouteDecisio
     return { type: "redirect", to: session.onboarded ? "/me" : "/onboarding" };
   }
 
-  if (CUSTOMER_PROTECTED.some((base) => startsWithSegment(path, base))) {
+  if (
+    CUSTOMER_PROTECTED.some((base) => startsWithSegment(path, base)) ||
+    CUSTOMER_PROTECTED_PATTERNS.some((re) => re.test(path))
+  ) {
     if (!session) return { type: "redirect", to: withNext("/login", path) };
     if (staff) return { type: "redirect", to: "/admin" };
     if (!session.onboarded) {
