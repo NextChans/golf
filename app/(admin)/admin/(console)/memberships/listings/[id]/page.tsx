@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/server";
 import { formatWon } from "@/lib/domain/booking/money";
 import { formatKst } from "@/lib/format/kst";
+import { maskPhone } from "@/lib/domain/phone";
 import { LISTING_STATUS_ADMIN_LABEL } from "@/lib/domain/membership/admin-schema";
 import { DEAL_SIDE_LABEL, DEAL_STATUS_LABEL } from "@/lib/domain/membership/status";
 import { loadProductOptions } from "../../options";
@@ -35,7 +36,7 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
       .maybeSingle(),
     supabase
       .from("membership_deals")
-      .select("id, side, status, desired_price, agreed_price, created_at")
+      .select("id, side, status, desired_price, agreed_price, created_at, customer:profiles!membership_deals_user_id_fkey(display_name, phone)")
       .eq("listing_id", id)
       .order("created_at", { ascending: false })
       .limit(50),
@@ -89,7 +90,7 @@ export default async function EditListingPage({ params }: { params: Promise<{ id
                       </Badge>
                     </div>
                     <p className="text-micro text-muted-foreground tabular-nums">
-                      접수 {formatKst(d.created_at)}
+                      {d.customer?.display_name ?? "고객"} · {maskPhone(d.customer?.phone)} · 접수 {formatKst(d.created_at)}
                       {d.agreed_price != null ? <> · 합의가 {formatWon(d.agreed_price)}</> : d.desired_price != null ? <> · 희망가 {formatWon(d.desired_price)}</> : null}
                     </p>
                   </div>
