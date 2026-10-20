@@ -2,7 +2,6 @@
 
 import { useActionState, useEffect, useId, useRef, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { FloatingInput } from "@/components/site/field";
 import { cn } from "@/lib/utils";
 import type { ActionResult } from "@/lib/action-result";
@@ -93,7 +92,7 @@ export function PostForm({ groupId, canNotice }: { groupId: string; canNotice: b
       <div className="flex flex-wrap items-center justify-between gap-3">
         {canNotice ? (
           <label className="flex min-h-11 items-center gap-2 text-body">
-            <Checkbox name="isNotice" id="post-notice" />
+            <input type="checkbox" name="isNotice" id="post-notice" className="size-5 accent-primary" />
             공지로 올리기
           </label>
         ) : <span />}
