@@ -3,8 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FloatingInput } from "@/components/site/field";
 import { changeInitialPassword } from "./actions";
 
 export function PasswordForm() {
@@ -16,7 +15,7 @@ export function PasswordForm() {
 
   return (
     <form
-      className="flex flex-col gap-4"
+      className="flex flex-col gap-3"
       onSubmit={(e) => {
         e.preventDefault();
         setError(null);
@@ -29,16 +28,18 @@ export function PasswordForm() {
       }}
     >
       <div className="space-y-1.5">
-        <Label htmlFor="new-password">새 비밀번호</Label>
-        <Input id="new-password" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        <p className="text-xs text-muted-foreground">12자 이상, 영문과 숫자를 포함</p>
+        <FloatingInput
+          id="new-password" label="새 비밀번호" type="password" autoComplete="new-password" aria-describedby="new-password-hint"
+          value={password} onChange={(e) => setPassword(e.target.value)} required
+        />
+        <p id="new-password-hint" className="px-1 text-micro text-muted-foreground">12자 이상, 영문과 숫자를 포함</p>
       </div>
-      <div className="space-y-1.5">
-        <Label htmlFor="confirm-password">새 비밀번호 확인</Label>
-        <Input id="confirm-password" type="password" autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} required />
-      </div>
-      {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-      <Button type="submit" size="lg" disabled={pending}>{pending ? "변경 중…" : "비밀번호 변경"}</Button>
+      <FloatingInput
+        id="confirm-password" label="새 비밀번호 확인" type="password" autoComplete="new-password"
+        value={confirm} onChange={(e) => setConfirm(e.target.value)} required
+      />
+      {error && <p role="alert" className="rounded-tile bg-destructive/10 px-5 py-4 text-small text-destructive">{error}</p>}
+      <Button type="submit" size="lg" className="mt-3" disabled={pending}>{pending ? "변경 중…" : "비밀번호 변경"}</Button>
     </form>
   );
 }

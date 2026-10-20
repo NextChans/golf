@@ -102,6 +102,16 @@ test.describe("고객 부킹", () => {
     expect(await countRequests(customer.userId)).toBe(0);
   });
 
+  test("시간 지정 순서 오류는 제출 전에 바로 보여준다", async ({ page }) => {
+    await page.goto("/bookings/new");
+    await page.getByText("시간 지정", { exact: true }).click();
+    await page.getByLabel("시작 시각").selectOption("10:00");
+    await page.getByLabel("종료 시각").selectOption("09:00");
+    await expect(page.getByText("종료 시각은 시작 시각보다 늦어야 합니다.")).toBeVisible();
+    await page.getByLabel("종료 시각").selectOption("11:30");
+    await expect(page.getByText("종료 시각은 시작 시각보다 늦어야 합니다.")).toHaveCount(0);
+  });
+
   test("다른 고객의 예약은 볼 수 없다", async ({ page, browser }) => {
     const id = await requestBooking(page);
     const other = await createOnboardedCustomer();

@@ -15,16 +15,23 @@ export default async function MfaPage() {
   if (session.aal === "aal2") redirect("/admin");
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-6 px-4">
-      <Logo href="/admin" />
-      <div className="space-y-1">
-        <h1 className="text-2xl font-bold">OTP 인증</h1>
-        <p className="text-sm text-muted-foreground">운영자 화면은 OTP 2단계 인증 후에만 열립니다.</p>
-      </div>
-      <MfaForm />
-      <form action="/auth/signout" method="post">
-        <Button type="submit" variant="ghost" size="sm">다른 계정으로 로그인</Button>
-      </form>
+    <main className="flex min-h-dvh flex-col">
+      <header className="mx-auto flex h-12 w-full max-w-[1024px] items-center px-4">
+        <Logo href="/admin" size="sm" />
+      </header>
+      <section className="mx-auto flex w-full max-w-[480px] flex-1 flex-col justify-center px-4 py-12 md:py-20">
+        <div className="text-center">
+          <p className="text-small font-semibold text-muted-foreground">Googolf 운영 콘솔</p>
+          <h1 className="mt-2 text-title tracking-tight">OTP 인증</h1>
+          <p className="mt-3 text-body text-muted-foreground">운영자 화면은 OTP 2단계 인증 후에만 열립니다.</p>
+        </div>
+        <div className="mt-10">
+          <MfaForm />
+        </div>
+        <form action="/auth/signout" method="post" className="mt-6 flex justify-center">
+          <Button type="submit" variant="ghost">다른 계정으로 로그인</Button>
+        </form>
+      </section>
     </main>
   );
 }

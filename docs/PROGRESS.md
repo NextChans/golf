@@ -15,7 +15,8 @@
 | M0 계획 | 완료·승인 | docs/PLAN.md, DECISIONS.md |
 | M1 스키마·RLS·상태 함수 | 완료·승인 | pgTAP 106/106, 동시성 2×50회, GitHub CI 통과 |
 | M2 인증 | 완료·머지(NextChans/golf#2) | pgTAP 145, Vitest 33, Playwright 7 |
-| M3 고객 부킹 | **완료, 오너 승인 대기** | pgTAP 150, Vitest 78, Playwright 12 |
+| M3 고객 부킹 | 완료·머지(NextChans/golf#3) | pgTAP 150, Vitest 78, Playwright 12 |
+| 디자인 개선(apple.com 스타일 + apple-design 스킬) | **완료, 오너 확인 대기** | D-43, Vitest 80, Playwright 13 |
 | M4 어드민 부킹·CRM | 대기 | |
 | M5 회원권 | 대기 | |
 | M6 알림 outbox | 대기 | 무료 단계: console + Slack 웹훅 |
@@ -30,6 +31,11 @@
 - 생성물: `types/database.ts`
 - CI: `.github/workflows/db.yml`
 - 브랜드: `public/brand/googolf-logo.svg`, `googolf-mark.svg`
+
+## 운영 반영 상태
+
+- 운영 DB: `deploy/prod-schema.sql`을 SQL Editor에서 실행해야 한다(미실행). 절차는 `deploy/README.md`
+- 카카오 앱·Supabase Kakao provider 설정: 오너 완료(2026-10-20)
 
 ## M3 결과 요약
 

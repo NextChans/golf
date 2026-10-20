@@ -5,7 +5,14 @@ import { VercelAnalytics } from "@/components/analytics/vercel-analytics";
 export const metadata: Metadata = {
   title: { default: "Googolf", template: "%s · Googolf" },
   description: "골프 부킹과 회원권 상담을 온라인으로. Googolf",
-  icons: { icon: "/brand/googolf-mark.svg" },
+  icons: {
+    icon: [
+      { url: "/brand/googolf-mark.svg", type: "image/svg+xml" },
+      { url: "/brand/icons/googolf-icon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/brand/icons/googolf-icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: { url: "/apple-touch-icon.png", sizes: "180x180" },
+  },
 };
 
 export const viewport: Viewport = {

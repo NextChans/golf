@@ -11,9 +11,9 @@ export function CancelBookingButton({ requestId, version }: { requestId: string;
   const [error, setError] = useState<string | null>(null);
 
   return (
-    <div className="space-y-1">
+    <div className="flex flex-col items-center gap-1 pt-2">
       <Button
-        variant="ghost" className="w-full text-destructive" disabled={pending}
+        variant="ghost" className="text-destructive hover:bg-destructive/10 hover:no-underline" disabled={pending}
         onClick={() => {
           if (!confirm("요청을 취소할까요? 취소 후에는 되돌릴 수 없습니다.")) return;
           setError(null);
@@ -26,7 +26,7 @@ export function CancelBookingButton({ requestId, version }: { requestId: string;
       >
         {pending ? "취소 중…" : "요청 취소"}
       </Button>
-      {error && <p role="alert" className="text-center text-sm text-destructive">{error}</p>}
+      {error && <p role="alert" className="text-center text-small text-destructive">{error}</p>}
     </div>
   );
 }
