@@ -11,7 +11,7 @@ export default async function ConsoleLayout({ children }: { children: React.Reac
   const session = await requireStaff();
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="sticky top-0 z-40 border-b border-border/70 bg-nav backdrop-blur-xl backdrop-saturate-150">
+      <header className="material-bar scroll-edge sticky top-0 z-40">
         <div className="mx-auto flex h-12 max-w-[1024px] items-center justify-between gap-2 px-4 text-micro">
           <div className="flex min-w-0 items-center gap-3 sm:gap-5">
             <div className="flex shrink-0 items-center gap-2">
@@ -19,7 +19,7 @@ export default async function ConsoleLayout({ children }: { children: React.Reac
               <Badge variant="secondary">{session.role === "owner" ? "최고관리자" : "운영자"}</Badge>
             </div>
             <nav className="flex min-w-0 items-center gap-3 overflow-x-auto sm:gap-5" aria-label="운영자 메뉴">
-              <Link className={navLink} href="/admin">홈</Link>
+              <Link className={navLink} href="/admin">요청 현황</Link>
               {session.role === "owner" && <Link className={navLink} href="/admin/staff">운영자 관리</Link>}
             </nav>
           </div>

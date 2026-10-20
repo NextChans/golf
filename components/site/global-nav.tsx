@@ -7,10 +7,10 @@ export async function GlobalNav() {
   const session = await getSession();
   const signedInCustomer = session?.role === "customer";
   return (
-    <header className="sticky top-0 z-40 bg-nav backdrop-blur-xl backdrop-saturate-150">
+    <header className="material-bar sticky top-0 z-40">
       <nav className="mx-auto flex h-12 max-w-[1024px] items-center justify-between px-4 text-micro" aria-label="전체 메뉴">
         <Logo size="sm" />
-        <div className="flex items-center gap-5 text-foreground/80">
+        <div className="flex items-center gap-5 font-medium text-foreground">
           <Link className="pressable hover:text-foreground" href="/bookings/new">부킹</Link>
           {signedInCustomer ? (
             <>

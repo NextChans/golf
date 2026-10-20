@@ -98,28 +98,31 @@
   --color-brand-lime: var(--brand-lime);
   --font-sans: "SF Pro KR", "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", "Helvetica Neue", sans-serif;
 
-  /* apple.com 타이포 스케일 */
-  --text-hero: 48px;          /* 모바일 히어로(데스크톱은 md:text-hero-lg) */
+  /* apple.com 타이포 스케일 — apple-design 스킬 §15: rem 단위, 큰 글씨일수록 좁은 자간·촘촘한 행간, 작은 글씨는 약간 넓게 */
+  --text-hero: 3rem;          /* 48px 모바일 히어로(데스크톱 md:text-hero-lg) */
   --text-hero--line-height: 1.08;
-  --text-hero--letter-spacing: -0.003em;
-  --text-hero-lg: 80px;
+  --text-hero--letter-spacing: -0.02em;
+  --text-hero-lg: 5rem;       /* 80px */
   --text-hero-lg--line-height: 1.05;
-  --text-hero-lg--letter-spacing: -0.015em;
-  --text-headline: 40px;      /* 섹션 헤드라인 */
+  --text-hero-lg--letter-spacing: -0.025em;
+  --text-headline: 2.5rem;    /* 40px 섹션 헤드라인 */
   --text-headline--line-height: 1.1;
-  --text-headline--letter-spacing: 0;
-  --text-title: 28px;         /* 페이지 타이틀 */
+  --text-headline--letter-spacing: -0.015em;
+  --text-title: 1.75rem;      /* 28px 페이지 타이틀 */
   --text-title--line-height: 1.14;
-  --text-title--letter-spacing: 0.007em;
-  --text-eyebrow: 21px;       /* 소제목·서브헤드 */
-  --text-eyebrow--line-height: 1.19;
-  --text-body: 17px;
-  --text-body--line-height: 1.47;
-  --text-body--letter-spacing: -0.022em;
-  --text-small: 14px;
-  --text-small--line-height: 1.43;
-  --text-micro: 12px;         /* 내비게이션·푸터 */
-  --text-micro--line-height: 1.33;
+  --text-title--letter-spacing: -0.01em;
+  --text-eyebrow: 1.3125rem;  /* 21px 소제목 */
+  --text-eyebrow--line-height: 1.24;
+  --text-eyebrow--letter-spacing: -0.005em;
+  --text-body: 1.0625rem;     /* 17px 본문 */
+  --text-body--line-height: 1.5;
+  --text-body--letter-spacing: 0;
+  --text-small: 0.875rem;     /* 14px */
+  --text-small--line-height: 1.45;
+  --text-small--letter-spacing: 0.005em;
+  --text-micro: 0.75rem;      /* 12px 내비·푸터 */
+  --text-micro--line-height: 1.4;
+  --text-micro--letter-spacing: 0.01em;
 }
 
 @layer base {
@@ -132,6 +135,7 @@
   }
   body {
     @apply bg-background text-body text-foreground antialiased;
+    font-optical-sizing: auto;
   }
   /* 한국어는 단어 단위 줄바꿈 */
   p, h1, h2, h3, li, dd, dt, span, label, a {
@@ -143,10 +147,39 @@
 }
 
 @layer utilities {
-  .pressable { transition: opacity 150ms ease, background-color 150ms ease, color 150ms ease, border-color 150ms ease; }
-  .pressable:active { opacity: 0.75; }
+  /* apple-design 스킬 §1: 누르는 순간(pointer-down) 즉시 피드백 */
+  .pressable { transition: transform 100ms ease-out, opacity 150ms ease-out, background-color 150ms ease-out, color 150ms ease-out, border-color 150ms ease-out; }
+  .pressable:active { transform: scale(0.97); }
   .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+
+  /* §12 반투명 소재: 내용이 아래로 스크롤되는 반투명 바. 구분선 대신 아래쪽 경계 페이드(scroll edge) */
+  .material-bar {
+    background: var(--nav);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
+  }
+  /* position은 지정하지 않는다: sticky 요소가 이미 ::after의 기준점이고, relative를 주면 sticky가 깨진다 */
+  .scroll-edge::after {
+    content: ""; position: absolute; inset-inline: 0; top: 100%; height: 12px; pointer-events: none;
+    background: linear-gradient(to bottom, rgb(0 0 0 / 0.05), transparent);
+  }
+
+  /* 상태 변화의 연속성: 새로 나타나는 카드·알림은 짧게 떠오르며 등장(ease-out, 200ms) */
+  .enter-fade { animation: enter-fade 200ms ease-out both; }
+  @keyframes enter-fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  /* §14 접근성: 동작 줄이기, 투명도 줄이기, 대비 높이기 */
   @media (prefers-reduced-motion: reduce) {
-    .pressable { transition: none; }
+    .pressable { transition: opacity 150ms ease-out; }
+    .pressable:active { transform: none; opacity: 0.7; }
+    .enter-fade { animation-name: enter-fade-opacity; }
+    @keyframes enter-fade-opacity { from { opacity: 0; } to { opacity: 1; } }
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .material-bar { background: var(--background); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  }
+  @media (prefers-contrast: more) {
+    .material-bar { background: var(--background); -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: 0 1px 0 var(--foreground); }
+    .scroll-edge::after { display: none; }
   }
 }

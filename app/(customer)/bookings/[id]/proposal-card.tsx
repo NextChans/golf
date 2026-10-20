@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { formatKst } from "@/lib/format/kst";
 import { formatWon, totalGreenFee } from "@/lib/domain/booking/money";
 import { formatRemaining, remainingMs } from "@/lib/domain/booking/status";
@@ -31,6 +32,9 @@ export function ProposalCard({ proposal, requestVersion, players, idempotencyKey
     ? null
     : remainingMs(proposal.expires_at, serverNow, clientAtRender.current, now);
   const expired = left !== null && left <= 0;
+  // 피드백 4종 중 "경고": 만료 10분 전부터 경고색으로 바꾼다(apple-design §16)
+  const expiringSoon = left !== null && !expired && left <= 10 * 60_000;
+  const phase = left === null ? null : expired ? "expired" : expiringSoon ? "soon" : "open";
 
   const run = (fn: () => Promise<{ ok: boolean; error?: { message: string } }>) => {
     setError(null);
@@ -42,15 +46,22 @@ export function ProposalCard({ proposal, requestVersion, players, idempotencyKey
   };
 
   return (
-    <section className="rounded-tile-lg border-2 border-primary bg-card p-6 md:p-8" aria-label="티타임 제안">
+    <section className="enter-fade rounded-tile-lg border-2 border-primary bg-card p-6 md:p-8" aria-label="티타임 제안">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-small font-semibold text-primary">티타임 제안이 도착했습니다</p>
+        {/* 매초 바뀌는 숫자는 읽지 않고(aria-live 없음), 단계가 바뀔 때만 아래 status가 알린다 */}
         <p
-          className="rounded-full bg-section px-3 py-1 text-small tabular-nums empty:hidden"
-          aria-live="polite" data-testid="proposal-remaining"
+          className={cn(
+            "rounded-full px-3 py-1 text-small tabular-nums transition-colors empty:hidden",
+            phase === "soon" || phase === "expired" ? "bg-warning/15 font-semibold text-warning" : "bg-section",
+          )}
+          data-testid="proposal-remaining"
         >
           {left === null ? "" : expired ? "만료됨" : `${formatRemaining(left)} 남음`}
         </p>
+        <span role="status" className="sr-only">
+          {phase === "soon" ? "제안 유효시간이 10분 이내로 남았습니다." : phase === "expired" ? "제안 유효시간이 지났습니다." : ""}
+        </span>
       </div>
       <p className="mt-4 text-title font-semibold tracking-tight tabular-nums md:text-headline">{formatKst(proposal.tee_time)}</p>
       <p className="mt-2 text-eyebrow">

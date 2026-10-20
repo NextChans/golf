@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 export function ForbiddenView() {
   return (
     <>
-      <header className="sticky top-0 z-40 bg-nav backdrop-blur-xl backdrop-saturate-150">
+      <header className="material-bar sticky top-0 z-40">
         <div className="mx-auto flex h-12 max-w-[1024px] items-center px-4">
           <Logo size="sm" />
         </div>

@@ -59,7 +59,20 @@ export function BookingForm({ idempotencyKey, courses, minDate, maxDate }: {
   const [timePref, setTimePref] = useState<(typeof TIME_OPTIONS)[number]["value"]>("part_1");
   const [players, setPlayers] = useState(4);
   const [budget, setBudget] = useState("");
-  const errors = state.fieldErrors ?? {};
+  // 제출 전에 바로 알려줄 수 있는 오류는 입력 즉시 검증한다(apple-design §16). 최종 검증은 서버·DB가 한다.
+  const [liveErrors, setLiveErrors] = useState<Record<string, string | undefined>>({});
+  const errors = { ...(state.fieldErrors ?? {}), ...Object.fromEntries(Object.entries(liveErrors).filter(([, v]) => v)) };
+  const validateDate = (value: string) =>
+    setLiveErrors((e) => ({
+      ...e,
+      playDate: !value ? undefined : value < minDate ? "오늘 이후 날짜를 선택해 주세요." : value > maxDate ? "180일 이내 날짜만 요청할 수 있습니다." : undefined,
+    }));
+  const validateRange = (form: HTMLFormElement | null) => {
+    if (!form) return;
+    const from = (form.elements.namedItem("timeFrom") as HTMLSelectElement | null)?.value;
+    const to = (form.elements.namedItem("timeTo") as HTMLSelectElement | null)?.value;
+    setLiveErrors((e) => ({ ...e, timeTo: from && to && from >= to ? "종료 시각은 시작 시각보다 늦어야 합니다." : undefined }));
+  };
 
   useEffect(() => {
     if (state.createdId) router.replace(`/bookings/${state.createdId}`);
@@ -104,6 +117,7 @@ export function BookingForm({ idempotencyKey, courses, minDate, maxDate }: {
         <FloatingInput
           id="playDate" name="playDate" label="라운딩 날짜" type="date"
           min={minDate} max={maxDate} required error={errors.playDate}
+          onChange={(e) => validateDate(e.currentTarget.value)}
         />
         <fieldset className="space-y-3 pt-2">
           <legend className="mb-3 text-body font-semibold">희망 시간대</legend>
@@ -128,7 +142,7 @@ export function BookingForm({ idempotencyKey, courses, minDate, maxDate }: {
           {timePref === "range" && (
             <div className="flex items-center gap-2.5">
               <div className={cn(fieldShellClass, "flex-1")}>
-                <select id="timeFrom" name="timeFrom" defaultValue="07:00" className={selectClass}>
+                <select id="timeFrom" name="timeFrom" defaultValue="07:00" className={selectClass} onChange={(e) => validateRange(e.currentTarget.form)}>
                   {HALF_HOURS.map((t) => <option key={t}>{t}</option>)}
                 </select>
                 <label htmlFor="timeFrom" className={fieldLabelClass}>시작 시각</label>
@@ -136,7 +150,7 @@ export function BookingForm({ idempotencyKey, courses, minDate, maxDate }: {
               </div>
               <span aria-hidden className="text-muted-foreground">~</span>
               <div className={cn(fieldShellClass, "flex-1")}>
-                <select id="timeTo" name="timeTo" defaultValue="09:00" className={selectClass}>
+                <select id="timeTo" name="timeTo" defaultValue="09:00" className={selectClass} onChange={(e) => validateRange(e.currentTarget.form)}>
                   {HALF_HOURS.map((t) => <option key={t}>{t}</option>)}
                 </select>
                 <label htmlFor="timeTo" className={fieldLabelClass}>종료 시각</label>

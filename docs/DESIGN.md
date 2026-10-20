@@ -2,6 +2,12 @@
 
 오너 지시: "Apple 홈페이지 스타일". iOS 앱 스타일이 아니라 **apple.com 웹사이트**의 시각 언어를 따른다. 브랜드 강조색은 Googolf 그린.
 
+## 기준 스킬
+
+- **`.claude/skills/apple-design`** — Emil Kowalski의 apple-design 스킬(Apple WWDC 디자인 원칙의 웹 번역, MIT, 출처·커밋은 같은 폴더 LICENSE). 오너 지정 디자인 스킬이다. UI를 만들거나 리뷰할 때 이 스킬을 먼저 읽는다.
+- 적용 현황: §1 누름 피드백(`.pressable` scale 0.97, 100ms ease-out), §12 반투명 소재·스크롤 경계(`.material-bar`, `.scroll-edge`), §14 reduced-motion/transparency/contrast, §15 크기별 자간·rem 단위 타이포, §16 구체적인 내비 이름.
+- 아직 해당 없음: 제스처·스프링·모멘텀(§2~§10) — 드래그·시트 UI가 생기면 적용(스프링 기본 damping 1.0).
+
 ## 원칙
 1. **여백과 타이포가 주인공** — 큰 헤드라인, 짧은 문장, 넉넉한 세로 여백(섹션 py-14 md:py-24). 장식·그림자·테두리는 최소화.
 2. **섹션 교차** — 흰 바탕(`bg-background`)과 연회색(`bg-section` #f5f5f7)을 번갈아. 강조 섹션만 검정(`Section tone="dark"`).

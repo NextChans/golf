@@ -88,8 +88,8 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
 
               {accepted && b.status === "confirmed" && (
                 <section
-                  className="rounded-tile-lg bg-primary p-7 text-primary-foreground md:p-10"
-                  aria-label="확정된 티타임"
+                  className="enter-fade rounded-tile-lg bg-primary p-7 text-primary-foreground md:p-10"
+                  aria-label="확정된 티타임" role="status"
                 >
                   <p className="text-small font-semibold opacity-80">확정된 티타임</p>
                   <p className="mt-2 text-title font-semibold tracking-tight tabular-nums md:text-headline">
