@@ -1,6 +1,7 @@
 "use client";
 
-import { startTransition, useActionState } from "react";
+import { startTransition, useActionState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { FloatingInput } from "@/components/site/field";
 import { Button } from "@/components/ui/button";
 import { saveQuote, type MembershipFormState } from "./actions";
@@ -12,6 +13,11 @@ import { FormAlert } from "./form-parts";
  */
 export function QuoteForm({ productId, today }: { productId: string; today: string }) {
   const [state, action, pending] = useActionState<MembershipFormState, FormData>(saveQuote, {});
+  const router = useRouter();
+  // 성공하면 시세 표를 새로 받는다(액션은 revalidatePath를 쓰지 않음, actions.ts 주석)
+  useEffect(() => {
+    if (state.savedAt) router.refresh();
+  }, [state.savedAt, router]);
   const errors = state.fieldErrors ?? {};
 
   return (

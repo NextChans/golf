@@ -30,7 +30,7 @@ test("상담 신청 → 협의 시작(매물 상담 중) → 취소 시 매물 �
   page.on("dialog", (d) => d.accept());
 
   await signInStaffWithNewTotp(page, staff);
-  await page.getByRole("link", { name: "회원권 상담" }).click();
+  await page.getByRole("link", { name: "회원권 상담", exact: true }).click();
   const row = page.locator(`a[href="/admin/deals/${dealId}"]`);
   await expect(row).toContainText(customer.displayName);
   await expect(row).toContainText(/010-\*\*\*\*-\d{4}/);

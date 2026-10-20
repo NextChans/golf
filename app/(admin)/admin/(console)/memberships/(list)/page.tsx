@@ -125,7 +125,7 @@ function ListingList({ rows }: { rows: ListingRow[] }) {
         const title = `${l.product?.golf_course?.name ?? "골프장"} ${l.product?.kind ?? ""}`.trim();
         return (
           <li key={l.id} className="flex items-center gap-3 pr-4 hover:bg-section/60">
-            <Link href={`/admin/memberships/listings/${l.id}`} className="pressable flex min-w-0 flex-1 items-center justify-between gap-3 py-4 pl-5">
+            <Link prefetch={false} href={`/admin/memberships/listings/${l.id}`} className="pressable flex min-w-0 flex-1 items-center justify-between gap-3 py-4 pl-5">
               <div className="min-w-0 space-y-1">
                 <div className="flex items-center gap-2">
                   <p className="truncate text-body font-semibold">{title}</p>
@@ -153,7 +153,7 @@ function ProductList({ rows }: { rows: ProductRow[] }) {
         const q = p.quotes[0];
         return (
           <li key={p.id}>
-            <Link href={`/admin/memberships/products/${p.id}`} className="pressable flex items-center justify-between gap-3 px-5 py-4 hover:bg-section/60">
+            <Link prefetch={false} href={`/admin/memberships/products/${p.id}`} className="pressable flex items-center justify-between gap-3 px-5 py-4 hover:bg-section/60">
               <div className="min-w-0 space-y-1">
                 <div className="flex items-center gap-2">
                   <p className="truncate text-body font-semibold">{p.golf_course?.name ?? "골프장"} {p.kind}</p>

@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireStaff } from "@/lib/auth/guards";
 import { toAppError } from "@/lib/domain/errors";
@@ -20,11 +19,11 @@ export type MembershipFormState = {
   savedAt?: number;
 };
 
-/** 운영자 화면과 고객 매물 화면(공개 여부·호가가 바뀌므로)을 함께 갱신한다 */
-function revalidateMemberships() {
-  revalidatePath("/admin/memberships", "layout");
-  revalidatePath("/memberships", "layout");
-}
+/**
+ * 회원권 액션은 revalidatePath를 부르지 않는다. 화면 갱신은 클라이언트가 한다(이동: router.replace, 제자리: router.refresh).
+ * 이유: revalidatePath가 실린 액션 응답(목록 전체 RSC)이 클라이언트에 반영되지 않고 pending에 머무는 경우가 있었다
+ * (e2e/admin-memberships.spec.ts --repeat-each, 데이터가 쌓일수록 빈번). 운영자·고객 화면 모두 쿠키를 읽는 동적 페이지라 캐시가 없다.
+ */
 
 /**
  * 회원권 상품 생성·수정(A-04). 권한·중복(골프장×종류)·감사 로그는 DB 함수(upsert_membership_product)가 최종 판단한다.
@@ -44,7 +43,6 @@ export async function saveProduct(_prev: MembershipFormState, formData: FormData
     p_is_active: v.isActive,
   });
   if (error || !data) return { error: toAppError(error).message };
-  revalidateMemberships();
   return { savedId: data.id, savedAt: Date.now() };
 }
 
@@ -62,7 +60,6 @@ export async function saveListing(_prev: MembershipFormState, formData: FormData
     p_description: v.description as string,
   });
   if (error || !data) return { error: toAppError(error).message };
-  revalidateMemberships();
   return { savedId: data.id, savedAt: Date.now() };
 }
 
@@ -80,7 +77,6 @@ export async function saveQuote(_prev: MembershipFormState, formData: FormData):
     p_sell_price: v.sellPrice as number,
   });
   if (error || !data) return { error: toAppError(error).message };
-  revalidateMemberships();
   return { savedId: String(data.id), savedAt: Date.now() };
 }
 
@@ -95,6 +91,5 @@ export async function setListingVisibility(_prev: MembershipFormState, formData:
     p_visible: parsed.data.visible,
   });
   if (error || !data) return { error: toAppError(error).message };
-  revalidateMemberships();
   return { savedId: data.id, savedAt: Date.now() };
 }
