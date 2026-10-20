@@ -77,3 +77,32 @@ stateDiagram-v2
 - 모든 전이: 대상 행 `FOR UPDATE` → version 일치 → 상태 검증 → version+1 → `*_events`(고객 타임라인) → `audit_logs` → `notification_outbox`
 - 잠금 순서: 요청→제안, 거래→매물
 - 남의 데이터는 존재 여부도 노출하지 않는다(`GB404 not_found`)
+
+## 골프 모임 (M7)
+
+### 모임 `group_status`
+| 전이 | 함수 | 조건 |
+|---|---|---|
+| ∅ → active / review | `create_group` | 이름·소개에 금칙어가 있으면 review(D-68) + 운영자 알림 |
+| active → review | `update_group` | 수정으로 금칙어가 생기면 |
+| review·active ↔ hidden | `moderate_group`(운영자) | hidden이면 모임장 알림 |
+| active·review → hidden | `report_content` | 같은 모임에 열린 신고 3건(D-69) |
+| * → closed | `leave_group` | 마지막 멤버(모임장)가 떠나면(D-71) |
+
+### 멤버 `group_member_status`
+| 전이 | 함수 | 권한 |
+|---|---|---|
+| ∅ → active | `join_group` (공개 모임) | 본인, 정원 미만 |
+| ∅ → pending | `join_group` (승인제) | 본인 |
+| pending → active / 삭제 | `decide_join` | 모임장·운영진, 승인 시 정원 확인 + 알림 |
+| active·pending → 삭제 | `leave_group` | 본인. 모임장이면 승계(D-71), 예정 정모 참석도 취소 |
+| active·pending → banned | `kick_member` | 모임장(운영진까지)·운영진(멤버만). 재가입 불가 |
+| banned → 삭제 | `unban_member` | 모임장 |
+| 역할 member ↔ manager, 위임 | `set_member_role` | 모임장 |
+
+### 정모 `meeting_status`
+| 전이 | 함수 | 조건 |
+|---|---|---|
+| ∅ → scheduled | `create_meeting` | 모임장·운영진, 180일 이내 미래, 골프장 또는 장소 중 하나, 개설자 자동 참석, 멤버 알림 |
+| 참석/취소 | `attend_meeting` / `cancel_attendance` | 활성 멤버, 시작 전, 정원(행 잠금) |
+| scheduled → cancelled | `cancel_meeting` | 모임장·운영진, 참석자 알림 |
