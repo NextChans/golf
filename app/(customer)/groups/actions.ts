@@ -14,7 +14,9 @@ import {
 /**
  * 골프 모임(M7) 고객 액션. 권한·정원·상태·금칙어는 DB 함수가 최종 판단한다(신뢰 경계).
  * 제자리 갱신은 revalidatePath로 한다(D-62: [id]에는 loading.tsx·Suspense를 두지 않는다).
- * 새 화면으로 이동하는 생성 액션(모임·정모)은 revalidatePath를 부르지 않는다 — router.replace와 경합(bookings/actions.ts).
+ * 정모 개설·모임 수정은 돌아갈 모임 화면을 revalidatePath로 비운다: 폼 화면의 "‹ 모임" 링크가 미리 받아 둔(prefetch)
+ * 옛 화면이 router.replace 후 그대로 그려지는 것을 막는다(D-62, admin memberships/actions.ts와 같은 이유).
+ * 모임 만들기는 새 id라 미리 받은 화면이 없으므로 부르지 않는다(bookings/actions.ts: router.replace와 경합).
  */
 
 export type FormState = {
@@ -71,6 +73,7 @@ export async function updateGroup(_prev: FormState, formData: FormData): Promise
     if (e.code === "invalid_input") return { fieldErrors: { capacity: "정원은 현재 멤버 수 이상이어야 합니다." }, error: e.message };
     return { error: e.message };
   }
+  refresh(data.id);
   return { groupId: data.id };
 }
 
@@ -170,6 +173,7 @@ export async function createMeeting(_prev: FormState, formData: FormData): Promi
     p_note: v.note as string,
   });
   if (error || !data) return { error: toAppError(error).message };
+  refresh(data.group_id);
   return { groupId: data.group_id };
 }
 

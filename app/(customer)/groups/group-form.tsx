@@ -69,7 +69,7 @@ export function GroupForm(props:
           <FieldError message={errors.type} />
         </fieldset>
       ) : (
-        <p className="px-1 text-small text-muted-foreground">모임 유형: {init.type ? GROUP_TYPE_LABEL[init.type] : "-"} (변경할 수 없습니다)</p>
+        <p className="px-1 text-small text-muted-foreground">모임 유형: {init?.type ? GROUP_TYPE_LABEL[init.type] : "-"} (변경할 수 없습니다)</p>
       )}
 
       <div className="space-y-1.5">
