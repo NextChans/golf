@@ -13,11 +13,13 @@ export default async function AdminHome() {
   const nowIso = new Date().toISOString();
   const count = (q: PromiseLike<{ count: number | null }>) => q.then((r) => r.count);
   const base = () => supabase.from("booking_requests").select("id", { count: "exact", head: true });
-  const [fresh, mine, sla, deals] = await Promise.all([
+  const [fresh, mine, sla, deals, reports, review] = await Promise.all([
     count(base().eq("status", "requested")),
     count(base().eq("assignee_id", session.userId).in("status", OPEN_STATUSES)),
     count(base().eq("status", "requested").lt("sla_due_at", nowIso)),
     count(supabase.from("membership_deals").select("id", { count: "exact", head: true }).eq("status", "inquiry")),
+    count(supabase.from("community_reports").select("id", { count: "exact", head: true }).eq("status", "open")),
+    count(supabase.from("groups").select("id", { count: "exact", head: true }).eq("status", "review")),
   ]);
 
   const tiles = [
@@ -44,6 +46,16 @@ export default async function AdminHome() {
             </Tile>
           </Link>
         ))}
+        <Link href="/admin/community" className="pressable block rounded-tile-lg" aria-label={`커뮤니티 신고 ${reports ?? "-"}건, 검수 대기 ${review ?? "-"}건`}>
+          <Tile className="p-6 hover:bg-border/40">
+            <p className="text-small text-muted-foreground">커뮤니티 신고·검수</p>
+            <p className={`mt-1 text-headline font-semibold tabular-nums ${(reports ?? 0) + (review ?? 0) > 0 ? "text-destructive" : ""}`}>
+              {reports ?? "-"}
+              <span className="text-body font-normal text-muted-foreground"> / {review ?? "-"}</span>
+            </p>
+            <p className="mt-1 text-micro text-muted-foreground">열린 신고 / 검수 대기 모임</p>
+          </Tile>
+        </Link>
       </div>
     </div>
   );

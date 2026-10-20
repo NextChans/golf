@@ -25,6 +25,7 @@ export default async function ConsoleLayout({ children }: { children: React.Reac
               <Link className={navLink} href="/admin/courses">골프장</Link>
               <Link className={navLink} href="/admin/memberships">매물·시세</Link>
               <Link className={navLink} href="/admin/notifications">알림</Link>
+              <Link className={navLink} href="/admin/community">커뮤니티</Link>
               {session.role === "owner" && <Link className={navLink} href="/admin/staff">운영자 관리</Link>}
             </nav>
           </div>
