@@ -19,7 +19,9 @@ export default async function ConsoleLayout({ children }: { children: React.Reac
               <Badge variant="secondary">{session.role === "owner" ? "최고관리자" : "운영자"}</Badge>
             </div>
             <nav className="flex min-w-0 items-center gap-3 overflow-x-auto sm:gap-5" aria-label="운영자 메뉴">
-              <Link className={navLink} href="/admin">요청 현황</Link>
+              <Link className={navLink} href="/admin/bookings">요청 인박스</Link>
+              <Link className={navLink} href="/admin/customers">고객</Link>
+              <Link className={navLink} href="/admin/courses">골프장</Link>
               {session.role === "owner" && <Link className={navLink} href="/admin/staff">운영자 관리</Link>}
             </nav>
           </div>

@@ -26,7 +26,7 @@ export function FloatingInput({ id, label, error, className, suffix, ...props }:
           className={cn(
             "pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-body text-muted-foreground transition-all",
             "peer-focus:top-4 peer-focus:text-micro peer-[:not(:placeholder-shown)]:top-4 peer-[:not(:placeholder-shown)]:text-micro",
-            "peer-[[type=date]]:top-4 peer-[[type=date]]:text-micro",
+            "peer-[[type=date]]:top-4 peer-[[type=date]]:text-micro peer-[[type=datetime-local]]:top-4 peer-[[type=datetime-local]]:text-micro",
           )}
         >
           {label}

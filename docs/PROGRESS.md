@@ -16,8 +16,9 @@
 | M1 스키마·RLS·상태 함수 | 완료·승인 | pgTAP 106/106, 동시성 2×50회, GitHub CI 통과 |
 | M2 인증 | 완료·머지(NextChans/golf#2) | pgTAP 145, Vitest 33, Playwright 7 |
 | M3 고객 부킹 | 완료·머지(NextChans/golf#3) | pgTAP 150, Vitest 78, Playwright 12 |
-| 디자인 개선(apple.com 스타일 + apple-design 스킬) | **완료, 오너 확인 대기** | D-43, Vitest 80, Playwright 13 |
-| M4 어드민 부킹·CRM | 대기 | |
+| 디자인 개선(apple.com 스타일 + apple-design 스킬) | 완료·머지 | D-43 |
+| 연락처 입력(D-48) | 완료·머지(NextChans/golf#5) | |
+| M4 어드민 부킹·CRM | **진행 중** | 인박스·상세·골프장·CRM, D-49~52 |
 | M5 회원권 | 대기 | |
 | M6 알림 outbox | 대기 | 무료 단계: console + Slack 웹훅 |
 | M7 골프 커뮤니티(후보) | 기획 전 | 요구사항 확정 필요(docs/research/somoim-analysis.md) |
@@ -34,8 +35,17 @@
 
 ## 운영 반영 상태
 
-- 운영 DB: 001~008 적용 완료(오너, 2026-10-20). 009(연락처)는 `deploy/2026-10-20-02-contact-phone.sql` 미적용. 절차·상태는 `deploy/README.md` 1-1
+- 운영 DB: 001~009 적용 완료(오너, 2026-10-20). 010(M4)은 `deploy/2026-10-20-03-admin-ops.sql` 미적용(머지 전 실행, D-50). 절차·상태는 `deploy/README.md` 1-1
+- 운영 데이터 정리 필요: `golf_courses`의 README 예시 행 "실제 골프장명" — M4 배포 후 골프장 화면에서 수정하거나 운영 중지
 - 카카오 앱·Supabase Kakao provider 설정: 오너 완료(2026-10-20)
+
+## M4 결과 요약(진행 중)
+
+- DB: `20261020000010_admin_ops.sql` — `upsert_golf_course`, `add_activity_note`, `list_assignable_staff`, `profiles_phone_idx`. pgTAP `013_admin_ops`
+- 화면: `/admin`(신규·내 담당·SLA 카운트), `/admin/bookings`(인박스 탭, D-51), `/admin/bookings/[id]`(배정·제안·불가·취소·제안 이력·타임라인), `/admin/courses`, `/admin/customers`
+- 도메인: `lib/domain/booking/admin.ts`(버튼 노출 규칙·KST 변환·zod), `lib/domain/course`, `lib/domain/crm`
+- E2E 픽스처: `e2e/staff.ts` — 운영자 계정은 profiles 행까지 만들어야 한다(배정·메모 FK)
+- 에러 대체(D-49): 프론트가 모르는 GB 코드는 SQLSTATE 계열 메시지로
 
 ## M3 결과 요약
 

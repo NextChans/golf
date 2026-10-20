@@ -34,7 +34,7 @@ function env() {
   return { url, anonKey, databaseUrl };
 }
 
-async function withDb<T>(fn: (db: pg.Client) => Promise<T>): Promise<T> {
+export async function withDb<T>(fn: (db: pg.Client) => Promise<T>): Promise<T> {
   const db = new pg.Client({ connectionString: env().databaseUrl });
   await db.connect();
   try {

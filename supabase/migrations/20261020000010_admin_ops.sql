@@ -128,8 +128,6 @@ end;
 $$;
 
 -- 운영자 화면 목록 조회용 인덱스
-create index if not exists booking_requests_sla_breached_idx on public.booking_requests (sla_breached_at)
-  where sla_breached_at is not null;
 create index if not exists profiles_phone_idx on public.profiles (phone);
 
 revoke execute on function
