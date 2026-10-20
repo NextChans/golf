@@ -2,6 +2,7 @@
  * 동시성 검증: 두 커넥션에서 같은 대상에 동시에 상태 함수를 호출해 정확히 1건만 성공하는지 확인한다.
  *   (f) 같은 부킹 요청에 대한 동시 accept_proposal
  *   (g) 같은 매물에 대한 동시 start_deal(선점)
+ *   (h) 알림 발송기 두 개의 동시 claim_notifications(같은 알림을 두 번 잡지 않음 = 중복 발송 없음)
  *
  * 실행: pnpm test:concurrency   (로컬 supabase start 필요)
  * 환경변수: DATABASE_URL(기본 로컬), ITERATIONS(기본 50)
@@ -159,6 +160,37 @@ async function listingRace(setup: pg.Client, conns: [pg.Client, pg.Client], admi
   assert(rows[0].status === "reserved" && rows[0].negotiating === 1, `listing: 최종 상태 불일치 ${JSON.stringify(rows[0])}`);
 }
 
+async function claimRace(setup: pg.Client, conns: [pg.Client, pg.Client]) {
+  const batch = randomUUID();
+  // 다른 시나리오가 쌓은 대기 알림보다 먼저 잡히도록 과거 시각으로 넣는다(claim은 next_attempt_at 순)
+  const { rows: inserted } = await setup.query<{ id: string }>(
+    `insert into public.notification_outbox (event_type, recipient_kind, channel, template_code, payload, dedupe_key, next_attempt_at)
+     select 'race', 'admins', 'slack', 'ADMIN_BOOKING_REQUESTED', '{}'::jsonb, $1 || ':' || g, now() - interval '1 day'
+       from generate_series(1, 10) g returning id::text`,
+    [batch],
+  );
+  const ids = new Set(inserted.map((r) => r.id));
+
+  const claim = async (db: pg.Client) => {
+    await db.query("begin");
+    await db.query(`select set_config('request.jwt.claims', '{"role":"service_role"}', true)`);
+    await db.query("set local role service_role");
+    const { rows } = await db.query<{ id: string }>("select id::text from public.claim_notifications(100)");
+    await db.query("commit");
+    return rows.map((r) => r.id);
+  };
+  const [a, b] = await Promise.all([claim(conns[0]), claim(conns[1])]);
+
+  const mine = [...a, ...b].filter((id) => ids.has(id));
+  assert(new Set(mine).size === mine.length, `claim: 같은 알림을 두 발송기가 잡음 ${JSON.stringify({ a, b })}`);
+  assert(mine.length === ids.size, `claim: ${mine.length}/${ids.size}건만 잡힘`);
+  const { rows } = await setup.query<{ n: number }>(
+    "select count(*)::int as n from public.notification_outbox where dedupe_key like $1 || ':%' and status = 'sending' and attempts = 1",
+    [batch],
+  );
+  assert(rows[0]!.n === ids.size, `claim: 시도 횟수 불일치 ${JSON.stringify(rows[0])}`);
+}
+
 async function main() {
   const setup = new pg.Client({ connectionString: DATABASE_URL });
   const conns: [pg.Client, pg.Client] = [
@@ -172,6 +204,7 @@ async function main() {
     for (const [name, fn] of [
       ["(f) 동시 accept_proposal", acceptRace],
       ["(g) 동시 매물 선점", listingRace],
+      ["(h) 동시 알림 claim", (s: pg.Client, c: [pg.Client, pg.Client]) => claimRace(s, c)],
     ] as const) {
       for (let i = 0; i < ITERATIONS; i++) await fn(setup, conns, admin);
       console.log(`PASS ${name}: ${ITERATIONS}회 모두 1건만 성공`);

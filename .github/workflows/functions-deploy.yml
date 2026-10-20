@@ -1,0 +1,42 @@
+name: functions-deploy
+
+# Supabase Edge Function(notify-dispatcher) 배포. 수동 실행만 허용한다.
+# 필요한 설정: db-deploy와 같은 Environment(secrets.SUPABASE_ACCESS_TOKEN, vars.SUPABASE_PROJECT_REF)
+# 함수 비밀값(NOTIFY_DISPATCH_SECRET 등)은 이 워크플로가 다루지 않는다. 오너가 대시보드에서 등록한다(deploy/README.md 6장).
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "배포 대상"
+        type: choice
+        options: [dev, prod]
+        default: prod
+
+concurrency:
+  group: functions-deploy-${{ inputs.target }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: ${{ inputs.target }}
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Check configuration
+        run: |
+          test -n "$SUPABASE_ACCESS_TOKEN" || { echo "SUPABASE_ACCESS_TOKEN 없음"; exit 1; }
+          test -n "$PROJECT_REF" || { echo "SUPABASE_PROJECT_REF 없음"; exit 1; }
+      # verify_jwt=false는 config.toml [functions.notify-dispatcher]에 있다(함수 안에서 x-dispatch-secret 검증)
+      - name: Deploy notify-dispatcher
+        run: pnpm exec supabase functions deploy notify-dispatcher --project-ref "$PROJECT_REF" --no-verify-jwt --use-api

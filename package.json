@@ -20,6 +20,7 @@
     "db:types": "supabase gen types typescript --local --schema public > types/database.ts",
     "test:concurrency": "tsx scripts/concurrency/run.ts",
     "typecheck": "tsc --noEmit",
+    "notify:dispatch": "tsx scripts/notify/dispatch-local.ts",
     "seed:owner": "tsx scripts/seed-owner.ts"
   },
   "devDependencies": {

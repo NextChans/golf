@@ -28,6 +28,7 @@ select jobname from cron.job order by 1;   -- expire-proposals, mark-sla-breache
 | `2026-10-20-03-admin-ops.sql` | 010: 골프장 저장·통화 메모·배정 대상 목록(M4) | 적용 완료(머지 전 선반영, D-50) |
 | `2026-10-20-04-membership-admin.sql` | 011: 회원권 상품·매물·시세 저장, 거래 담당자 배정(M5) | 적용 완료(머지 전 선반영, D-50) |
 | `2026-10-20-05-deal-status-label.sql` | 012: 거래 상태 라벨을 화면과 통일(D-61) | 적용 완료(머지 전 선반영) |
+| `2026-10-20-06-outbox-dispatch.sql` | 013: 알림 발송(claim·성공·실패·재시도, pg_net, 1분 cron)(M6) | **미적용** — 추가만 있으므로 M6 머지 전에 실행. 실행해도 6장의 Vault 비밀값을 넣기 전까지는 아무것도 보내지 않는다 |
 
 **순서 규칙(D-50)**: 추가만 하는 변경(새 함수·컬럼·인덱스)은 DB 먼저, 기존 동작을 막는 변경(트리거·제약 강화)은 그 에러를 처리하는 앱을 먼저 배포한 뒤 DB. 각 PR 설명에 어느 쪽인지 적는다.
 
@@ -84,3 +85,32 @@ values ('실제 골프장명', 'seoul_gyeonggi', '주소', 180000, 240000, '위�
 1. https://golf-lac-delta.vercel.app → 로그인 → **카카오로 시작하기** → 가입 마무리(이름·약관) → 내 정보
 2. 부킹 요청 → 운영자 계정으로 /admin 로그인 → 요청 인박스 → 나에게 배정 → 티타임 제안 → 고객 화면에서 확정
 3. SQL Editor: `select action, entity_type, occurred_at from public.audit_logs order by id desc limit 10;` 으로 감사 로그 기록 확인
+
+## 6. 알림 발송 켜기 (M6)
+
+순서대로 한 번만 하면 된다. 비밀값은 채팅·이슈·커밋에 붙이지 않는다.
+
+1. **SQL**: 1-1 표의 `2026-10-20-06-outbox-dispatch.sql` 실행(pg_net 확장, 발송 함수, `notify-dispatch` cron)
+2. **함수 배포**: GitHub → Actions → **functions-deploy** → Run workflow(target=prod). Environment `prod`의 `SUPABASE_ACCESS_TOKEN`·`SUPABASE_PROJECT_REF`를 쓴다
+3. **공유 비밀값 만들기**: 로컬 터미널에서 `openssl rand -hex 32` → 출력값을 아래 4·5에 **같은 값**으로 넣는다
+4. **함수 비밀값**: Supabase Dashboard → Edge Functions → Secrets
+   | 이름 | 값 |
+   |---|---|
+   | `NOTIFY_DISPATCH_SECRET` | 3의 값 |
+   | `NOTIFY_SITE_URL` | `https://golf-lac-delta.vercel.app` |
+   | `SLACK_WEBHOOK_URL` | Slack(또는 Discord) Incoming Webhook URL. 없으면 비워 둔다(운영자 알림이 로그로만 남음) |
+   | `NOTIFY_CUSTOMER_PROVIDER` | `console` (알림톡 대행사 계약 전, D-25) |
+5. **Vault(SQL Editor)**: cron이 함수를 부를 주소와 비밀값
+   ```sql
+   select vault.create_secret('https://sacsqmsfwujuuudwjhbp.supabase.co/functions/v1/notify-dispatcher', 'notify_dispatch_url');
+   select vault.create_secret('<3의 값>', 'notify_dispatch_secret');
+   ```
+6. **확인**(1~2분 뒤)
+   ```sql
+   select status, count(*) from public.notification_outbox group by 1;          -- pending이 줄고 sent가 늘어야 정상
+   select status_code, left(content, 200) from net._http_response order by id desc limit 3;  -- 200 + {"claimed":..}
+   ```
+   운영자 화면 **알림**(`/admin/notifications`)에서 상태별 건수와 실패 목록을 본다. 401이면 4와 5의 비밀값이 다르다.
+
+> 끄기: `select cron.unschedule('notify-dispatch');` (켜기: 마이그레이션 013의 `cron.schedule` 문을 다시 실행)
+> 비밀값 교체: 4의 `NOTIFY_DISPATCH_SECRET`과 `vault.update_secret((select id from vault.secrets where name = 'notify_dispatch_secret'), '<새 값>')`을 함께 바꾼다
