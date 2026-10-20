@@ -47,7 +47,9 @@ async function withDb<T>(fn: (db: pg.Client) => Promise<T>): Promise<T> {
 const rand = () => randomBytes(4).toString("hex");
 
 /** 카카오 로그인 + 휴대폰 인증 + 온보딩까지 마친 고객. 테스트 픽스처 전용. */
-export async function createOnboardedCustomer(): Promise<Customer> {
+/** opts.withContact=false: 연락처 없이 가입한 고객(D-48 이전 가입자·휴대폰 인증 생략) */
+export async function createOnboardedCustomer(opts: { withContact?: boolean } = {}): Promise<Customer> {
+  const withContact = opts.withContact ?? true;
   nextEnv.loadEnvConfig(process.cwd());
   const admin = adminClient();
   const email = `e2e-cust-${Date.now()}-${rand()}@test.local`;
@@ -81,8 +83,8 @@ export async function createOnboardedCustomer(): Promise<Customer> {
       );
       await db.query(
         `insert into public.profiles (id, display_name, phone, phone_verified_at, onboarded_at)
-         values ($1, $2, '+' || $3, now(), now())`,
-        [userId, displayName, phone],
+         values ($1, $2, case when $4 then '+' || $3 end, case when $4 then now() end, now())`,
+        [userId, displayName, phone, withContact],
       );
       await db.query("commit");
     } catch (err) {

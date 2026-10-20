@@ -5,7 +5,7 @@
 ## 1. 스키마 반영 (SQL Editor)
 
 1. Supabase 대시보드 → **SQL Editor** → New query
-2. `deploy/prod-schema.sql` 전체를 붙여넣고 **Run**
+2. `deploy/2026-10-20-01-initial-schema.sql` 전체를 붙여넣고 **Run** (초기 스키마, 적용 완료 2026-10-20)
    - 한 트랜잭션이라 중간에 실패하면 아무것도 반영되지 않는다
    - 적용 이력을 `supabase_migrations.schema_migrations`에 남기므로, 이후 변경은 `db-deploy` 워크플로(또는 `node scripts/bundle-migrations.mjs --from <다음 버전>`)로 이어서 반영한다
    - 같은 파일을 두 번 실행하면 첫 부분의 검사에서 멈춘다(이중 적용 방지)
@@ -18,6 +18,16 @@ select count(*) as dml_grants from information_schema.role_table_grants
    and privilege_type in ('INSERT','UPDATE','DELETE','TRUNCATE');
 select jobname from cron.job order by 1;   -- expire-proposals, mark-sla-breaches, purge-idempotency-keys
 ```
+
+## 1-1. 추가 변경분(순서대로, 한 번씩)
+
+| 파일 | 내용 | 상태 |
+|---|---|---|
+| `2026-10-20-01-initial-schema.sql` | 마이그레이션 001~008 | 적용 완료 |
+| `2026-10-20-02-contact-phone.sql` | 009: 고객 연락처 직접 입력(D-48), 연락처 없는 요청 차단 | **미적용** |
+
+각 파일은 앞부분에서 이미 적용된 버전인지 검사하므로 실수로 두 번 실행해도 멈춘다.
+적용 여부 확인: `select version, name from supabase_migrations.schema_migrations order by version;`
 
 ## 2. Auth 설정 (대시보드)
 

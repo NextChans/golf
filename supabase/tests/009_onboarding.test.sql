@@ -40,10 +40,11 @@ select is((select count(*) from public.audit_logs where entity_type = 'profile' 
 -- 휴대폰 인증 생략 모드(현재 운영 기본값, D-42): 번호 없이 온보딩
 update public.app_settings set value = 'false' where key = 'phone_verification_required';
 select tests.authenticate_as(:'k2', 'aal1');
-select lives_ok($q$select public.complete_onboarding('김철수', array['service','privacy'])$q$, '휴대폰 인증 생략 모드에서는 번호 없이 온보딩');
+-- D-48: 인증은 생략하되 연락처는 직접 입력(필수, 미인증으로 저장)
+select throws_ok($q$select public.complete_onboarding('김철수', array['service','privacy'])$q$, 'GB422', 'contact_required', '생략 모드에서도 연락처는 필수');
+select lives_ok($q$select public.complete_onboarding('김철수', array['service','privacy'], '010-2345-6789')$q$, '연락처를 입력하면 온보딩');
 select tests.clear_authentication();
-select is((select phone from public.profiles where id = :'k2'), null, '번호 없이 프로필 생성');
-select isnt((select onboarded_at from public.profiles where id = :'k2'), null, '온보딩 완료');
+select is((select phone || '|' || coalesce(phone_verified_at::text, 'unverified') from public.profiles where id = :'k2'), '+821023456789|unverified', '직접 입력한 번호는 미인증으로 저장');
 
 -- 설정 변경은 owner만(감사 로그)
 select tests.create_user('owner9@test.local', 'owner') as owner9 \gset

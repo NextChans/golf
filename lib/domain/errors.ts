@@ -6,7 +6,7 @@ export type AppErrorCode =
   | "unauthenticated" | "forbidden" | "onboarding_required" | "not_found"
   | "version_conflict" | "invalid_state" | "proposal_expired" | "listing_unavailable"
   | "duplicate_inquiry" | "idempotency_key_reused" | "invalid_input" | "rate_limited"
-  | "phone_not_verified" | "terms_required" | "unknown";
+  | "phone_not_verified" | "terms_required" | "contact_required" | "unknown";
 
 export type AppError = { code: AppErrorCode; message: string };
 
@@ -25,6 +25,7 @@ const MESSAGES: Record<AppErrorCode, string> = {
   rate_limited: "요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.",
   phone_not_verified: "휴대폰 인증을 먼저 완료해 주세요.",
   terms_required: "필수 약관에 동의해 주세요.",
+  contact_required: "확인 전화를 받을 휴대폰 번호를 입력해 주세요.",
   unknown: "일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.",
 };
 

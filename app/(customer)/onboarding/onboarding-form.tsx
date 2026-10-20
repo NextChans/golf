@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { FloatingInput } from "@/components/site/field";
 import { Checkbox } from "@/components/ui/checkbox";
-import { formatPhone } from "@/lib/domain/phone";
+import { formatPhone, krMobileSchema } from "@/lib/domain/phone";
 import { completeOnboarding, sendPhoneOtp, verifyPhoneOtp } from "./actions";
 
 type Term = { code: string; title: string; required: boolean };
@@ -21,6 +21,8 @@ export function OnboardingForm({ terms, verifiedPhone, next, phoneRequired }: {
   const [otp, setOtp] = useState("");
   const [verified, setVerified] = useState<string | null>(verifiedPhone);
   const [name, setName] = useState("");
+  const [contact, setContact] = useState("");
+  const contactValid = krMobileSchema.safeParse(contact).success;
   const [agreed, setAgreed] = useState<Set<string>>(new Set());
 
   const allRequired = terms.filter((t) => t.required).every((t) => agreed.has(t.code));
@@ -93,6 +95,17 @@ export function OnboardingForm({ terms, verifiedPhone, next, phoneRequired }: {
           id="displayName" label="이름(예약자명)" autoComplete="name" maxLength={50}
           value={name} onChange={(e) => setName(e.target.value)} disabled={pending}
         />
+        {!phoneRequired && (
+          <FloatingInput
+            id="contactPhone" label="연락처(휴대폰)" type="tel" inputMode="tel" autoComplete="tel"
+            value={contact} onChange={(e) => setContact(e.target.value)} disabled={pending}
+            error={contact.length >= 10 && !contactValid ? "휴대폰 번호 형식을 확인해 주세요." : undefined}
+            aria-describedby="contactPhone-hint"
+          />
+        )}
+        {!phoneRequired && (
+          <p id="contactPhone-hint" className="px-1 text-small text-muted-foreground">담당자가 티타임 확인 전화를 드리는 번호입니다.</p>
+        )}
       </section>
 
       <section className="space-y-4" aria-labelledby="terms-title">
@@ -124,9 +137,9 @@ export function OnboardingForm({ terms, verifiedPhone, next, phoneRequired }: {
       <div className="space-y-4">
         {error && <p role="alert" className="rounded-tile bg-destructive/10 px-5 py-4 text-small text-destructive">{error}</p>}
         <Button
-          size="lg" disabled={pending || (phoneRequired && !verified) || !allRequired || !name.trim()}
+          size="lg" disabled={pending || (phoneRequired ? !verified : !contactValid) || !allRequired || !name.trim()}
           onClick={() => run(async () => {
-            const r = await completeOnboarding({ displayName: name, agreed: [...agreed] });
+            const r = await completeOnboarding({ displayName: name, agreed: [...agreed], contactPhone: phoneRequired ? undefined : contact });
             if (!r.ok) return setError(r.error.message);
             router.replace(next as never);
             router.refresh();

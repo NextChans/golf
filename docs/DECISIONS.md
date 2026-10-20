@@ -52,8 +52,9 @@ PRD와 충돌하면 이 문서가 우선한다. 새 결정은 번호를 이어�
 | D-41 | E2E 로그인 | 앱에 테스트용 백도어를 두지 않는다. E2E는 Admin API로 만든 이메일 계정 + 실제 로그인 화면 + otplib TOTP로 진행. 카카오 경로는 pgTAP·단위 테스트로 검증 | 기본값(D-20 대체) | `e2e/` |
 | D-42 | 고객 휴대폰 인증 | 운영 환경에서는 일단 생략(오너 지시). `app_settings.phone_verification_required=false`(기본). SMS 대행사 계약 후 owner가 `set_app_setting`으로 켠다. 꺼져 있으면 온보딩은 이름·약관만, 번호는 null | 확정 | `20261020000008_app_settings.sql` |
 | D-43 | 디자인 | apple.com 웹 스타일(오너 지시, iOS 앱 스타일 아님). 흰/연회색 섹션, 큰 헤드라인, 알약 CTA, 큰 타일, 플로팅 라벨 입력. 강조색은 브랜드 그린. 가이드·테스트 계약은 docs/DESIGN.md | 확정 | `app/globals.css`, `components/site/*` |
-| D-44 | 운영 DB 최초 반영 | 클라우드 세션에서 DB 직접 접속이 안 되므로 `deploy/prod-schema.sql`(마이그레이션 묶음 + 적용 이력 기록)을 오너가 SQL Editor에서 실행. 이후 변경은 db-deploy 또는 `bundle-migrations.mjs --from` | 기본값 | `deploy/README.md` |
+| D-44 | 운영 DB 최초 반영 | 클라우드 세션에서 DB 직접 접속이 안 되므로 `deploy/2026-10-20-01-initial-schema.sql`(마이그레이션 묶음 + 적용 이력 기록)을 오너가 SQL Editor에서 실행. 이후 변경은 db-deploy 또는 `bundle-migrations.mjs --from` | 기본값 | `deploy/README.md` |
 | D-45 | OAuth 콜백 origin | 로그인을 시작한 호스트로 돌아온다(preview 배포의 PKCE 쿠키 대응). 허용 목록: 운영 URL·VERCEL_URL·VERCEL_BRANCH_URL·로컬, 그 외는 운영 URL. Supabase Redirect URLs에 preview 와일드카드 등록 필요 | 기본값 | `lib/auth/origin.ts` |
 | D-46 | 카카오 동의항목 | Supabase 카카오 연동이 닉네임·프로필 사진·이메일 scope를 기본 요청 → 카카오 앱에 셋 다 설정(사진·이메일은 선택 동의). 개인정보처리방침에 수집 항목 명시 필요(D-21) | 확정 | 카카오 콘솔 |
 | D-47 | 앱 아이콘 | `public/brand/icons/`: 정사각형(1024·512·192·180·128·32, 플랫폼이 모서리 처리)과 둥근 모서리(1024·512). `/apple-touch-icon.png`=180 | 확정 | `app/layout.tsx` |
+| D-48 | 고객 연락처 | 휴대폰 인증 생략 중(D-42)에도 연락처는 필수로 직접 입력(형식 검증만, `phone_verified_at=null`). 내 정보에서 변경(감사 로그). 연락처 없는 고객의 부킹·상담 생성은 DB 트리거가 차단. 인증 필수 모드로 바뀌면 직접 변경 불가 | 확정 | `20261020000009_contact_phone.sql` |
 

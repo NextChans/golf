@@ -39,6 +39,8 @@ export async function verifyPhoneOtp(input: { phone: string; token: string }): P
 const completeSchema = z.object({
   displayName: z.string().trim().min(1, "이름을 입력해 주세요.").max(50),
   agreed: z.array(z.string().regex(/^[a-z_]{2,40}$/)).max(20),
+  // 휴대폰 인증 생략 모드(D-42)에서 직접 입력하는 연락처(D-48). 인증 필수 모드에서는 무시된다.
+  contactPhone: krMobileSchema.optional(),
 });
 
 /** 3단계: 이름·약관 동의 → DB 함수가 휴대폰 인증 여부와 필수 약관을 최종 검증한다 */
@@ -51,6 +53,7 @@ export async function completeOnboarding(input: z.input<typeof completeSchema>):
   const { error } = await supabase.rpc("complete_onboarding", {
     p_display_name: parsed.data.displayName,
     p_agreed_codes: parsed.data.agreed,
+    p_contact_phone: parsed.data.contactPhone as string,
   });
   if (error) return fail(toAppError(error));
   // app_metadata.onboarded를 즉시 claim에 반영(middleware 판단용)

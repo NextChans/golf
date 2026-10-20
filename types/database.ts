@@ -535,7 +535,7 @@ isOneToOne: false
         isSetofReturn: false
       } },
 "complete_onboarding":
-{ Args: { "p_agreed_codes": (string)[],"p_display_name": string }; Returns: {
+{ Args: { "p_agreed_codes": (string)[],"p_contact_phone"?: string,"p_display_name": string }; Returns: {
               "created_at": string,
 "deleted_at": string | null,
 "display_name": string | null,
@@ -736,6 +736,23 @@ isOneToOne: false
                           SetofOptions: {
         from: "*"
         to: "membership_deals"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"update_contact_phone":
+{ Args: { "p_contact_phone": string }; Returns: {
+              "created_at": string,
+"deleted_at": string | null,
+"display_name": string | null,
+"id": string,
+"onboarded_at": string | null,
+"phone": string | null,
+"phone_verified_at": string | null,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "profiles"
         isOneToOne: true
         isSetofReturn: false
       } },
