@@ -14,7 +14,12 @@ describe("toAppError", () => {
     expect(e.code).toBe("unknown");
     expect(e.message).not.toContain("secret_idx");
   });
-  it("GB 코드라도 모르는 message는 unknown", () => {
-    expect(toAppError({ code: "GB409", message: "something_else" }).code).toBe("unknown");
+  it("GB 코드인데 모르는 message는 SQLSTATE 계열로 대체한다(D-49)", () => {
+    expect(toAppError({ code: "GB409", message: "something_else" }).code).toBe("invalid_state");
+    expect(toAppError({ code: "GB422", message: "new_code" }).code).toBe("invalid_input");
+    expect(toAppError({ code: "GB403", message: "new_code" }).code).toBe("forbidden");
+  });
+  it("모르는 GB 계열은 unknown", () => {
+    expect(toAppError({ code: "GB500", message: "something_else" }).code).toBe("unknown");
   });
 });

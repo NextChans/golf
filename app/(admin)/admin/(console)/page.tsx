@@ -1,29 +1,53 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Tile } from "@/components/site/section";
+import { createClient } from "@/lib/supabase/server";
+import { requireStaff } from "@/lib/auth/guards";
+import { OPEN_STATUSES } from "@/lib/domain/booking/admin";
 
 export const metadata: Metadata = { title: "운영자 홈", robots: { index: false } };
 
-const tiles = [
-  { title: "요청 인박스", body: "부킹 요청 인박스는 M4에서 열립니다.", status: "준비 중" },
-  { title: "회원권 상담", body: "회원권 매수·매도 상담 관리는 이후 마일스톤에서 열립니다.", status: "준비 중" },
-] as const;
+export default async function AdminHome() {
+  const session = await requireStaff();
+  const supabase = await createClient();
+  const nowIso = new Date().toISOString();
+  const count = (q: PromiseLike<{ count: number | null }>) => q.then((r) => r.count);
+  const base = () => supabase.from("booking_requests").select("id", { count: "exact", head: true });
+  const [fresh, mine, sla] = await Promise.all([
+    count(base().eq("status", "requested")),
+    count(base().eq("assignee_id", session.userId).in("status", OPEN_STATUSES)),
+    count(base().eq("status", "requested").lt("sla_due_at", nowIso)),
+  ]);
 
-export default function AdminHome() {
+  const tiles = [
+    { href: "/admin/bookings?tab=new", title: "신규 요청", value: fresh },
+    { href: "/admin/bookings?tab=mine", title: "내 담당", value: mine },
+    { href: "/admin/bookings?tab=sla", title: "SLA 초과", value: sla, alert: (sla ?? 0) > 0 },
+  ] as const;
+
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-title tracking-tight">운영자 홈</h1>
         <p className="mt-2 text-body text-muted-foreground">오늘 처리할 요청과 상담을 한곳에서 확인합니다.</p>
       </div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {tiles.map((t) => (
-          <Tile key={t.title} className="p-6 md:p-8">
-            <p className="text-micro font-semibold text-muted-foreground">{t.status}</p>
-            <h2 className="mt-1 text-eyebrow tracking-tight">{t.title}</h2>
-            <p className="mt-3 text-small text-muted-foreground">{t.body}</p>
-          </Tile>
+          <Link key={t.href} href={t.href} className="pressable block rounded-tile-lg">
+            <Tile className="p-6 hover:bg-border/40">
+              <p className="text-small text-muted-foreground">{t.title}</p>
+              <p className={`mt-1 text-headline font-semibold tabular-nums ${"alert" in t && t.alert ? "text-destructive" : ""}`}>
+                {t.value ?? "-"}
+              </p>
+            </Tile>
+          </Link>
         ))}
       </div>
+      <Tile className="p-6 md:p-8">
+        <p className="text-micro font-semibold text-muted-foreground">준비 중</p>
+        <h2 className="mt-1 text-eyebrow tracking-tight">회원권 상담</h2>
+        <p className="mt-3 text-small text-muted-foreground">회원권 매수·매도 상담 관리는 M5에서 열립니다.</p>
+      </Tile>
     </div>
   );
 }

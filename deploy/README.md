@@ -24,7 +24,10 @@ select jobname from cron.job order by 1;   -- expire-proposals, mark-sla-breache
 | 파일 | 내용 | 상태 |
 |---|---|---|
 | `2026-10-20-01-initial-schema.sql` | 마이그레이션 001~008 | 적용 완료 |
-| `2026-10-20-02-contact-phone.sql` | 009: 고객 연락처 직접 입력(D-48), 연락처 없는 요청 차단 | **미적용** |
+| `2026-10-20-02-contact-phone.sql` | 009: 고객 연락처 직접 입력(D-48), 연락처 없는 요청 차단 | 적용 완료 |
+| `2026-10-20-03-admin-ops.sql` | 010: 골프장 저장·통화 메모·배정 대상 목록(M4) | 적용 완료(머지 전 선반영, D-50) |
+
+**순서 규칙(D-50)**: 추가만 하는 변경(새 함수·컬럼·인덱스)은 DB 먼저, 기존 동작을 막는 변경(트리거·제약 강화)은 그 에러를 처리하는 앱을 먼저 배포한 뒤 DB. 각 PR 설명에 어느 쪽인지 적는다.
 
 각 파일은 앞부분에서 이미 적용된 버전인지 검사하므로 실수로 두 번 실행해도 멈춘다.
 적용 여부 확인: `select version, name from supabase_migrations.schema_migrations order by version;`
@@ -66,7 +69,7 @@ select public.bootstrap_owner((select id from auth.users where email = 'you@exam
 
 ## 4. 골프장 마스터(선택)
 
-운영자 화면의 골프장 관리(M4) 전까지는 고객이 "목록에 없음(직접 입력)"으로 요청할 수 있다. 미리 넣으려면 SQL Editor에서:
+M4부터는 운영자 화면 **골프장**(`/admin/courses`)에서 추가·수정한다(감사 로그 기록). 아래 SQL은 화면이 없던 때의 방법으로, 감사 로그가 남지 않으므로 쓰지 않는다:
 ```sql
 insert into public.golf_courses (name, region, address, weekday_green_fee, weekend_green_fee, cancellation_policy, contact_phone)
 values ('실제 골프장명', 'seoul_gyeonggi', '주소', 180000, 240000, '위약 규정', '031-000-0000');
@@ -77,5 +80,5 @@ values ('실제 골프장명', 'seoul_gyeonggi', '주소', 180000, 240000, '위�
 ## 5. 동작 확인
 
 1. https://golf-lac-delta.vercel.app → 로그인 → **카카오로 시작하기** → 가입 마무리(이름·약관) → 내 정보
-2. 부킹 요청 → 운영자 계정으로 /admin 로그인(제안 화면은 M4)
+2. 부킹 요청 → 운영자 계정으로 /admin 로그인 → 요청 인박스 → 나에게 배정 → 티타임 제안 → 고객 화면에서 확정
 3. SQL Editor: `select action, entity_type, occurred_at from public.audit_logs order by id desc limit 10;` 으로 감사 로그 기록 확인

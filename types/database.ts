@@ -420,6 +420,22 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"add_activity_note":
+{ Args: { "p_body": string,"p_customer_id": string,"p_subject_id": string,"p_subject_type": string }; Returns: {
+              "author_id": string,
+"body": string,
+"created_at": string,
+"customer_id": string,
+"id": number,
+"subject_id": string | null,
+"subject_type": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "activity_notes"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "advance_deal":
 { Args: { "p_deal_id": string,"p_expected_version": number,"p_to_status": Database["public"]['Enums']["deal_status"] }; Returns: {
               "agreed_price": number | null,
@@ -634,6 +650,11 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"list_assignable_staff":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "display_name": string,"email": string,"id": string,"is_me": boolean
+            }[]
+                           },
 "list_staff":
 { Args: Record<PropertyKey, never>; Returns: {
               "created_at": string,"email": string,"id": string,"last_sign_in_at": string,"mfa_enabled": boolean,"password_change_required": boolean,"role": string
@@ -778,6 +799,26 @@ isOneToOne: false
                           SetofOptions: {
         from: "*"
         to: "membership_deals"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"upsert_golf_course":
+{ Args: { "p_address": string,"p_cancellation_policy": string,"p_contact_phone": string,"p_id": string,"p_is_active": boolean,"p_name": string,"p_region": Database["public"]['Enums']["region"],"p_weekday_green_fee": number,"p_weekend_green_fee": number }; Returns: {
+              "address": string | null,
+"cancellation_policy": string | null,
+"contact_phone": string | null,
+"created_at": string,
+"id": string,
+"is_active": boolean,
+"name": string,
+"region": Database["public"]['Enums']["region"],
+"updated_at": string,
+"weekday_green_fee": number | null,
+"weekend_green_fee": number | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "golf_courses"
         isOneToOne: true
         isSetofReturn: false
       } }
