@@ -1,0 +1,81 @@
+name: web
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: web-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # lib/env.ts가 import 시점에 zod로 검증하므로 더미 공개값을 둔다(비밀값 아님)
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-dummy-anon-key-placeholder-0000
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm lint
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Unit (Vitest)
+        run: pnpm test
+
+  e2e:
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CI: true
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      # supabase/config.toml의 카카오 provider가 env()로 읽는다. CI에서는 더미값
+      SUPABASE_AUTH_EXTERNAL_KAKAO_CLIENT_ID: ci-dummy
+      SUPABASE_AUTH_EXTERNAL_KAKAO_SECRET: ci-dummy
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Start Supabase (DB, Auth, REST만)
+        run: pnpm exec supabase start -x studio,imgproxy,storage-api,edge-runtime,mailpit,postgres-meta,vector,supavisor,realtime,logflare
+      - name: Export env from local Supabase
+        # 로컬 데모 스택 값이지만 로그 노출을 피하려고 마스킹한다
+        run: |
+          eval "$(pnpm exec supabase status -o env | grep -E '^(ANON_KEY|SERVICE_ROLE_KEY|API_URL)=')"
+          echo "::add-mask::$ANON_KEY"
+          echo "::add-mask::$SERVICE_ROLE_KEY"
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
+            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY"
+          } >> "$GITHUB_ENV"
+      - name: Build
+        run: pnpm build
+      - name: Install Playwright (chromium)
+        run: pnpm exec playwright install --with-deps chromium
+      - name: E2E (Playwright)
+        run: pnpm test:e2e
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

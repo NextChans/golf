@@ -349,10 +349,32 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"terms_versions": {
+                  Row: {
+                    "code": string,"effective_at": string,"required": boolean,"title": string,"version": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "code": string,"effective_at"?: string,"required": boolean,"title": string,"version": string
+                  }
+                  Update: {
+                    "code"?: string,"effective_at"?: string,"required"?: boolean,"title"?: string,"version"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 }
           }
           Views: {
-            [_ in never]: never
+            "current_terms": {
+                  Row: {
+                    "code": string | null,"effective_at": string | null,"required": boolean | null,"title": string | null,"version": string | null
+                  }
+                  ComputedFields: never
+                  Relationships: [
+                    
+                  ]
+                }
           }
           Functions: {
             "accept_proposal":
@@ -438,6 +460,12 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"before_user_created_hook":
+{ Args: { "event": Json }; Returns: Json
+                           },
+"bootstrap_owner":
+{ Args: { "p_user_id": string }; Returns: undefined
+                           },
 "cancel_booking":
 { Args: { "p_expected_version": number,"p_reason"?: string,"p_request_id": string }; Returns: {
               "assignee_id": string | null,
@@ -489,6 +517,23 @@ isOneToOne: false
                           SetofOptions: {
         from: "*"
         to: "membership_deals"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"complete_onboarding":
+{ Args: { "p_agreed_codes": (string)[],"p_display_name": string }; Returns: {
+              "created_at": string,
+"deleted_at": string | null,
+"display_name": string | null,
+"id": string,
+"onboarded_at": string | null,
+"phone": string | null,
+"phone_verified_at": string | null,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "profiles"
         isOneToOne: true
         isSetofReturn: false
       } },
@@ -575,6 +620,11 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"list_staff":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "created_at": string,"email": string,"id": string,"last_sign_in_at": string,"mfa_enabled": boolean,"password_change_required": boolean,"role": string
+            }[]
+                           },
 "propose_booking":
 { Args: { "p_expected_version": number,"p_green_fee_per_person": number,"p_memo"?: string,"p_request_id": string,"p_tee_time": string,"p_valid_minutes"?: number }; Returns: {
               "created_at": string,
@@ -595,6 +645,9 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"record_auth_event":
+{ Args: { "p_event": string }; Returns: undefined
+                           },
 "reject_booking":
 { Args: { "p_expected_version": number,"p_reason": string,"p_request_id": string }; Returns: {
               "assignee_id": string | null,
@@ -641,6 +694,9 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"set_staff_role":
+{ Args: { "p_role": string,"p_user_id": string }; Returns: undefined
+                           },
 "start_deal":
 { Args: { "p_deal_id": string,"p_expected_version": number }; Returns: {
               "agreed_price": number | null,

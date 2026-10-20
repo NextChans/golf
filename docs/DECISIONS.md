@@ -28,7 +28,7 @@ PRD와 충돌하면 이 문서가 우선한다. 새 결정은 번호를 이어�
 | D-17 | 한 매물 다중 상담 | inquiry는 여러 건, 진행(negotiating~transferring)은 1건. 판매완료 후 남은 inquiry는 운영자가 수동 취소 | 기본값 | partial unique index |
 | D-18 | 매도 상담 | 매물 없이 상품 기준으로 진행. 매물 등록은 운영자가 별도로 | 기본값 | `deal_side='sell'` |
 | D-19 | 통화 메모 | append-only, 정정은 새 메모 | 기본값 | `activity_notes` |
-| D-20 | E2E 로그인 | `E2E_TEST_LOGIN=1` + local에서만 열리는 테스트 로그인. production 차단은 테스트로 보장 | 기본값 | M2 |
+| D-20 | E2E 로그인 | ~~테스트 전용 로그인~~ → D-41로 대체(백도어 없음) | 폐기 | — |
 | D-21 | 전화번호 저장 | 평문 + RLS + 목록 마스킹. 암호화는 보관기간 확정 후 검토 | 보류(개인정보) | `profiles.phone` |
 | D-22 | Next 버전 | Next 15 고정(`middleware.ts`) | 확정(지시문) | M2 |
 | D-23 | 브랜치·PR | 지정 브랜치 `claude/affectionate-maxwell-vs76ph` 하나에 M1~M6을 누적, PR NextChans/golf#1 | 기본값 | git |
@@ -42,3 +42,12 @@ PRD와 충돌하면 이 문서가 우선한다. 새 결정은 번호를 이어�
 | D-31 | bigint 금액의 TS 타입 | 생성 타입은 `number`. 원 단위 최대값(약 9×10^15)은 안전 정수 범위 안이라 허용 | 기본값 | `types/database.ts` |
 | D-32 | 원격 DB 반영 경로 | GitHub Actions `db-deploy.yml`(workflow_dispatch, 기본 dry-run). 시크릿은 GitHub Environments(dev/prod)에 두고 prod는 승인자 필수. 로컬·클라우드 세션에서 직접 `db push` 하지 않는다 | 기본값 | `.github/workflows/db-deploy.yml` |
 | D-33 | 원격 프로젝트 매핑 | `sacsqmsfwujuuudwjhbp` = **prod(운영)**. 개발은 로컬 Supabase(Docker)로 하고, dev 클라우드 프로젝트는 필요해지면 무료 2번째 슬롯으로 만든다. prod에는 seed·test_otp·테스트 계정을 절대 넣지 않는다 | 확정 | PROGRESS.md, db-deploy(prod environment) |
+| D-34 | Sentry | 후순위로 보류(오너 지시). 의존성도 넣지 않는다. 재개 시 PII 마스킹 beforeSend 필수 | 확정(보류) | — |
+| D-35 | 웹 분석 | Vercel Web Analytics(쿠키 없음). `/admin` 경로 제외, 쿼리스트링 제거 후 전송. 대시보드에서 Analytics 활성화 필요 | 확정 | `components/analytics/vercel-analytics.tsx` |
+| D-36 | 리전 | Supabase prod는 서울(ap-northeast-2). Vercel 함수 리전도 서울 `icn1`(vercel.json) | 확정 | `vercel.json` |
+| D-37 | 배포 URL | Vercel production: https://golf-lac-delta.vercel.app (도메인 연결 전 임시). prod `NEXT_PUBLIC_SITE_URL`, Supabase Auth Site URL·Redirect URL에 사용 | 확정 | PROGRESS.md 배포 체크리스트 |
+| D-38 | 공개 가입 차단 | 이메일 제공자는 관리자 로그인용으로 켜 두고, `before_user_created` 훅이 카카오 외 자가 가입을 403으로 거부(Admin API 생성에는 훅 미적용, 실험으로 확인) | 기본값 | `public.before_user_created_hook` |
+| D-39 | 휴대폰 인증 확인 | Auth `sms.enable_confirmations=true` 필수. false면 OTP 없이 번호가 인증 처리됨(M2 실험으로 확인) | 확정(보안) | config.toml, prod 대시보드 |
+| D-40 | 최초 owner | `pnpm seed:owner`(service_role) → `bootstrap_owner`는 owner가 0명일 때만 동작 | 기본값 | `scripts/seed-owner.ts` |
+| D-41 | E2E 로그인 | 앱에 테스트용 백도어를 두지 않는다. E2E는 Admin API로 만든 이메일 계정 + 실제 로그인 화면 + otplib TOTP로 진행. 카카오 경로는 pgTAP·단위 테스트로 검증 | 기본값(D-20 대체) | `e2e/` |
+
