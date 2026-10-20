@@ -65,7 +65,12 @@ export default async function MembershipsPage({ searchParams }: { searchParams: 
           <h1 className="text-title tracking-tight">매물·시세 관리</h1>
           <p className="mt-2 text-body text-muted-foreground">회원권 상품과 시세, 고객에게 보여 줄 매물을 관리합니다.</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          {tab === "products" && (
+            <Button asChild size="sm" variant="secondary">
+              <Link href="/admin/memberships/quotes/import">시세 일괄 입력</Link>
+            </Button>
+          )}
           <Button asChild size="sm" variant="secondary">
             <Link href="/admin/memberships/products/new">상품 추가</Link>
           </Button>

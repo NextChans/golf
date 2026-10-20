@@ -70,7 +70,8 @@ const isRealDate = (s: string) => {
 export function normalizeDate(raw: string): string | null {
   const m = /^(\d{4})[-./](\d{1,2})[-./](\d{1,2})\.?$/.exec(raw.trim());
   if (!m) return null;
-  const iso = `${m[1]}-${m[2].padStart(2, "0")}-${m[3].padStart(2, "0")}`;
+  const [, y, mo = "", d = ""] = m;
+  const iso = `${y}-${mo.padStart(2, "0")}-${d.padStart(2, "0")}`;
   return isRealDate(iso) ? iso : null;
 }
 
@@ -121,7 +122,7 @@ export function previewQuoteCsv(text: string, products: readonly QuoteProductRef
   const records = parsed.records;
   const headerIndex = records.findIndex((r) => r.some((f) => f.trim() !== ""));
   if (headerIndex < 0) return { rows: [], errorCount: 0, fileError: "내용이 없습니다. CSV를 붙여넣거나 파일을 선택해 주세요." };
-  const header = records[headerIndex].map(headerKey);
+  const header = (records[headerIndex] ?? []).map(headerKey);
   const col = Object.fromEntries(QUOTE_CSV_HEADER.map((h) => [h, header.indexOf(h)])) as Record<(typeof QUOTE_CSV_HEADER)[number], number>;
   if (Object.values(col).some((i) => i < 0)) return { rows: [], errorCount: 0, fileError: HEADER_HELP };
 
