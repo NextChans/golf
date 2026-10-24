@@ -123,7 +123,7 @@ export function Stepper({ steps, current }: { steps: readonly string[]; current:
             <span
               aria-hidden
               className={cn(
-                "relative flex size-6 items-center justify-center rounded-full",
+                "relative z-10 flex size-6 items-center justify-center rounded-full",
                 reached ? "bg-[#5fd99a] text-white" : "border-[3px] border-line bg-surface",
               )}
             >
