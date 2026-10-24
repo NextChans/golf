@@ -13,7 +13,7 @@
 | 그린판다 화면 | Googolf 화면 | 비고 |
 |---|---|---|
 | 첫 실행 추적 허용 안내(ATT) | `/market/welcome` 관심 지역·예산 고르기 | 웹은 제3자 추적을 하지 않으므로 ATT 대신 취향을 직접 받는다 |
-| 홈 · 회원권 구매 탭 | `/market` | 거래 체결 티커, 검색 진입, 기획전 배너, 이번주 시세 카드, 즉시 구매/인기/상승/하락 목록 |
+| 홈 · 회원권 구매 탭 | `/market` | 고정 헤더, 거래 체결 티커, 검색 진입, 기획전 배너, 이번주 시세 카드, 즉시 구매/인기/상승/하락 카드 목록(5건+더보기), 최근 확인한 회원권, 지역별 타일, 프로모 캐러셀, 친구 초대, 회사 정보 푸터(D-83) |
 | 홈 · 회원권 판매 탭 | `/market?tab=sell` | "지금 팔면 얼마일까?" 골프장 검색 → 즉시 판매가·예상 수수료·예상 수령액 |
 | 공지 모달 + 쿠폰 바텀시트 | 홈 팝업 | "오늘 그만 보기"(KST 날짜), "다시 보지 않기"(영구), "닫기"(세션) |
 | 맞춤 회원권 검색 | `/market/search` → `/market/search/results` | 지역(복수)·가격대(복수)·검색어, 하단 초기화 + 전체보기/N건 보기 |
@@ -83,7 +83,13 @@
 | `BusinessSignup` | business-signup.tsx | 사업자 정보 → 카카오 연결 2화면 |
 | `StateView` | ui.tsx | 빈 상태·에러(에러는 `role="alert"`) |
 | `primaryButtonClass`·`secondaryButtonClass`·`chipClass` | ui.tsx | 56px 버튼, 칩은 `aria-pressed`로 선택 표시 |
-| `ItemRow` | item-row.tsx | 골프장명·확인 배지·지역·유형·홀, 가격·변화율 |
+| `ItemRow` | item-row.tsx | 골프장명·확인 배지·지역·유형·홀, 가격·변화율(검색 결과·관심 목록) |
+| `ItemCardList`·`ItemCard` | item-card.tsx | 홈 목록 회색 카드(첫 글자 아바타·이름·유형·가격·구매가능/변화율), 5건씩 "더보기" |
+| `RecentList`·`RecordView` | recent.tsx | 최근 확인한 회원권 가로 카드(localStorage 10개), 상세 진입 시 기록. 기록 없으면 숨김 |
+| `PromoCarousel` | promo-carousel.tsx | 하늘색 풀폭 배너 4장 스와이프, 우상단 "n/4" |
+| `InviteCard` | invite-card.tsx | 친구 초대(어두운 카드), 공유 시트 또는 `/market` 주소 복사 |
+| `CompanyFooter` | company-footer.tsx | 회사 정보·중개 고지문(값은 `lib/company.ts`) |
+| `REGION_TONE` | region-tone.ts | 지역 그라디언트(검색 타일·홈 타일·최근 카드 공용) |
 | `Sparkline` | sparkline.tsx | 12주 꺾은선 SVG(면 그라디언트, 마지막 점) |
 | `DealTicker` | deal-ticker.tsx | "거래 체결" 3초 롤링(동작 줄이기면 정지) |
 | `HomePopups` | home-popups.tsx | 공지 모달(위) + 혜택 바텀시트(아래), Esc·딤 클릭으로 닫기 |
@@ -106,3 +112,4 @@
 - 가입: 버튼 "카카오로 계속하기", 링크 "회원가입"·/개인회원/·/기업회원/, 목록 "가입 단계 1/3", 라벨 "사업자명"·"사업자등록번호", 버튼 "다음", 헤딩 /담당자 카카오 계정을/
 - 가입 2·3단계(`e2e/onboarding.spec.ts`, `e2e/contact.spec.ts`): 목록 "가입 단계 2/3"·"가입 단계 3/3", 헤딩 /정보를 알려주세요/, 라벨 "이름"(정확히)·"연락처(휴대폰)", checkbox "전체 동의"·/\[필수\]/, 버튼 "가입 완료", 헤딩 "{이름}님, 환영합니다!", 링크 /첫 거래 수수료 20% 할인 쿠폰/, 버튼 "회원권 둘러보기"
 - 로그인 유도 링크 href는 `/market/login?next=<경로>`
+- 홈 구매 탭(D-83, 판매 탭 제외): 링크 "알림"이 스크롤 후에도 뷰포트에 보임, 목록 카드 링크(/구매가능/)가 처음 5건 → "더보기" 클릭 후 10건, 헤딩 "최근 확인한 회원권"(상세 방문 후에만), 지역 링크(예: "강원")→`/market/search/results?region=gangwon`, region "Googolf 소식"(텍스트 "1/4", 링크 4개), footer에 "(준비 중)"·"중개 서비스입니다", 버튼 "초대 링크 보내기"(복사 후 "링크를 복사했어요", 주소는 `/market`로 끝남·쿼리 없음)

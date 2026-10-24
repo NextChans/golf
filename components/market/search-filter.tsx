@@ -10,17 +10,8 @@ import {
 } from "@/lib/domain/market/schema";
 import { MARKET_ITEMS } from "@/lib/mock/market";
 import { cn } from "@/lib/utils";
+import { REGION_TONE } from "./region-tone";
 import { chipClass, primaryButtonClass, secondaryButtonClass } from "./ui";
-
-/** 지역별 원형 타일 색(사진 대신 지역 인상을 담은 그라디언트). 실제 사진은 오너 제공 시 교체 */
-const REGION_TONE: Record<Region, string> = {
-  seoul_gyeonggi: "from-[#7aa8d8] via-[#6fae5a] to-[#3f8a3a]",
-  gangwon: "from-[#8cc6f0] via-[#79b85a] to-[#2f7d4a]",
-  chungcheong: "from-[#a9c9e8] via-[#5ea65b] to-[#2c6f3b]",
-  gyeongsang: "from-[#c4d8c0] via-[#5c9c4f] to-[#2b6a35]",
-  jeolla: "from-[#b7d3e6] via-[#6aae62] to-[#30733e]",
-  jeju: "from-[#6fa6d6] via-[#8fb5a3] to-[#4f8d4b]",
-};
 
 const toggle = <T,>(list: T[], v: T) => (list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
 

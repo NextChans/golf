@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BadgeCheck, ShieldCheck } from "lucide-react";
 import { FavoriteButton } from "@/components/market/favorites";
+import { RecordView } from "@/components/market/recent";
 import { Sparkline } from "@/components/market/sparkline";
 import { AppScreen, Divider, primaryButtonClass, rateClass, secondaryButtonClass, TopBar } from "@/components/market/ui";
 import {
@@ -32,6 +33,7 @@ export default async function MarketItemPage({ params }: { params: Params }) {
     <AppScreen withTabBar={false} className="pb-[calc(6rem+env(safe-area-inset-bottom))]">
       <TopBar title="회원권 정보" back="/market" right={<FavoriteButton id={item.id} name={item.courseName} />} />
       <main>
+        <RecordView id={item.id} />
         <section className="px-6 pt-4 pb-8">
           <p className="text-caption font-semibold text-ink-mute">{MARKET_REGION_LABEL[item.region]} · {item.holes}홀</p>
           <h2 className="mt-1 flex items-center gap-1.5 text-heading font-extrabold text-ink">
