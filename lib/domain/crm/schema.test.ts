@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { activityNoteSchema, escapeLike, parseActivityNoteForm, parseCustomerQuery } from "./schema";
 
 const CUSTOMER = "6f1c3a52-8f3e-4b8a-9c1d-2e5f7a9b0c11";
-const BOOKING = "00000000-0000-4000-a000-000000000001";
+const DEAL = "00000000-0000-4000-a000-000000000001";
 
 function form(values: Record<string, string>): FormData {
   const fd = new FormData();
@@ -17,18 +17,20 @@ describe("activityNoteSchema", () => {
   });
 
   it("고객 메모에 subjectId가 와도 버린다", () => {
-    const r = activityNoteSchema.safeParse({ customerId: CUSTOMER, subjectType: "customer", subjectId: BOOKING, body: "x" });
+    const r = activityNoteSchema.safeParse({ customerId: CUSTOMER, subjectType: "customer", subjectId: DEAL, body: "x" });
     expect(r.success && r.data.subjectId).toBeUndefined();
   });
 
-  it("booking/deal 메모는 subjectId가 필요하다", () => {
-    for (const subjectType of ["booking", "deal"]) {
-      const r = activityNoteSchema.safeParse({ customerId: CUSTOMER, subjectType, body: "x" });
-      expect(r.success).toBe(false);
-      expect(r.error?.issues.map((i) => i.path.join("."))).toContain("subjectId");
-      const ok = activityNoteSchema.safeParse({ customerId: CUSTOMER, subjectType, subjectId: BOOKING, body: "x" });
-      expect(ok.success && ok.data.subjectId).toBe(BOOKING);
-    }
+  it("deal 메모는 subjectId가 필요하다", () => {
+    const r = activityNoteSchema.safeParse({ customerId: CUSTOMER, subjectType: "deal", body: "x" });
+    expect(r.success).toBe(false);
+    expect(r.error?.issues.map((i) => i.path.join("."))).toContain("subjectId");
+    const ok = activityNoteSchema.safeParse({ customerId: CUSTOMER, subjectType: "deal", subjectId: DEAL, body: "x" });
+    expect(ok.success && ok.data.subjectId).toBe(DEAL);
+  });
+
+  it("부킹 대상 메모는 받지 않는다(D-88)", () => {
+    expect(activityNoteSchema.safeParse({ customerId: CUSTOMER, subjectType: "booking", subjectId: DEAL, body: "x" }).success).toBe(false);
   });
 
   it("본문은 1..2000자", () => {
@@ -40,8 +42,8 @@ describe("activityNoteSchema", () => {
 
   it("uuid가 아니거나 모르는 subjectType이면 거부한다", () => {
     expect(activityNoteSchema.safeParse({ customerId: "x", subjectType: "customer", body: "a" }).success).toBe(false);
-    expect(activityNoteSchema.safeParse({ customerId: CUSTOMER, subjectType: "listing", subjectId: BOOKING, body: "a" }).success).toBe(false);
-    expect(activityNoteSchema.safeParse({ customerId: CUSTOMER, subjectType: "booking", subjectId: "1", body: "a" }).success).toBe(false);
+    expect(activityNoteSchema.safeParse({ customerId: CUSTOMER, subjectType: "listing", subjectId: DEAL, body: "a" }).success).toBe(false);
+    expect(activityNoteSchema.safeParse({ customerId: CUSTOMER, subjectType: "deal", subjectId: "1", body: "a" }).success).toBe(false);
   });
 });
 

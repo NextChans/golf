@@ -5,9 +5,9 @@ import { KNOWN_TEMPLATES, renderMessage } from "./templates.ts";
 import { DeliveryError, type Adapter, type OutboxItem, type OutboxStore } from "./types.ts";
 
 const item = (over: Partial<OutboxItem> = {}): OutboxItem => ({
-  id: 1, event_type: "booking.proposed", recipient_kind: "customer", recipient_phone: "+821012345678",
-  channel: "alimtalk", template_code: "BOOKING_PROPOSED", dedupe_key: "proposal:x:offered", attempts: 1,
-  payload: { request_id: "r1", course_name: "구골프 레이크CC", tee_time: "2026-10-27T22:30:00Z", green_fee_per_person: 180000, expires_at: "2026-10-21T03:00:00Z" },
+  id: 1, event_type: "group.meeting_created", recipient_kind: "customer", recipient_phone: "+821012345678",
+  channel: "alimtalk", template_code: "GROUP_MEETING_CREATED", dedupe_key: "meeting:x:created:u1", attempts: 1,
+  payload: { group_id: "g1", group_name: "주말 라운드", title: "11월 정모", starts_at: "2026-10-27T22:30:00Z" },
   ...over,
 });
 
@@ -44,7 +44,7 @@ describe("deliver", () => {
   });
   it("운영자: Slack", async () => {
     const adapters: AdapterSet = { alimtalk: ok("alimtalk"), sms: ok("sms"), slack: ok("slack") };
-    const r = await deliver(item({ recipient_kind: "admins", template_code: "ADMIN_BOOKING_REQUESTED", recipient_phone: null }), adapters, "x");
+    const r = await deliver(item({ recipient_kind: "admins", template_code: "ADMIN_DEAL_REQUESTED", recipient_phone: null }), adapters, "x");
     expect(r.channel).toBe("slack");
     expect(adapters.alimtalk.send).not.toHaveBeenCalled();
   });
@@ -55,7 +55,7 @@ describe("runDispatch", () => {
     const adapters: AdapterSet = { alimtalk: bad("alimtalk"), sms: bad("sms"), slack: ok("slack") };
     const { store, calls } = memoryStore([
       item({ id: 1 }),
-      item({ id: 2, recipient_kind: "admins", template_code: "ADMIN_BOOKING_REQUESTED", recipient_phone: null }),
+      item({ id: 2, recipient_kind: "admins", template_code: "ADMIN_DEAL_REQUESTED", recipient_phone: null }),
     ]);
     const summary = await runDispatch(store, adapters, { siteUrl: "x" });
     expect(summary).toEqual({ claimed: 2, sent: 1, failed: 1, dead: 0, errors: 0 });
@@ -100,18 +100,42 @@ describe("adapters", () => {
   });
 });
 
+// 부킹 DB 제거(D-88)로 더 이상 쌓이지 않는 템플릿. 예전 마이그레이션(004)은 고치지 않으므로 SQL에는 남아 있다
+const RETIRED_TEMPLATES = [
+  "BOOKING_IN_REVIEW", "BOOKING_PROPOSED", "BOOKING_CONFIRMED", "BOOKING_REJECTED", "BOOKING_CANCELLED",
+  "BOOKING_PROPOSAL_EXPIRED", "ADMIN_BOOKING_REQUESTED", "ADMIN_BOOKING_CONFIRMED", "ADMIN_BOOKING_CANCELLED",
+  "ADMIN_PROPOSAL_DECLINED", "ADMIN_PROPOSAL_EXPIRED", "ADMIN_SLA_BREACHED",
+];
+
 describe("templates", () => {
-  it("DB가 쌓는 모든 템플릿 코드를 렌더할 수 있다", async () => {
+  it("DB가 쌓는 모든 템플릿 코드를 렌더할 수 있다(제거된 부킹 템플릿 제외)", async () => {
     const { readFileSync, readdirSync } = await import("node:fs");
     const sql = readdirSync("supabase/migrations").map((f) => readFileSync(`supabase/migrations/${f}`, "utf8")).join("\n");
     const codes = new Set([...sql.matchAll(/'((?:ADMIN_|BOOKING_|DEAL_|GROUP_)[A-Z_]+)'/g)].map((m) => m[1]!));
-    for (const code of codes) expect(KNOWN_TEMPLATES, code).toContain(code);
+    for (const code of codes) if (!RETIRED_TEMPLATES.includes(code)) expect(KNOWN_TEMPLATES, code).toContain(code);
   });
-  it("제안 알림: KST 시각·금액·링크", () => {
+  it("제거된 부킹 템플릿은 렌더러에 없고, 부킹 제거 마이그레이션이 대기 중인 행을 모두 정리한다", async () => {
+    const { readFileSync } = await import("node:fs");
+    const drop = readFileSync("supabase/migrations/20261020000017_drop_booking.sql", "utf8");
+    for (const code of RETIRED_TEMPLATES) {
+      expect(KNOWN_TEMPLATES, code).not.toContain(code);
+      expect(drop, code).toContain(`'${code}'`);
+    }
+  });
+  it("모르는 템플릿(예전 부킹 dead 행 재시도 등)은 실패하지 않고 기본 문구로 보낸다", () => {
+    expect(renderMessage({ template_code: "BOOKING_PROPOSED", payload: { request_id: "r1" } }, "https://g.app/"))
+      .toEqual({ title: "Googolf 알림", text: "BOOKING_PROPOSED", url: "https://g.app" });
+  });
+  it("정모 알림: KST 시각·링크", () => {
     const m = renderMessage(item(), "https://g.app/");
-    expect(m.text).toContain("180,000원");
+    expect(m.text).toContain("11월 정모");
     expect(m.text).toContain("10월 28일");
-    expect(m.url).toBe("https://g.app/bookings/r1");
+    expect(m.url).toBe("https://g.app/groups/g1");
+  });
+  it("거래 알림: 상태 라벨·링크", () => {
+    const m = renderMessage({ template_code: "DEAL_STATUS_CHANGED", payload: { deal_id: "d1", product_name: "구골프 레이크CC 정회원", status_label: "가격 협의" } }, "https://g.app");
+    expect(m.text).toBe("구골프 레이크CC 정회원 상담이 '가격 협의' 단계입니다.");
+    expect(m.url).toBe("https://g.app/deals/d1");
   });
   it("오류 문구에서 전화번호를 지운다", () => {
     expect(sanitizeError(new Error("bad number 010-1234-5678"))).not.toContain("1234");

@@ -1,12 +1,11 @@
 import { z } from "zod";
 import { krMobileSchema } from "@/lib/domain/phone";
 
-/** 통화 메모 대상(activity_notes.subject_type) */
-export const NOTE_SUBJECT_TYPES = ["customer", "booking", "deal"] as const;
+/** 통화 메모 대상(activity_notes.subject_type). 부킹 대상은 D-88로 DB 제약에서 제거 */
+export const NOTE_SUBJECT_TYPES = ["customer", "deal"] as const;
 export type NoteSubjectType = (typeof NOTE_SUBJECT_TYPES)[number];
 export const NOTE_SUBJECT_LABEL: Record<NoteSubjectType, string> = {
   customer: "고객",
-  booking: "부킹", // 부킹 화면은 제거(D-87). 예전 메모 표시용으로 남긴다
   deal: "회원권",
 };
 

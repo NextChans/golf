@@ -1,8 +1,10 @@
 /**
  * 동시성 검증: 두 커넥션에서 같은 대상에 동시에 상태 함수를 호출해 정확히 1건만 성공하는지 확인한다.
- *   (f) 같은 부킹 요청에 대한 동시 accept_proposal
+ *   (f) 같은 거래에 대한 동시 start_deal(같은 version으로 두 운영자가 동시에 전이)
  *   (g) 같은 매물에 대한 동시 start_deal(선점)
  *   (h) 알림 발송기 두 개의 동시 claim_notifications(같은 알림을 두 번 잡지 않음 = 중복 발송 없음)
+ * 기호는 BRIEF.md 테스트 목록을 따른다. (f)는 원래 부킹 동시 accept_proposal이었으나 부킹 DB 제거(D-88)로
+ * 같은 성질(같은 행에 대한 동시 전이는 1건만 성공)을 회원권 거래로 검증한다.
  *
  * 실행: pnpm test:concurrency   (로컬 supabase start 필요)
  * 환경변수: DATABASE_URL(기본 로컬), ITERATIONS(기본 50)
@@ -13,7 +15,6 @@ import pg from "pg";
 const DATABASE_URL = process.env.DATABASE_URL ?? "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
 const ITERATIONS = Number(process.env.ITERATIONS ?? 50);
 const PRODUCT_ID = "00000000-0000-4000-b000-000000000001"; // seed.sql
-const COURSE_ID = "00000000-0000-4000-a000-000000000001"; // seed.sql
 
 type Role = "customer" | "admin";
 type Actor = { id: string; role: Role };
@@ -87,38 +88,41 @@ function assert(cond: unknown, message: string): asserts cond {
   if (!cond) throw new Error(message);
 }
 
-async function acceptRace(setup: pg.Client, conns: [pg.Client, pg.Client], admin: Actor) {
+async function transitionRace(setup: pg.Client, conns: [pg.Client, pg.Client], admin: Actor) {
+  // 매물이 없는 매도 상담: 매물 선점과 무관하게 같은 거래 행의 version 경쟁만 본다
   const customer = await createUser(setup, "customer");
-  const req = await asActor<{ id: string }>(
+  const deal = await asActor<{ id: string }>(
     setup, customer,
-    `select id from public.create_booking_request($1, $2, null, (now() at time zone 'Asia/Seoul')::date + 7,
-       'part_1', null, null, 4, null, null)`,
-    [randomUUID(), COURSE_ID],
+    "select id from public.create_deal_inquiry($1, 'sell', null, $2, 170000000, null, null)",
+    [randomUUID(), PRODUCT_ID],
   );
-  await asActor(setup, admin, "select public.assign_booking($1, $2, 1)", [req.id, admin.id]);
-  const proposal = await asActor<{ id: string }>(
-    setup, admin, "select id from public.propose_booking($1, 2, now() + interval '3 days', 150000)", [req.id],
-  );
+  const admin2 = await createUser(setup, "admin");
 
-  // 같은 고객이 두 탭에서 각자 다른 멱등키로 동시에 수락
-  const sql = "select public.accept_proposal($1, $2, 3)";
+  // 두 운영자가 같은 화면(version 1)에서 동시에 협의 시작
+  const sql = "select public.start_deal($1, 1)";
   const results = await race(conns, [
-    { actor: customer, sql, params: [randomUUID(), proposal.id] },
-    { actor: customer, sql, params: [randomUUID(), proposal.id] },
+    { actor: admin, sql, params: [deal.id] },
+    { actor: admin2, sql, params: [deal.id] },
   ]);
 
   const ok = results.filter((r) => r.ok).length;
   const failures = results.filter((r) => !r.ok);
-  assert(ok === 1, `accept: 성공 ${ok}건 (기대 1건) ${JSON.stringify(results)}`);
-  assert(failures.every((f) => f.code === "GB409"), `accept: 실패 코드가 GB409가 아님 ${JSON.stringify(failures)}`);
+  assert(ok === 1, `transition: 성공 ${ok}건 (기대 1건) ${JSON.stringify(results)}`);
+  assert(
+    failures.every((f) => f.code === "GB409" && f.message === "version_conflict"),
+    `transition: 실패 사유가 version_conflict가 아님 ${JSON.stringify(failures)}`,
+  );
 
   const { rows } = await setup.query(
-    `select r.status::text as status,
-            (select count(*)::int from public.booking_proposals where request_id = r.id and status = 'accepted') as accepted
-       from public.booking_requests r where r.id = $1`,
-    [req.id],
+    `select d.status::text as status, d.version,
+            (select count(*)::int from public.deal_events where deal_id = d.id and to_status = 'negotiating') as events
+       from public.membership_deals d where d.id = $1`,
+    [deal.id],
   );
-  assert(rows[0].status === "confirmed" && rows[0].accepted === 1, `accept: 최종 상태 불일치 ${JSON.stringify(rows[0])}`);
+  assert(
+    rows[0].status === "negotiating" && rows[0].version === 2 && rows[0].events === 1,
+    `transition: 최종 상태 불일치 ${JSON.stringify(rows[0])}`,
+  );
 }
 
 async function listingRace(setup: pg.Client, conns: [pg.Client, pg.Client], admin: Actor) {
@@ -162,10 +166,12 @@ async function listingRace(setup: pg.Client, conns: [pg.Client, pg.Client], admi
 
 async function claimRace(setup: pg.Client, conns: [pg.Client, pg.Client]) {
   const batch = randomUUID();
-  // 다른 시나리오가 쌓은 대기 알림보다 먼저 잡히도록 과거 시각으로 넣는다(claim은 next_attempt_at 순)
+  // 다른 시나리오·이전 실행이 남긴 대기 알림(lease 만료 sending 포함)보다 먼저 잡히도록 가장 이른 시각보다 앞에 넣는다
+  // (claim은 next_attempt_at 순)
   const { rows: inserted } = await setup.query<{ id: string }>(
     `insert into public.notification_outbox (event_type, recipient_kind, channel, template_code, payload, dedupe_key, next_attempt_at)
-     select 'race', 'admins', 'slack', 'ADMIN_BOOKING_REQUESTED', '{}'::jsonb, $1 || ':' || g, now() - interval '1 day'
+     select 'race', 'admins', 'slack', 'ADMIN_DEAL_REQUESTED', '{}'::jsonb, $1 || ':' || g,
+            least(now() - interval '1 day', (select min(next_attempt_at) from public.notification_outbox) - interval '1 minute')
        from generate_series(1, 10) g returning id::text`,
     [batch],
   );
@@ -189,6 +195,11 @@ async function claimRace(setup: pg.Client, conns: [pg.Client, pg.Client]) {
     [batch],
   );
   assert(rows[0]!.n === ids.size, `claim: 시도 횟수 불일치 ${JSON.stringify(rows[0])}`);
+  // 정리: 잡은 행을 보낸 것으로 기록해 lease 만료 뒤 다음 실행의 claim에 끼어들지 않게 한다
+  await setup.query(
+    "update public.notification_outbox set status = 'sent', sent_at = now(), locked_at = null where dedupe_key like $1 || ':%'",
+    [batch],
+  );
 }
 
 async function main() {
@@ -202,7 +213,7 @@ async function main() {
   try {
     const admin = await createUser(setup, "admin");
     for (const [name, fn] of [
-      ["(f) 동시 accept_proposal", acceptRace],
+      ["(f) 같은 거래 동시 전이", transitionRace],
       ["(g) 동시 매물 선점", listingRace],
       ["(h) 동시 알림 claim", (s: pg.Client, c: [pg.Client, pg.Client]) => claimRace(s, c)],
     ] as const) {

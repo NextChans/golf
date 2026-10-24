@@ -1,4 +1,4 @@
--- D-48: 연락처 정규화·변경·부킹 전 필수
+-- D-48: 연락처 정규화·변경·회원권 상담 전 필수
 begin;
 select plan(11);
 
@@ -13,10 +13,10 @@ select tests.create_user('a@test.local') as a \gset
 update public.profiles set phone = null, phone_verified_at = null where id = :'a';
 
 select tests.authenticate_as(:'a', 'aal1');
-select throws_ok('select tests.new_booking()', 'GB422', 'contact_required', '연락처가 없으면 부킹 요청 불가');
+select throws_ok('select tests.new_deal()', 'GB422', 'contact_required', '연락처가 없으면 회원권 상담 신청 불가');
 select throws_ok($q$select public.update_contact_phone('123')$q$, 'GB422', 'contact_required', '잘못된 번호는 거부');
 select is((public.update_contact_phone('010 9876 5432')).phone, '+821098765432', '연락처 입력');
-select isnt((tests.new_booking()).id, null, '연락처 입력 후 부킹 요청 가능');
+select isnt((tests.new_deal()).id, null, '연락처 입력 후 회원권 상담 신청 가능');
 
 select tests.clear_authentication();
 select is((select after ->> 'phone' from public.audit_logs where entity_id = :'a' and action = 'update_contact'), '+821098765432', '연락처 변경 감사 로그');

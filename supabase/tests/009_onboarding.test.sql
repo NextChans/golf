@@ -26,7 +26,7 @@ select throws_ok($q$select public.complete_onboarding('이메일', array['servic
 select tests.authenticate_as(:'k1', 'aal1');
 select throws_ok($q$select public.complete_onboarding('홍길동', array['service'])$q$, 'GB422', 'terms_required', '필수 약관 미동의는 거부');
 select throws_ok($q$select public.complete_onboarding('  ', array['service','privacy'])$q$, 'GB422', 'invalid_input', '이름 필수');
-select throws_ok('select tests.new_booking()', 'GB403', 'onboarding_required', '온보딩 전 부킹 불가');
+select throws_ok('select tests.new_deal()', 'GB403', 'onboarding_required', '온보딩 전 회원권 상담 불가');
 
 select is((public.complete_onboarding('홍길동', array['service','privacy'])).phone, '+821000000001', '온보딩 시 인증된 번호로 프로필 생성');
 select isnt((select onboarded_at from public.profiles where id = :'k1'), null, 'onboarded_at 기록');

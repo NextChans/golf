@@ -13,10 +13,10 @@ update public.notification_outbox set next_attempt_at = now() + interval '1 day'
 update public.notification_outbox set locked_at = now() where status = 'sending'; -- lease 만료된 잔여 행도 잡히지 않게
 
 select tests.authenticate_as(:'cust', 'aal1');
-select id as req from tests.new_booking() \gset
+select id as deal from tests.new_deal() \gset
 select tests.clear_authentication();
-select id as admin_note from public.notification_outbox where dedupe_key = 'booking:' || :'req' || ':requested' \gset
-select is((select template_code from public.notification_outbox where id = :admin_note), 'ADMIN_BOOKING_REQUESTED', '신규 요청 시 운영자 알림 적재');
+select id as admin_note from public.notification_outbox where dedupe_key = 'deal:' || :'deal' || ':requested' \gset
+select is((select template_code from public.notification_outbox where id = :admin_note), 'ADMIN_DEAL_REQUESTED', '신규 상담 시 운영자 알림 적재');
 
 -- 권한: 고객·운영자 세션은 claim 불가, service_role만
 select tests.authenticate_as(:'admin');
@@ -86,9 +86,9 @@ select is((select count(*)::int from public.notification_outbox where dedupe_key
 
 -- lease 만료: sending에 5분 넘게 남은 행은 다시 잡힌다
 select tests.authenticate_as(:'cust', 'aal1');
-select id as req2 from tests.new_booking() \gset
+select id as deal2 from tests.new_deal() \gset
 select tests.clear_authentication();
-select id as n2 from public.notification_outbox where dedupe_key = 'booking:' || :'req2' || ':requested' \gset
+select id as n2 from public.notification_outbox where dedupe_key = 'deal:' || :'deal2' || ':requested' \gset
 select pg_temp.as_service();
 select public.claim_notifications(10);
 select tests.clear_authentication();

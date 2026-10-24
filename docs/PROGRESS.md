@@ -23,7 +23,8 @@
 | M6 알림 outbox | 완료·머지(NextChans/golf#8) | D-63~66 |
 | M7 골프 모임 커뮤니티 | 완료·머지(NextChans/golf#10) | pgTAP 260, Vitest 201, Playwright 42. D-67~73 |
 | M8 후보 1차: 회원권 앱 개편(그린판다 벤치마크, 목업) | **완료, 오너 검토 대기** | `/market` 22개 화면(가입 4 포함) + 가입 2·3단계(`/onboarding`), Vitest +31, Playwright +10. D-80·D-81·D-82, docs/DESIGN-APP.md |
-| 루트 전환·부킹 화면 제거(D-87) | **완료, 오너 검토 대기** | `/` = 앱 홈(URL 유지), `/market`·`/bookings/**`·`/admin/bookings/**` redirect. 부킹 DB는 남겨 둠, 삭제 여부 오너 결정 대기. pgTAP 275(불변), Vitest 218(부킹 테스트 제거로 268→218), Playwright 73(부킹 9 삭제, 루트 7 추가) |
+| 루트 전환·부킹 화면 제거(D-87) | 완료·머지(NextChans/golf#13) | `/` = 앱 홈(URL 유지), `/market`·`/bookings/**`·`/admin/bookings/**` redirect. 부킹 DB는 D-88로 제거. pgTAP 275(불변), Vitest 218(부킹 테스트 제거로 268→218), Playwright 73(부킹 9 삭제, 루트 7 추가) |
+| 부킹 DB 제거(D-88) | **완료, 오너 검토·운영 반영 대기** | 마이그레이션 017(테이블 3·함수 12·cron 2·enum 3 제거, 공용 함수 부킹 분기 제거). pgTAP 269(003 삭제 −24, 007 12→8, 018 +22, 나머지 소재를 회원권 거래로 교체), 동시성 3×50회, Vitest 222, Playwright 73. 운영 반영 `deploy/2026-10-24-01-drop-booking.sql` + `functions-deploy` |
 
 ## M8 후보 1차 결과 요약(회원권 앱, D-80)
 
@@ -35,7 +36,7 @@
 - 앱 폰트(D-86): `/market/**`·`/onboarding`만 Pretendard Variable 셀프호스팅(`public/fonts/pretendard`, OFL 동봉), 굵기 800 → 700/600 정리, 루트·기존 화면 폰트 불변, `e2e/font.spec.ts`
 - 모두 목업 데이터(`lib/mock/market.ts`). 로그인 판단만 실제 세션을 쓴다(마이페이지 이름, 나의 회원권, 판매 희망가). 판매 희망가 등록은 서버로 보내지 않는다(미리보기)
 - 기존 화면과 연결: 개인정보 → `/me`, 판매·구매 관리 → `/deals`, 구매 상담 → `/memberships`, 실제 매도 상담 → `/memberships/sell`
-- 다음(오너 결정 후): ① 그린판다 추가 캡처(상세·검색 결과·판매 등록·알림·로그인)로 화면 맞춤 ② 실데이터 연결(`membership_quotes` 주간 시세, 매물 최저가=즉시 구매가, 관심 회원권·알림 설정 테이블) ③ ~~홈(`/`)을 앱 구조로 전환~~ → D-87 완료(GlobalNav는 부킹 링크만 뺀 apple 스타일 유지) ④ 지역 사진 에셋 ⑤ 부킹 DB(테이블·함수·알림 템플릿) 삭제 여부
+- 다음(오너 결정 후): ① 그린판다 추가 캡처(상세·검색 결과·판매 등록·알림·로그인)로 화면 맞춤 ② 실데이터 연결(`membership_quotes` 주간 시세, 매물 최저가=즉시 구매가, 관심 회원권·알림 설정 테이블) ③ ~~홈(`/`)을 앱 구조로 전환~~ → D-87 완료(GlobalNav는 부킹 링크만 뺀 apple 스타일 유지) ④ 지역 사진 에셋 ~~⑤ 부킹 DB(테이블·함수·알림 템플릿) 삭제 여부~~ → D-88 제거(운영 반영 대기)
 
 ## 루트 전환·부킹 화면 제거 결과 요약(D-87)
 
@@ -43,8 +44,16 @@
 - redirect(307, `next.config.ts`): `/market` → `/`(쿼리 유지), `/bookings`·`/bookings/**` → `/`, `/admin/bookings`·`/admin/bookings/**` → `/admin`
 - 제거(코드·화면·테스트): `app/(customer)/bookings/**`, `app/(admin)/admin/(console)/bookings/**`, `lib/domain/booking/**`, `e2e/booking.spec.ts`·`e2e/admin-booking.spec.ts`, `e2e/customer.ts`의 `seedProposal`·`getBookingStatus`, 운영자 홈 부킹 카드·"요청 인박스", 고객 상세 부킹 이력, GlobalNav "부킹"·"내 예약", `/me`의 "내 예약 보기"(→ "내 거래 보기")
 - 이동: `formatWon` → `lib/format/money.ts`, `todayKst`·`kstLocalToIso`·`isoToKstLocal` → `lib/format/kst.ts`, `fieldErrors` → `lib/domain/form.ts`
-- **부킹 DB는 남겨 둠, 삭제 여부 오너 결정 대기**(마이그레이션·pgTAP·동시성·`types/database.ts`·알림 템플릿·cron 그대로). pg_cron의 SLA·제안 만료 배치는 계속 돈다(데이터가 없으면 할 일 없음)
+- 부킹 DB는 이 단계에서는 남겨 뒀고, 이후 D-88로 제거했다(아래 "부킹 DB 제거 결과 요약")
 - E2E: `e2e/root.spec.ts`(+7), `navigation.spec` 재작성, `contact.spec`은 매도 상담으로 이동, `market`·`font`·`onboarding`·`membership`·`community`·`auth` 스펙을 새 주소에 맞춤
+
+## 부킹 DB 제거 결과 요약(D-88)
+
+- 마이그레이션 `supabase/migrations/20261020000017_drop_booking.sql`(cascade 없음, 한 트랜잭션): cron `expire-proposals`·`mark-sla-breaches` 해제 → 부킹 메모·미발송 부킹 알림(pending/failed/sending)·부킹 멱등키 삭제(내역은 `audit_logs` entity_type `migration` 1건) → `add_activity_note`·`log_pii_view`·`app.enforce_rate_limit`에서 부킹 분기 제거, `activity_notes.subject_type` 제약 customer·deal → 부킹 함수 12개 → 테이블 3개 → enum 3개
+- 유지: `audit_logs` 전부, 부킹 알림 sent·dead 이력, `golf_courses`·`region`, 범용 헬퍼(`app.invalid_state`·`app.today_kst`·`app.business_sla_due`·`business_holidays`)
+- 업그레이드 경로 검증: 016 상태에 옛 함수로 부킹 데이터(요청 5·제안 3·이벤트 14·알림 20·메모·연락처 열람)와 회원권·모임 데이터를 만든 뒤 운영 반영 SQL을 psql로 실행 → 성공, 부킹 외 테이블 해시 동일. 로컬 전용 헬퍼 `tests.new_booking`이 남아 있으면 drop이 막혀 전체 롤백되는 것도 확인(이후 마이그레이션이 그 헬퍼를 먼저 지움)
+- 앱·함수: Edge Function 템플릿에서 부킹 12개 제거(재배포 필요), `lib/domain/crm` 대상 customer·deal, `lib/admin/pii.ts` 타입, 에러 코드 `proposal_expired` 제거, `types/database.ts` 재생성(부킹 제거분만 diff)
+- 테스트: pgTAP 003 삭제, 001·002·005·006·007·008·009·012·013·015를 회원권 거래 소재로 교체, `018_booking_removed` 추가. 동시성 (f)를 같은 거래 동시 전이로 교체, (h)는 이전 실행이 남긴 lease 만료 행에 영향받지 않게 정리
 
 ## M1 결과 요약
 
@@ -58,7 +67,8 @@
 
 ## 운영 반영 상태
 
-- 운영 DB: 001~015 적용 완료(오너, 2026-10-20). 013(M6)도 적용 완료, 운영 발송 켜짐(2026-10-20, 함수 배포·비밀값·Vault, 고객 채널은 console). 절차·장애 대응은 `deploy/README.md` 6장. 010(M4)도 적용 완료(`deploy/2026-10-20-03-admin-ops.sql`, 머지 전 선반영). 절차·상태는 `deploy/README.md` 1-1
+- **운영 반영 대기: 2026-10-24-01 부킹 DB 제거**(017, 되돌릴 수 없음 — `deploy/README.md` 1-1의 실행 전·후 확인 쿼리와 함께 오너가 SQL Editor에서 실행) + Actions `functions-deploy`(부킹 템플릿 제거)
+- 운영 DB: 001~016 적용 완료(오너). 013(M6)도 적용 완료, 운영 발송 켜짐(2026-10-20, 함수 배포·비밀값·Vault, 고객 채널은 console). 절차·장애 대응은 `deploy/README.md` 6장. 010(M4)도 적용 완료(`deploy/2026-10-20-03-admin-ops.sql`, 머지 전 선반영). 절차·상태는 `deploy/README.md` 1-1
 - 운영 데이터 정리 필요: `golf_courses`의 README 예시 행 "실제 골프장명" — M4 배포 후 골프장 화면에서 수정하거나 운영 중지
 - 카카오 앱·Supabase Kakao provider 설정: 오너 완료(2026-10-20)
 

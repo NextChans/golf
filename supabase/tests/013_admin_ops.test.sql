@@ -11,9 +11,9 @@ select tests.authenticate_as(:'cust', 'aal1');
 select throws_ok($q$select public.upsert_golf_course(null, '새 골프장', 'jeju', null, 100000, 150000, null, null, true)$q$,
   'GB403', 'forbidden', '고객은 골프장 저장 불가');
 select throws_ok($q$select public.list_assignable_staff()$q$, 'GB403', 'forbidden', '고객은 운영자 목록 조회 불가');
-select b.id as bid from tests.new_booking() b \gset
+select d.id as did from tests.new_deal() d \gset
 select tests.authenticate_as(:'other', 'aal1');
-select b.id as obid from tests.new_booking() b \gset
+select d.id as odid from tests.new_deal() d \gset
 
 -- aal1 운영자는 거부
 select tests.authenticate_as(:'admin', 'aal1');
@@ -36,10 +36,10 @@ select is((public.upsert_golf_course(:'gid', '새 골프장', 'jeju', '제주시
   110000::bigint, '골프장 수정');
 
 -- 통화 메모
-select n.id as nid, n.body as nbody from public.add_activity_note(:'cust', 'booking', :'bid', '  고객 통화: 2부 선호  ') n \gset
-select is(:'nbody'::text, '고객 통화: 2부 선호'::text, '부킹 메모 작성');
-select throws_ok(format($q$select public.add_activity_note(%L, 'booking', %L, '남의 건')$q$, :'cust', :'obid'),
-  'GB422', 'invalid_input', '다른 고객의 부킹에 메모 불가');
+select n.id as nid, n.body as nbody from public.add_activity_note(:'cust', 'deal', :'did', '  고객 통화: 평일 계약 선호  ') n \gset
+select is(:'nbody'::text, '고객 통화: 평일 계약 선호'::text, '거래 메모 작성(공백 제거)');
+select throws_ok(format($q$select public.add_activity_note(%L, 'deal', %L, '남의 건')$q$, :'cust', :'odid'),
+  'GB422', 'invalid_input', '다른 고객의 거래에 메모 불가');
 select throws_ok(format($q$select public.add_activity_note(%L, 'customer', null, '   ')$q$, :'cust'),
   'GB422', 'invalid_input', '빈 메모 거부');
 
