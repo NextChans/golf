@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Session } from "./claims";
-import { decideRoute, safeNext } from "./routing";
+import { afterLoginPath, decideRoute, loginErrorPath, safeNext } from "./routing";
 
 const customer = (over: Partial<Session> = {}): Session => ({
   userId: "c", role: "customer", aal: "aal1", isKakao: true, onboarded: true, passwordChangeRequired: false, ...over,
@@ -107,5 +107,21 @@ describe("safeNext", () => {
     expect(safeNext("//evil.example", "/me")).toBe("/me");
     expect(safeNext("/\\evil.example", "/me")).toBe("/me");
     expect(safeNext(null, "/me")).toBe("/me");
+  });
+});
+
+describe("afterLoginPath·loginErrorPath(D-81)", () => {
+  it("온보딩 전 고객은 공개 경로로 돌아가더라도 가입 마무리부터", () => {
+    expect(afterLoginPath("/market/mypage", customer({ onboarded: false }))).toBe("/onboarding?next=%2Fmarket%2Fmypage");
+    expect(afterLoginPath("/onboarding", customer({ onboarded: false }))).toBe("/onboarding");
+  });
+  it("온보딩 고객은 그대로, 운영자는 /admin", () => {
+    expect(afterLoginPath("/market/my", customer())).toBe("/market/my");
+    expect(afterLoginPath("/market/my", admin())).toBe("/admin");
+    expect(afterLoginPath("/me", null)).toBe("/me");
+  });
+  it("실패 화면은 시작한 화면 계열로", () => {
+    expect(loginErrorPath("/market/my", "취소")).toBe("/market/login?error=%EC%B7%A8%EC%86%8C&next=%2Fmarket%2Fmy");
+    expect(loginErrorPath("/me", "취소")).toBe("/login?error=%EC%B7%A8%EC%86%8C");
   });
 });

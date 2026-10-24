@@ -34,7 +34,7 @@ test.describe("회원권 앱(/market)", () => {
     await page.goto("/market/mypage");
     const tabs = page.getByRole("navigation", { name: "앱 메뉴" });
     await expect(tabs.getByRole("link", { name: "마이페이지" })).toHaveAttribute("aria-current", "page");
-    await expect(page.getByRole("link", { name: /로그인 · 회원가입/ })).toHaveAttribute("href", "/login?next=/market/mypage");
+    await expect(page.getByRole("link", { name: /로그인 · 회원가입/ })).toHaveAttribute("href", "/market/login?next=/market/mypage");
 
     await tabs.getByRole("link", { name: "나의 회원권" }).click();
     await expect(page.getByRole("heading", { name: "나의 회원권" })).toBeVisible();
@@ -77,5 +77,40 @@ test.describe("회원권 앱(/market)", () => {
     await expect(page.getByRole("link", { name: new RegExp(`${customer.displayName}님`) })).toHaveAttribute("href", "/me");
     await page.getByRole("navigation", { name: "앱 메뉴" }).getByRole("link", { name: "나의 회원권" }).click();
     await expect(page.getByRole("link", { name: /대관령그린CC/ })).toBeVisible();
+  });
+
+  test("가입: 로그인 → 회원 유형 → 개인(카카오만)·기업(사업자번호 검증 후 카카오)", async ({ page }) => {
+    await page.goto("/market/mypage");
+    await page.getByRole("link", { name: /로그인 · 회원가입/ }).click();
+    await expect(page).toHaveURL(/\/market\/login\?next=/);
+    // 고객 로그인 수단은 카카오 하나(D-81)
+    await expect(page.getByRole("button", { name: "카카오로 계속하기" })).toHaveCount(1);
+    await expect(page.getByLabel("이메일")).toHaveCount(0);
+
+    await page.getByRole("link", { name: "회원가입" }).click();
+    await page.getByRole("link", { name: /개인회원/ }).click();
+    await expect(page.getByRole("heading", { name: "개인 회원가입" })).toBeVisible();
+    await expect(page.getByRole("list", { name: "가입 단계 1/3" })).toBeVisible();
+    await expect(page.locator('input[name="next"]')).toHaveValue("/market/mypage");
+
+    await page.goto("/market/signup/business");
+    const next = page.getByRole("button", { name: "다음" });
+    await expect(next).toBeDisabled();
+    await page.getByLabel("사업자명").fill("구골프");
+    await page.getByLabel("사업자등록번호").fill("2208162518");
+    await page.getByLabel("사업자명").click();
+    await expect(page.getByText("사업자등록번호를 다시 확인해 주세요.")).toBeVisible();
+    await expect(next).toBeDisabled();
+    await page.getByLabel("사업자등록번호").fill("2208162517");
+    await expect(page.getByLabel("사업자등록번호")).toHaveValue("220-81-62517");
+    await next.click();
+    await expect(page.getByRole("heading", { name: /담당자 카카오 계정을/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: "카카오로 계속하기" })).toBeVisible();
+  });
+
+  test("로그인한 고객이 앱 로그인 화면에 오면 돌아갈 곳으로 보낸다", async ({ page, context }) => {
+    await loginAsCustomer(context, await createOnboardedCustomer());
+    await page.goto("/market/login?next=/market/my");
+    await expect(page).toHaveURL(/\/market\/my$/);
   });
 });

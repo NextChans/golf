@@ -18,6 +18,10 @@
 | 공지 모달 + 쿠폰 바텀시트 | 홈 팝업 | "오늘 그만 보기"(KST 날짜), "다시 보지 않기"(영구), "닫기"(세션) |
 | 맞춤 회원권 검색 | `/market/search` → `/market/search/results` | 지역(복수)·가격대(복수)·검색어, 하단 초기화 + 전체보기/N건 보기 |
 | 나의 회원권 | `/market/my` | 비로그인: 로그인 유도 카드. 로그인: 보유 회원권 현재 가치·취득가 대비 |
+| 로그인(이메일·소셜 4종) | `/market/login` | **카카오만**(D-81). 다른 수단은 추후 |
+| 신규 회원가입 · 회원 유형 | `/market/signup` | 개인회원 / 기업회원 카드 |
+| 개인 회원가입(소셜 4종 + 이메일) | `/market/signup/personal` | 3단계 표시, 1단계 카카오만 → 2단계 기존 `/onboarding` |
+| 기업 회원가입(사업자명·사업자등록번호) | `/market/signup/business` | 검증번호 확인 후 "다음" → 담당자 카카오 연결. "사업자 인증이 안되시나요?" → 고객센터 |
 | 마이페이지 | `/market/mypage` | 관심 회원권·쿠폰함·판매 희망가 / 개인정보·판매 관리·구매 관리·설정 / 고객센터 |
 | (캡처 없음, 추정) | `/market/items/[id]` 회원권 상세, `/market/report` 이번주 시세, `/market/notifications`, `/market/notices/fee`, `/market/guide/guarantee` | 그린판다 실제 화면 캡처를 받으면 맞춘다 |
 
@@ -74,6 +78,8 @@
 | `TabBar` | tab-bar.tsx | 하단 탭 4개(`navigation` 이름 "앱 메뉴", 활성 `aria-current="page"`) |
 | `MenuGroup`·`MenuRow`·`Divider` | ui.tsx | 마이페이지형 68px 메뉴 행 + 10px 구분 띠 |
 | `LoginPrompt` | ui.tsx | 회색 아바타 + "로그인 · 회원가입 ›" + 강조 단어 그린, `boxed` 카드형 |
+| `Stepper` | ui.tsx | 가입 3단계(원 + 선, `aria-current="step"`) |
+| `BusinessSignup` | business-signup.tsx | 사업자 정보 → 카카오 연결 2화면 |
 | `StateView` | ui.tsx | 빈 상태·에러(에러는 `role="alert"`) |
 | `primaryButtonClass`·`secondaryButtonClass`·`chipClass` | ui.tsx | 56px 버튼, 칩은 `aria-pressed`로 선택 표시 |
 | `ItemRow` | item-row.tsx | 골프장명·확인 배지·지역·유형·홀, 가격·변화율 |
@@ -96,3 +102,5 @@
 - 링크 "어떤 회원권을 찾고 계신가요?", /로그인 · 회원가입/
 - 헤딩 "맞춤 회원권 검색", "나의 회원권". 버튼 "전체보기"·"N건 보기", 지역 버튼(aria-pressed)
 - combobox "보유 회원권 골프장명", option 안 버튼, region "예상 판매가"
+- 가입: 버튼 "카카오로 계속하기", 링크 "회원가입"·/개인회원/·/기업회원/, 목록 "가입 단계 1/3", 라벨 "사업자명"·"사업자등록번호", 버튼 "다음", 헤딩 /담당자 카카오 계정을/
+- 로그인 유도 링크 href는 `/market/login?next=<경로>`

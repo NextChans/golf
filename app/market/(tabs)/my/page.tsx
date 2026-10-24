@@ -26,7 +26,7 @@ export default async function MyMembershipsPage() {
         <h2 className="text-heading font-bold text-ink-sub">보유 회원권</h2>
         <div className="mt-5">
           {!customer ? (
-            <LoginPrompt boxed href="/login?next=/market/my" lead="지금 " emphasis="내 회원권의 가치" tail="를 확인해보세요." />
+            <LoginPrompt boxed href="/market/login?next=/market/my" lead="지금 " emphasis="내 회원권의 가치" tail="를 확인해보세요." />
           ) : (
             <ul className="space-y-3">
               {holdings.map(({ item, acquiredPrice }) => {

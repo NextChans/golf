@@ -18,7 +18,7 @@ export default async function TradesPage({ searchParams }: { searchParams: Searc
       <TopBar title={title} back="/market/mypage" />
       <main className="px-6 pt-4 pb-10">
         {session?.role !== "customer" ? (
-          <LoginPrompt boxed href={`/login?next=${encodeURIComponent(`/market/mypage/trades?type=${type}`)}` as never} lead="로그인하고 " emphasis={title === "판매 관리" ? "판매 진행 상황" : "구매 진행 상황"} tail="을 확인하세요." />
+          <LoginPrompt boxed href={`/market/login?next=${encodeURIComponent(`/market/mypage/trades?type=${type}`)}` as never} lead="로그인하고 " emphasis={title === "판매 관리" ? "판매 진행 상황" : "구매 진행 상황"} tail="을 확인하세요." />
         ) : (
           <>
             <ol aria-label="거래 진행 단계" className="grid grid-cols-3 gap-x-2 gap-y-4 rounded-card bg-fill px-4 py-5">

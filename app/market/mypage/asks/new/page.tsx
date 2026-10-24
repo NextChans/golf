@@ -23,7 +23,7 @@ export default async function NewAskPage({ searchParams }: { searchParams: Searc
         ) : (
           <LoginPrompt
             boxed
-            href={`/login?next=${encodeURIComponent(`/market/mypage/asks/new${item ? `?item=${item}` : ""}`)}` as never}
+            href={`/market/login?next=${encodeURIComponent(`/market/mypage/asks/new${item ? `?item=${item}` : ""}`)}` as never}
             lead="로그인하고 " emphasis="판매 희망가" tail="를 등록해 보세요."
           />
         )}

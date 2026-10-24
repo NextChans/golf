@@ -110,3 +110,29 @@ export const chipClass =
 
 /** 변화율 텍스트 색: 상승 빨강, 하락 파랑, 보합 회색 */
 export const rateClass = (rate: number) => (rate > 0 ? "text-up" : rate < 0 ? "text-down" : "text-ink-mute");
+
+/** 가입 단계 표시(원 3개 + 선). 완료·현재 단계는 그린 체크 */
+export function Stepper({ steps, current }: { steps: readonly string[]; current: number }) {
+  return (
+    <ol aria-label={`가입 단계 ${current + 1}/${steps.length}`} className="flex items-start justify-between px-8 py-5">
+      {steps.map((label, k) => {
+        const reached = k <= current;
+        return (
+          <li key={label} aria-current={k === current ? "step" : undefined} className="relative flex flex-1 flex-col items-center gap-1.5">
+            {k > 0 && <span aria-hidden className={cn("absolute top-[11px] right-1/2 h-0.5 w-full", reached ? "bg-brand/50" : "bg-line")} />}
+            <span
+              aria-hidden
+              className={cn(
+                "relative flex size-6 items-center justify-center rounded-full",
+                reached ? "bg-[#5fd99a] text-white" : "border-[3px] border-line bg-surface",
+              )}
+            >
+              {reached && <svg viewBox="0 0 12 12" className="size-3"><path d="M2.5 6.2 5 8.5l4.5-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>}
+            </span>
+            <span className={cn("text-tiny font-semibold", reached ? "text-ink-sub" : "text-ink-faint")}>{label}</span>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}

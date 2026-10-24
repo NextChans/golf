@@ -16,7 +16,7 @@ export default async function AsksPage() {
       <TopBar title="판매 희망가" back="/market/mypage" />
       <main className="px-6 pt-4 pb-10">
         {!customer ? (
-          <LoginPrompt boxed href="/login?next=/market/mypage/asks" lead="로그인하고 " emphasis="판매 희망가" tail="를 등록해 보세요." />
+          <LoginPrompt boxed href="/market/login?next=/market/mypage/asks" lead="로그인하고 " emphasis="판매 희망가" tail="를 등록해 보세요." />
         ) : MY_ASKS.length === 0 ? (
           <StateView title="등록한 판매 희망가가 없어요" />
         ) : (

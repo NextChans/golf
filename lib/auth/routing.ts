@@ -66,3 +66,19 @@ export function decideRoute(path: string, session: Session | null): RouteDecisio
 
   return { type: "next" };
 }
+
+/**
+ * 카카오 로그인 직후 갈 곳. 공개 경로(/market 등)로 돌아가더라도 온보딩 전 고객은 가입 마무리부터(D-81).
+ * 운영자는 고객 로그인을 쓰지 않지만 혹시 오면 /admin. 로그인 실패 화면은 시작한 화면 계열로.
+ */
+export function afterLoginPath(next: string, session: Session | null): string {
+  if (!session) return next;
+  if (session.role === "admin" || session.role === "owner") return "/admin";
+  if (!session.onboarded && !startsWithSegment(next, "/onboarding")) return withNext("/onboarding", next);
+  return next;
+}
+
+export function loginErrorPath(next: string, reason: string): string {
+  const base = startsWithSegment(next, "/market") ? "/market/login" : "/login";
+  return `${base}?error=${encodeURIComponent(reason.slice(0, 200))}${base === "/market/login" ? `&next=${encodeURIComponent(next)}` : ""}`;
+}

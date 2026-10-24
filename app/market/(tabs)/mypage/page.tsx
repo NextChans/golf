@@ -24,7 +24,7 @@ export default async function MyPage() {
         {customer ? (
           <LoginPrompt href="/me" name={`${name}님`} lead="" emphasis="회원권 거래" tail="를 Googolf와 함께하세요" />
         ) : (
-          <LoginPrompt href="/login?next=/market/mypage" lead="간편한 " emphasis="회원권 거래 경험" tail="을 시작해보세요" />
+          <LoginPrompt href="/market/login?next=/market/mypage" lead="간편한 " emphasis="회원권 거래 경험" tail="을 시작해보세요" />
         )}
         <Divider />
         <MenuGroup label="관심·혜택">
