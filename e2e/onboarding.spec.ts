@@ -65,5 +65,6 @@ test("다른 곳에서 가입을 시작했으면 회원권 둘러보기는 회�
   await page.getByRole("button", { name: "가입 완료" }).click();
   await expect(page.getByRole("heading", { name: "새고객님, 환영합니다!" })).toBeVisible();
   await page.getByRole("button", { name: "회원권 둘러보기" }).click();
-  await expect(page).toHaveURL(/\/market$/);
+  // 회원권 앱 홈은 루트(D-87)
+  await expect(page).toHaveURL(/^http:\/\/localhost:3000\/$/);
 });

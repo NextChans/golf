@@ -18,6 +18,17 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
+  // D-87: 앱 홈은 루트(/). 예전 앱 홈 주소와 제거된 부킹 화면은 홈으로 보낸다(쿼리는 그대로 전달된다).
+  // 임시(307)로 둬서 나중에 경로를 다시 쓰더라도 브라우저 캐시에 남지 않게 한다.
+  async redirects() {
+    return [
+      { source: "/market", destination: "/", permanent: false },
+      { source: "/bookings", destination: "/", permanent: false },
+      { source: "/bookings/:path*", destination: "/", permanent: false },
+      { source: "/admin/bookings", destination: "/admin", permanent: false },
+      { source: "/admin/bookings/:path*", destination: "/admin", permanent: false },
+    ];
+  },
 };
 
 export default nextConfig;

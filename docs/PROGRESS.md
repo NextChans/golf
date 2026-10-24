@@ -23,6 +23,7 @@
 | M6 알림 outbox | 완료·머지(NextChans/golf#8) | D-63~66 |
 | M7 골프 모임 커뮤니티 | 완료·머지(NextChans/golf#10) | pgTAP 260, Vitest 201, Playwright 42. D-67~73 |
 | M8 후보 1차: 회원권 앱 개편(그린판다 벤치마크, 목업) | **완료, 오너 검토 대기** | `/market` 22개 화면(가입 4 포함) + 가입 2·3단계(`/onboarding`), Vitest +31, Playwright +10. D-80·D-81·D-82, docs/DESIGN-APP.md |
+| 루트 전환·부킹 화면 제거(D-87) | **완료, 오너 검토 대기** | `/` = 앱 홈(URL 유지), `/market`·`/bookings/**`·`/admin/bookings/**` redirect. 부킹 DB는 남겨 둠, 삭제 여부 오너 결정 대기. pgTAP 275(불변), Vitest 218(부킹 테스트 제거로 268→218), Playwright 73(부킹 9 삭제, 루트 7 추가) |
 
 ## M8 후보 1차 결과 요약(회원권 앱, D-80)
 
@@ -34,7 +35,16 @@
 - 앱 폰트(D-86): `/market/**`·`/onboarding`만 Pretendard Variable 셀프호스팅(`public/fonts/pretendard`, OFL 동봉), 굵기 800 → 700/600 정리, 루트·기존 화면 폰트 불변, `e2e/font.spec.ts`
 - 모두 목업 데이터(`lib/mock/market.ts`). 로그인 판단만 실제 세션을 쓴다(마이페이지 이름, 나의 회원권, 판매 희망가). 판매 희망가 등록은 서버로 보내지 않는다(미리보기)
 - 기존 화면과 연결: 개인정보 → `/me`, 판매·구매 관리 → `/deals`, 구매 상담 → `/memberships`, 실제 매도 상담 → `/memberships/sell`
-- 다음(오너 결정 후): ① 그린판다 추가 캡처(상세·검색 결과·판매 등록·알림·로그인)로 화면 맞춤 ② 실데이터 연결(`membership_quotes` 주간 시세, 매물 최저가=즉시 구매가, 관심 회원권·알림 설정 테이블) ③ 홈(`/`)과 GlobalNav를 앱 구조로 전환(기존 E2E 계약 갱신 필요) ④ 지역 사진 에셋
+- 다음(오너 결정 후): ① 그린판다 추가 캡처(상세·검색 결과·판매 등록·알림·로그인)로 화면 맞춤 ② 실데이터 연결(`membership_quotes` 주간 시세, 매물 최저가=즉시 구매가, 관심 회원권·알림 설정 테이블) ③ ~~홈(`/`)을 앱 구조로 전환~~ → D-87 완료(GlobalNav는 부킹 링크만 뺀 apple 스타일 유지) ④ 지역 사진 에셋 ⑤ 부킹 DB(테이블·함수·알림 템플릿) 삭제 여부
+
+## 루트 전환·부킹 화면 제거 결과 요약(D-87)
+
+- 루트(`/`): `app/page.tsx`가 `MarketHomeScreen`(`components/market/home-screen.tsx`, 예전 `app/market/(tabs)/page.tsx`)을 `MarketShell`(폰트 preload·미리보기 띠, `app/market/layout.tsx`와 공용)·`TabBar`로 감싸 URL 그대로 렌더. 홈 링크는 `/?tab=sell`·`/?list=…`, 앱 화면의 뒤로·로고·환영 화면 기본 이동·초대 공유 주소는 `/`
+- redirect(307, `next.config.ts`): `/market` → `/`(쿼리 유지), `/bookings`·`/bookings/**` → `/`, `/admin/bookings`·`/admin/bookings/**` → `/admin`
+- 제거(코드·화면·테스트): `app/(customer)/bookings/**`, `app/(admin)/admin/(console)/bookings/**`, `lib/domain/booking/**`, `e2e/booking.spec.ts`·`e2e/admin-booking.spec.ts`, `e2e/customer.ts`의 `seedProposal`·`getBookingStatus`, 운영자 홈 부킹 카드·"요청 인박스", 고객 상세 부킹 이력, GlobalNav "부킹"·"내 예약", `/me`의 "내 예약 보기"(→ "내 거래 보기")
+- 이동: `formatWon` → `lib/format/money.ts`, `todayKst`·`kstLocalToIso`·`isoToKstLocal` → `lib/format/kst.ts`, `fieldErrors` → `lib/domain/form.ts`
+- **부킹 DB는 남겨 둠, 삭제 여부 오너 결정 대기**(마이그레이션·pgTAP·동시성·`types/database.ts`·알림 템플릿·cron 그대로). pg_cron의 SLA·제안 만료 배치는 계속 돈다(데이터가 없으면 할 일 없음)
+- E2E: `e2e/root.spec.ts`(+7), `navigation.spec` 재작성, `contact.spec`은 매도 상담으로 이동, `market`·`font`·`onboarding`·`membership`·`community`·`auth` 스펙을 새 주소에 맞춤
 
 ## M1 결과 요약
 
@@ -117,5 +127,5 @@
 - outbox 발송은 at-least-once. 발송 후 상태 기록 전에 장애가 나면 lease(5분) 만료 뒤 최대 1회 재발송 가능(D-66). 알림톡 연동 시 dedupe_key를 대행사 멱등키로
 - IP/UA는 위조 가능한 참고값(D-09)
 - 운영자 역할 회수는 최대 JWT 만료(15분)까지 지연(M2에서 세션 강제 종료 추가)
-- D-62: loading.tsx(또는 `<Suspense>`) 아래에서 같은 화면을 다시 그리는 전환이 운영 빌드에서 멈춘다. 운영자 회원권 목록은 경계를 없애 해결(admin-memberships 20/20). 운영자 골프장 목록·고객 bookings/deals/memberships 목록도 loading.tsx가 있어 같은 위험이 있다(골프장 목록에서 router.refresh 재현). 지금은 그 화면들에서 제자리 갱신을 하지 않아 E2E는 통과한다. 화면에 제자리 갱신을 넣거나 Next를 올릴 때 다시 확인한다
+- D-62: loading.tsx(또는 `<Suspense>`) 아래에서 같은 화면을 다시 그리는 전환이 운영 빌드에서 멈춘다. 운영자 회원권 목록은 경계를 없애 해결(admin-memberships 20/20). 운영자 골프장 목록·고객 deals/memberships 목록도 loading.tsx가 있어 같은 위험이 있다(골프장 목록에서 router.refresh 재현). 지금은 그 화면들에서 제자리 갱신을 하지 않아 E2E는 통과한다. 화면에 제자리 갱신을 넣거나 Next를 올릴 때 다시 확인한다
 - E2E 데이터 누적: 로컬 DB에 테스트 데이터가 계속 쌓인다. 테스트는 각자 만든 id·고유 호가로만 확인하도록 작성한다(membership.spec 시드 확인은 시드 호가로만 거름). 느려지면 `pnpm db:reset`

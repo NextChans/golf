@@ -48,7 +48,7 @@ describe("decideRoute: /admin", () => {
 
 describe("decideRoute: 고객 경로", () => {
   it("미인증 → /login?next=", () => {
-    expect(decideRoute("/bookings/1", null)).toEqual({ type: "redirect", to: "/login?next=%2Fbookings%2F1" });
+    expect(decideRoute("/deals/1", null)).toEqual({ type: "redirect", to: "/login?next=%2Fdeals%2F1" });
   });
   it("온보딩 전 → /onboarding?next=", () => {
     expect(decideRoute("/me", customer({ onboarded: false }))).toEqual({ type: "redirect", to: "/onboarding?next=%2Fme" });
@@ -96,13 +96,19 @@ describe("decideRoute: 고객 경로", () => {
   });
   it("공개 경로는 통과", () => {
     expect(decideRoute("/", null)).toEqual({ type: "next" });
+    expect(decideRoute("/", customer())).toEqual({ type: "next" });
+    expect(decideRoute("/market/search", null)).toEqual({ type: "next" });
     expect(decideRoute("/auth/callback", null)).toEqual({ type: "next" });
+  });
+  it("부킹 화면 제거(D-87): /bookings는 더 이상 보호 경로가 아니다(next.config redirects가 /로 보낸다)", () => {
+    expect(decideRoute("/bookings", null)).toEqual({ type: "next" });
+    expect(decideRoute("/bookings/new", null)).toEqual({ type: "next" });
   });
 });
 
 describe("safeNext", () => {
   it("내부 경로만 허용한다", () => {
-    expect(safeNext("/bookings", "/me")).toBe("/bookings");
+    expect(safeNext("/deals", "/me")).toBe("/deals");
     expect(safeNext("https://evil.example", "/me")).toBe("/me");
     expect(safeNext("//evil.example", "/me")).toBe("/me");
     expect(safeNext("/\\evil.example", "/me")).toBe("/me");

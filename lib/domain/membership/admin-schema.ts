@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { Database } from "@/types/database";
-import { todayKst } from "@/lib/domain/booking/schema";
+import { todayKst } from "@/lib/format/kst";
 
 /** 회원권 마스터 관리(A-04) 폼 스키마. 최종 검증은 DB 함수(upsert_membership_product·upsert_listing·upsert_quote)가 한다 */
 

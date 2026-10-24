@@ -1,5 +1,4 @@
-import type { Metadata, Route } from "next";
-import Link from "next/link";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 import { Badge } from "@/components/ui/badge";
@@ -10,9 +9,8 @@ import { requireStaff } from "@/lib/auth/guards";
 import { createClient } from "@/lib/supabase/server";
 import { formatPhone } from "@/lib/domain/phone";
 import { logPiiView } from "@/lib/admin/pii";
-import { BOOKING_STATUS_LABEL, BOOKING_STATUS_VARIANT } from "@/lib/domain/booking/status";
 import { DEAL_SIDE_LABEL, DEAL_STATUS_LABEL } from "@/lib/domain/membership/status";
-import { formatKst, formatKstDate } from "@/lib/format/kst";
+import { formatKst } from "@/lib/format/kst";
 
 export const metadata: Metadata = { title: "고객 상세", robots: { index: false } };
 
@@ -38,13 +36,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
   // 운영자 profiles(onboarded_at null)는 고객이 아니다
   if (!customer || !customer.onboarded_at) notFound();
 
-  const [bookings, deals, notes] = await Promise.all([
-    supabase
-      .from("booking_requests")
-      .select("id, play_date, status, course_name_free, players, created_at, golf_courses(name)")
-      .eq("user_id", id)
-      .order("created_at", { ascending: false })
-      .limit(20),
+  const [deals, notes] = await Promise.all([
     supabase
       .from("membership_deals")
       .select("id, side, status, created_at")
@@ -101,29 +93,6 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
         <h2 id="customer-notes-title" className="text-eyebrow tracking-tight">통화 메모</h2>
         <Tile className="p-5 md:p-7"><ActivityNoteForm customerId={customer.id} subjectType="customer" /></Tile>
         {notes.error ? <ListError>메모를 불러오지 못했습니다.</ListError> : <ActivityNotes notes={notes.data} authors={authors} />}
-      </section>
-
-      <section aria-labelledby="customer-bookings-title" className="space-y-4">
-        <h2 id="customer-bookings-title" className="text-eyebrow tracking-tight">부킹 요청</h2>
-        {bookings.error ? (
-          <ListError>부킹 요청을 불러오지 못했습니다.</ListError>
-        ) : !bookings.data.length ? (
-          <Empty>부킹 요청이 없습니다.</Empty>
-        ) : (
-          <ul className="divide-y divide-border/70 overflow-hidden rounded-tile border border-border/70 bg-card">
-            {bookings.data.map((b) => (
-              <li key={b.id}>
-                <Link href={`/admin/bookings/${b.id}` as Route} className="pressable flex items-center justify-between gap-3 px-5 py-4 hover:bg-section">
-                  <div className="min-w-0 space-y-1">
-                    <p className="truncate text-body font-semibold">{b.golf_courses?.name ?? b.course_name_free ?? "-"}</p>
-                    <p className="text-small text-muted-foreground">{formatKstDate(b.play_date)} · {b.players}명 · 요청 {formatKst(b.created_at)}</p>
-                  </div>
-                  <Badge variant={BOOKING_STATUS_VARIANT[b.status]}>{BOOKING_STATUS_LABEL[b.status]}</Badge>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
       </section>
 
       <section aria-labelledby="customer-deals-title" className="space-y-4">

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatWon, totalGreenFee } from "./money";
+import { formatWon } from "./money";
 
 describe("formatWon", () => {
   it("천 단위 쉼표 + 원", () => {
@@ -10,12 +10,5 @@ describe("formatWon", () => {
   it("값 없음은 -", () => {
     expect(formatWon(null)).toBe("-");
     expect(formatWon(undefined)).toBe("-");
-  });
-});
-
-describe("totalGreenFee", () => {
-  it("1인 그린피 × 인원", () => {
-    expect(totalGreenFee(180_000, 4)).toBe(720_000);
-    expect(totalGreenFee(0, 3)).toBe(0);
   });
 });

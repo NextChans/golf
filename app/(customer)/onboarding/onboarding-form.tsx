@@ -93,7 +93,7 @@ function InfoStep({ terms, verifiedPhone, phoneRequired, defaultName, onDone }: 
         <div className="flex-1 px-6 pt-4 pb-8">
           <h2 className="text-heading font-bold break-keep text-ink">거의 다 됐어요!<br />정보를 알려주세요</h2>
           <p className="mt-2 text-caption break-keep text-ink-mute">
-            {phoneRequired ? "예약·거래 안내를 받을 휴대폰 번호를 인증하고 약관에 동의해 주세요." : "담당자가 연락드릴 이름과 연락처를 알려 주세요."}
+            {phoneRequired ? "거래 안내를 받을 휴대폰 번호를 인증하고 약관에 동의해 주세요." : "담당자가 연락드릴 이름과 연락처를 알려 주세요."}
           </p>
 
           <div className="mt-8 space-y-8">
@@ -106,7 +106,7 @@ function InfoStep({ terms, verifiedPhone, phoneRequired, defaultName, onDone }: 
                 className={cn(inputClass, "mt-3")}
               />
               <p id="displayName-hint" className="mt-2 text-caption break-keep text-ink-mute">
-                {defaultName ? "카카오 프로필 이름을 불러왔어요. 예약자명으로 쓰이니 바꿔도 돼요." : "예약·상담 때 예약자명으로 쓰여요."}
+                {defaultName ? "카카오 프로필 이름을 불러왔어요. 상담·거래에 쓰이니 바꿔도 돼요." : "상담·거래 때 이 이름으로 쓰여요."}
               </p>
             </div>
 

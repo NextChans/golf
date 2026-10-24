@@ -17,7 +17,7 @@ const STEPS = [
 export default function GuaranteePage() {
   return (
     <AppScreen withTabBar={false}>
-      <TopBar title="안심 거래 보장" back="/market" />
+      <TopBar title="안심 거래 보장" back="/" />
       <main className="px-6 pt-4 pb-12">
         <div className="rounded-card bg-gradient-to-b from-[#3b5fc0] to-[#9cc0f5] p-7 text-white">
           <ShieldCheck className="size-12" strokeWidth={1.5} aria-hidden />

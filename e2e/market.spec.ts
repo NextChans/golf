@@ -13,9 +13,10 @@ async function closeHomePopups(page: import("@playwright/test").Page) {
 }
 
 // 회원권 앱 미리보기(D-80, 목업 데이터). 팝업·탭 이동·검색 조건·판매 예상가·로그인 분기를 확인한다.
-test.describe("회원권 앱(/market)", () => {
+// 앱 홈은 루트(/, D-87). 나머지 화면은 /market/** 그대로.
+test.describe("회원권 앱(홈 / 와 /market/**)", () => {
   test("홈 팝업: 공지를 닫으면 혜택 시트가 보이고, 닫은 뒤 같은 세션에서는 다시 뜨지 않는다", async ({ page }) => {
-    await page.goto("/market");
+    await page.goto("/");
     const notice = page.getByRole("dialog", { name: "거래 수수료 기준이 바뀝니다" });
     await expect(notice).toBeVisible();
     await notice.getByRole("button", { name: "닫기" }).click();
@@ -32,11 +33,11 @@ test.describe("회원권 앱(/market)", () => {
   });
 
   test("오늘 그만 보기·다시 보지 않기는 새 세션에서도 유지된다", async ({ page, context }) => {
-    await page.goto("/market");
+    await page.goto("/");
     await page.getByRole("button", { name: "오늘 그만 보기" }).click();
     await page.getByRole("button", { name: "다시 보지 않기" }).click();
     const next = await context.newPage(); // sessionStorage는 새 탭에서 비어 있다
-    await next.goto("/market");
+    await next.goto("/");
     await expect(next.getByRole("link", { name: "어떤 회원권을 찾고 계신가요?" })).toBeVisible();
     await expect(next.getByRole("dialog")).toHaveCount(0);
   });
@@ -70,7 +71,7 @@ test.describe("회원권 앱(/market)", () => {
   });
 
   test("판매 탭: 골프장을 고르면 예상 판매가와 수령액을 보여 준다", async ({ page }) => {
-    await page.goto("/market?tab=sell");
+    await page.goto("/?tab=sell");
     await page.getByRole("button", { name: "닫기" }).last().click();
     await page.getByRole("button", { name: "닫기" }).click();
     await page.getByRole("combobox", { name: "보유 회원권 골프장명" }).fill("청람");
@@ -126,7 +127,7 @@ test.describe("회원권 앱(/market)", () => {
   });
 
   test("홈: 헤더는 스크롤해도 고정되어 알림 링크가 보인다", async ({ page }) => {
-    await page.goto("/market");
+    await page.goto("/");
     await closeHomePopups(page);
     await page.mouse.wheel(0, 1500);
     await page.waitForFunction(() => window.scrollY > 800);
@@ -134,7 +135,7 @@ test.describe("회원권 앱(/market)", () => {
   });
 
   test("홈: 목록 카드는 처음 5건이고 더보기로 늘어난다", async ({ page }) => {
-    await page.goto("/market");
+    await page.goto("/");
     await closeHomePopups(page);
     const cards = page.getByRole("link", { name: /구매가능/ });
     await expect(cards).toHaveCount(5);
@@ -143,27 +144,27 @@ test.describe("회원권 앱(/market)", () => {
   });
 
   test("홈: 상세를 본 회원권이 최근 확인한 회원권에 나타난다", async ({ page }) => {
-    await page.goto("/market");
+    await page.goto("/");
     await closeHomePopups(page);
     await expect(page.getByRole("heading", { name: "최근 확인한 회원권" })).toHaveCount(0);
     await page.getByRole("link", { name: /구매가능/ }).first().click();
     await expect(page).toHaveURL(/\/market\/items\//);
     const name = (await page.getByRole("heading", { level: 1 }).first().innerText()).trim();
     await page.waitForFunction(() => window.localStorage.getItem("googolf.market.recent") !== null);
-    await page.goto("/market");
+    await page.goto("/");
     await expect(page.getByRole("heading", { name: "최근 확인한 회원권" })).toBeVisible();
     await expect(page.locator("#recent-title ~ ul").getByText(name, { exact: false }).first()).toBeVisible();
   });
 
   test("홈: 지역 타일을 누르면 해당 지역 결과로 간다", async ({ page }) => {
-    await page.goto("/market");
+    await page.goto("/");
     await closeHomePopups(page);
     await page.getByRole("link", { name: "강원", exact: true }).click();
     await expect(page).toHaveURL(/\/market\/search\/results\?region=gangwon$/);
   });
 
   test("홈: 프로모 배너는 1/4로 시작하고 슬라이드가 링크를 가진다", async ({ page }) => {
-    await page.goto("/market");
+    await page.goto("/");
     await closeHomePopups(page);
     const promo = page.getByRole("region", { name: "Googolf 소식" });
     await promo.scrollIntoViewIfNeeded();
@@ -174,7 +175,7 @@ test.describe("회원권 앱(/market)", () => {
   });
 
   test("홈: 푸터에 회사 정보 자리와 중개 서비스 고지문이 보인다", async ({ page }) => {
-    await page.goto("/market");
+    await page.goto("/");
     await closeHomePopups(page);
     const footer = page.locator("footer");
     await footer.scrollIntoViewIfNeeded();
@@ -182,10 +183,10 @@ test.describe("회원권 앱(/market)", () => {
     await expect(footer).toContainText("중개 서비스입니다");
   });
 
-  test("홈: 초대 링크 보내기는 /market 주소를 복사하고 오류를 보이지 않는다", async ({ page, context }) => {
+  test("홈: 초대 링크 보내기는 홈(/) 주소를 복사하고 오류를 보이지 않는다", async ({ page, context }) => {
     await context.grantPermissions(["clipboard-read", "clipboard-write"]);
     await page.addInitScript(() => { Object.defineProperty(navigator, "share", { value: undefined, configurable: true }); });
-    await page.goto("/market");
+    await page.goto("/");
     await closeHomePopups(page);
     const button = page.getByRole("button", { name: "초대 링크 보내기" });
     await button.scrollIntoViewIfNeeded();
@@ -193,7 +194,7 @@ test.describe("회원권 앱(/market)", () => {
     await expect(page.getByText("링크를 복사했어요")).toBeVisible();
     await expect(page.getByText(/복사하지 못했어요/)).toHaveCount(0);
     const copied = await page.evaluate(() => navigator.clipboard.readText());
-    expect(copied.endsWith("/market")).toBe(true);
+    expect(copied).toBe("http://localhost:3000/");
     expect(copied).not.toContain("?");
   });
 });

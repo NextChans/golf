@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireStaff } from "@/lib/auth/guards";
 import { formatKst } from "@/lib/format/kst";
 import { maskPhone } from "@/lib/domain/phone";
-import { formatWon } from "@/lib/domain/booking/money";
+import { formatWon } from "@/lib/format/money";
 import { DEAL_SIDE_LABEL, DEAL_STATUS_LABEL, type DealSide, type DealStatus } from "@/lib/domain/membership/status";
 import { DEAL_OPEN_STATUSES, DEAL_TABS, DEAL_TAB_LABEL, parseDealTab, type DealTab } from "@/lib/domain/membership/deal-admin";
 import { cn } from "@/lib/utils";

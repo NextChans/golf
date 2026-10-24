@@ -26,16 +26,17 @@ export type WelcomeLinks = {
   browse: string;
   /** 보조 링크 "내 정보로 이동" */
   profile: string;
-  /** 가입 전에 가려던 곳(회원권 앱·내 정보 밖, 예: /bookings/new). 없으면 null */
+  /** 가입 전에 가려던 곳(회원권 앱·내 정보 밖, 예: /groups/new). 없으면 null */
   resume: string | null;
 };
 
 /** 환영 화면 이동 경로. next는 safeNext를 거친 내부 경로다. */
 export function welcomeLinks(next: string): WelcomeLinks {
-  const fromMarket = under(next, "/market");
+  // 앱 홈은 루트(/, D-87). 예전 홈 주소 /market은 next.config가 /로 보낸다
+  const fromMarket = next === "/" || next.startsWith("/?") || under(next, "/market");
   const toMe = under(next, "/me");
   return {
-    browse: fromMarket ? next : "/market",
+    browse: fromMarket ? next : "/",
     profile: fromMarket ? "/market/mypage" : "/me",
     resume: fromMarket || toMe ? null : next,
   };

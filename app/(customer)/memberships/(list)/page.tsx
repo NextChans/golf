@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { formatKstDate } from "@/lib/format/kst";
-import { formatWon } from "@/lib/domain/booking/money";
+import { formatWon } from "@/lib/format/money";
 import { REGION_LABEL, REGIONS } from "@/lib/domain/course/schema";
 import {
   formatKoreanPrice, LISTING_SORT_LABEL, LISTING_SORTS, parseListingFilters,

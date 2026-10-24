@@ -1,5 +1,5 @@
 /**
- * E2E 고객/제안 픽스처(테스트 전용, 로컬 DB에만 쓴다).
+ * E2E 고객 픽스처(테스트 전용, 로컬 DB에만 쓴다).
  *
  * 고객은 카카오 OAuth로만 로그인하므로 브라우저 자동화가 불가능하다. 앱에 백도어를 두지 않고(D-41),
  * 카카오 로그인 + complete_onboarding이 만드는 DB 상태를 직접 재현한 뒤 비밀번호 grant로 세션을 받아
@@ -169,78 +169,4 @@ export async function customerCookies(c: Customer): Promise<PlaywrightCookie[]> 
 
 export async function loginAsCustomer(context: BrowserContext, c: Customer): Promise<void> {
   await context.addCookies(await customerCookies(c));
-}
-
-let cachedAdmin: string | null = null;
-
-/** 운영자 계정(이메일 provider, role=admin). 프로세스 안에서 재사용한다. 테스트 픽스처 전용. */
-async function ensureAdmin(): Promise<string> {
-  if (cachedAdmin) return cachedAdmin;
-  nextEnv.loadEnvConfig(process.cwd());
-  const admin = adminClient();
-  const created = await admin.auth.admin.createUser({
-    email: `e2e-admin-${Date.now()}-${rand()}@test.local`,
-    password: `E2e-admin-${rand()}-pass`,
-    email_confirm: true,
-    app_metadata: { role: "admin" },
-  });
-  if (created.error) throw created.error;
-  const adminId = created.data.user.id;
-  // set_staff_role이 만드는 profiles 행을 대신 만든다
-  await withDb((db) =>
-    db.query(`insert into public.profiles (id, display_name) values ($1, 'E2E 운영자') on conflict (id) do nothing`, [adminId]),
-  );
-  cachedAdmin = adminId;
-  return adminId;
-}
-
-/** 운영자로 배정 → 제안까지 진행해 고객이 볼 제안을 만든다. */
-export async function seedProposal(
-  requestId: string,
-  opts: { greenFee?: number; validMinutes?: number; teeTimeDaysAhead?: number } = {},
-): Promise<{ proposalId: string; adminId: string }> {
-  const { greenFee = 180_000, validMinutes = 120, teeTimeDaysAhead = 7 } = opts;
-  const adminId = await ensureAdmin();
-  const claims = JSON.stringify({
-    sub: adminId,
-    role: "authenticated",
-    aal: "aal2",
-    app_metadata: { role: "admin", providers: ["email"] },
-  });
-
-  const proposalId = await withDb(async (db) => {
-    await db.query("begin");
-    try {
-      const { rows } = await db.query<{ version: number }>(
-        "select version from public.booking_requests where id = $1",
-        [requestId],
-      );
-      if (!rows[0]) throw new Error(`booking request not found: ${requestId}`);
-      const version = rows[0].version;
-      await db.query("select set_config('request.jwt.claims', $1, true)", [claims]);
-      await db.query("set local role authenticated");
-      await db.query("select public.assign_booking($1, $2, $3)", [requestId, adminId, version]);
-      const res = await db.query<{ id: string }>(
-        `select id from public.propose_booking($1, $2, now() + make_interval(days => $3), $4, $5)`,
-        [requestId, version + 1, teeTimeDaysAhead, greenFee, validMinutes],
-      );
-      await db.query("commit");
-      return res.rows[0]!.id;
-    } catch (err) {
-      await db.query("rollback");
-      throw err;
-    }
-  });
-  return { proposalId, adminId };
-}
-
-export async function getBookingStatus(requestId: string): Promise<string> {
-  return withDb(async (db) => {
-    const { rows } = await db.query<{ status: string }>(
-      "select status::text as status from public.booking_requests where id = $1",
-      [requestId],
-    );
-    if (!rows[0]) throw new Error(`booking request not found: ${requestId}`);
-    return rows[0].status;
-  });
 }

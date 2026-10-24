@@ -4,7 +4,7 @@ import { VercelAnalytics } from "@/components/analytics/vercel-analytics";
 
 export const metadata: Metadata = {
   title: { default: "Googolf", template: "%s · Googolf" },
-  description: "골프 부킹과 회원권 상담을 온라인으로. Googolf",
+  description: "골프 회원권 시세 조회부터 매매 상담, 골프 모임까지. Googolf",
   icons: {
     icon: [
       { url: "/brand/googolf-mark.svg", type: "image/svg+xml" },

@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { createSignedUpCustomer, loginAsCustomer } from "./customer";
 
-// D-86: 회원권 앱(/market/**)과 가입 화면은 서버에 담은 Pretendard Variable, 루트와 기존 apple 스타일 화면은 그대로.
+// D-86: 회원권 앱(/market/**, 앱 홈인 루트 / — D-87)과 가입 화면은 서버에 담은 Pretendard Variable, 기존 apple 스타일 화면은 그대로.
 const APP_FONT = /^"?Pretendard Variable"?/;
 
 const fontFamily = (page: Page, selector: string) =>
@@ -30,9 +30,9 @@ async function fontsReady(page: Page) {
 }
 
 test.describe("앱 폰트(Pretendard 셀프호스팅)", () => {
-  test("/market: 앱 루트·탭 바·팝업이 Pretendard이고, 파일은 같은 서버에서 200으로 필요한 조각만 온다", async ({ page }) => {
+  test("/(앱 홈): 앱 루트·탭 바·팝업이 Pretendard이고, 파일은 같은 서버에서 200으로 필요한 조각만 온다", async ({ page }) => {
     const { fonts, external } = trackFonts(page);
-    await page.goto("/market", { waitUntil: "networkidle" });
+    await page.goto("/", { waitUntil: "networkidle" });
     await expect(page.getByRole("dialog", { name: "거래 수수료 기준이 바뀝니다" })).toBeVisible();
     await fontsReady(page);
 
@@ -53,14 +53,14 @@ test.describe("앱 폰트(Pretendard 셀프호스팅)", () => {
     }
     // 92개 조각 중 첫 화면에 필요한 것만
     const total = fonts.reduce((s, f) => s + f.bytes, 0);
-    console.log(`[font] /market woff2 요청 ${fonts.length}개, 합계 ${total} bytes`);
+    console.log(`[font] / woff2 요청 ${fonts.length}개, 합계 ${total} bytes`);
     expect(fonts.length).toBeLessThanOrEqual(15);
     expect(external, "외부 요청 없음").toEqual([]);
   });
 
-  test("루트(/)는 기존 apple 스타일 폰트를 유지하고 Pretendard를 받지 않는다", async ({ page }) => {
+  test("기존 apple 스타일 화면(/memberships)은 기존 폰트를 유지하고 Pretendard를 받지 않는다", async ({ page }) => {
     const { fonts } = trackFonts(page);
-    await page.goto("/", { waitUntil: "networkidle" });
+    await page.goto("/memberships", { waitUntil: "networkidle" });
     await fontsReady(page);
     expect(await fontFamily(page, "body")).not.toMatch(APP_FONT); // 기존 스택에는 시스템 폰트용 이름이 뒤쪽에 있을 뿐 파일은 받지 않는다
     expect(await fontFamily(page, "h1")).not.toMatch(APP_FONT);

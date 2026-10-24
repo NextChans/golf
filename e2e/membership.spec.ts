@@ -112,7 +112,7 @@ test.describe("회원권 공개 화면", () => {
   });
 
   test("내비에서 회원권으로 이동할 수 있다", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/groups");
     await page.getByRole("navigation", { name: "전체 메뉴" }).getByRole("link", { name: "회원권" }).click();
     await expect(page).toHaveURL(/\/memberships$/);
   });

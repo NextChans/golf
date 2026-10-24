@@ -27,7 +27,7 @@ export default async function MePage() {
       <main>
         <Section tone="white" className="py-12 md:py-20" inner="max-w-[720px]">
           <h1 className="text-title tracking-tight">개인 정보</h1>
-          <p className="mt-2 text-body text-muted-foreground">예약 확인 전화와 확정 안내에 사용하는 정보입니다.</p>
+          <p className="mt-2 text-body text-muted-foreground">회원권 상담 전화와 거래 안내에 사용하는 정보입니다.</p>
           <Tile className="mt-8 p-0 md:p-0">
             {error || !profile ? (
               <p role="alert" className="px-6 py-5 text-body text-destructive">정보를 불러오지 못했습니다.</p>
@@ -42,7 +42,7 @@ export default async function MePage() {
             )}
           </Tile>
           <div className="mt-8 flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
-            <MoreLink href="/bookings" className="text-body">내 예약 보기</MoreLink>
+            <MoreLink href="/deals" className="text-body">내 거래 보기</MoreLink>
             <form action="/auth/signout" method="post">
               <Button variant="secondary" type="submit">로그아웃</Button>
             </form>

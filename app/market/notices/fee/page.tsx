@@ -15,7 +15,7 @@ export default function FeeNoticePage() {
   const rate = (FEE_POLICY.rateBp / 100).toFixed(1);
   return (
     <AppScreen withTabBar={false}>
-      <TopBar title="공지사항" back="/market" />
+      <TopBar title="공지사항" back="/" />
       <main className="px-6 pt-4 pb-12">
         <p className="text-caption font-semibold text-brand-ink">안내</p>
         <h2 className="mt-1 text-heading font-bold text-ink">{FEE_NOTICE.termsTitle}</h2>

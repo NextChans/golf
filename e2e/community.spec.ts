@@ -181,8 +181,8 @@ test.describe("골프 모임", () => {
     const groupId = await createGroup(op, { name, type: "스크린골프", region: "jeju", policy: "바로 가입" });
     await op.context().close();
 
-    // 비로그인: 내비 → 목록(필터) → 상세 → 로그인 안내
-    await page.goto("/");
+    // 비로그인: 내비 → 목록(필터) → 상세 → 로그인 안내(루트는 앱 홈이라 GlobalNav가 있는 화면에서 시작, D-87)
+    await page.goto("/memberships");
     await page.getByRole("navigation", { name: "전체 메뉴" }).getByRole("link", { name: "모임" }).click();
     await expect(page).toHaveURL(/\/groups$/);
     await expect(page.getByRole("link", { name: "모임 만들기" }).first()).toHaveAttribute("href", "/login?next=%2Fgroups%2Fnew");

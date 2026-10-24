@@ -5,7 +5,7 @@ import { z } from "zod";
 import { MoreLink, Tile } from "@/components/site/section";
 import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/server";
-import { formatWon } from "@/lib/domain/booking/money";
+import { formatWon } from "@/lib/format/money";
 import { formatKst } from "@/lib/format/kst";
 import { maskPhone } from "@/lib/domain/phone";
 import { LISTING_STATUS_ADMIN_LABEL } from "@/lib/domain/membership/admin-schema";

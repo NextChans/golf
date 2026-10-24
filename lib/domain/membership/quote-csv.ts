@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { todayKst } from "@/lib/domain/booking/schema";
+import { todayKst } from "@/lib/format/kst";
 import { MAX_MEMBERSHIP_PRICE } from "./admin-schema";
 
 /**

@@ -4,7 +4,7 @@ import { Tile } from "@/components/site/section";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
-import { formatWon } from "@/lib/domain/booking/money";
+import { formatWon } from "@/lib/format/money";
 import { REGION_LABEL } from "@/lib/domain/course/schema";
 
 export const metadata: Metadata = { title: "골프장 관리", robots: { index: false } };
@@ -23,7 +23,7 @@ export default async function CoursesPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-title tracking-tight">골프장 관리</h1>
-          <p className="mt-2 text-body text-muted-foreground">고객 부킹 화면에 나오는 골프장과 기본 그린피를 관리합니다.</p>
+          <p className="mt-2 text-body text-muted-foreground">회원권 상품과 모임 장소에 쓰는 골프장과 기본 그린피를 관리합니다.</p>
         </div>
         <Button asChild size="sm">
           <Link href="/admin/courses/new">골프장 추가</Link>
@@ -40,7 +40,7 @@ export default async function CoursesPage() {
       ) : !courses?.length ? (
         <Tile className="p-6 text-center md:p-10">
           <p className="text-eyebrow tracking-tight">등록된 골프장이 없습니다</p>
-          <p className="mt-2 text-small text-muted-foreground">골프장을 추가하면 고객이 부킹 요청에서 선택할 수 있습니다.</p>
+          <p className="mt-2 text-small text-muted-foreground">골프장을 추가하면 회원권 상품과 모임 장소에서 선택할 수 있습니다.</p>
           <Button asChild className="mt-6">
             <Link href="/admin/courses/new">골프장 추가</Link>
           </Button>

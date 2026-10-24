@@ -5,12 +5,12 @@ import { shareOrCopy } from "./share";
 
 type Status = "idle" | "shared" | "copied" | "failed";
 
-/** 친구 초대 카드. 공유 링크는 공개 주소(/market)뿐이다 — 개인 추천 코드·추적 파라미터 없음 */
+/** 친구 초대 카드. 공유 링크는 공개 홈 주소(/)뿐이다 — 개인 추천 코드·추적 파라미터 없음 */
 export function InviteCard() {
   const [status, setStatus] = useState<Status>("idle");
 
   async function send() {
-    const result = await shareOrCopy({ title: "Googolf 회원권", url: `${window.location.origin}/market` });
+    const result = await shareOrCopy({ title: "Googolf 회원권", url: `${window.location.origin}/` });
     if (result !== "aborted") setStatus(result); // 사용자가 공유창을 닫은 경우는 오류가 아니다
   }
 

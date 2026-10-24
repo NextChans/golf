@@ -6,7 +6,7 @@ import { LocalNav } from "@/components/site/local-nav";
 import { SiteFooter } from "@/components/site/site-footer";
 import { Tile } from "@/components/site/section";
 import { requireCustomer } from "@/lib/auth/guards";
-import { isoToKstLocal } from "@/lib/domain/booking/admin";
+import { isoToKstLocal } from "@/lib/format/kst";
 import { REGION_LABEL } from "@/lib/domain/course/schema";
 import { isGroupManager } from "@/lib/domain/community/labels";
 import { loadGroup, UUID_RE } from "../../../data";

@@ -6,7 +6,7 @@ import { ArrowUpDown, IdCard, Search, UserRound } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const TABS = [
-  { href: "/market", label: "회원권 거래", icon: ArrowUpDown, match: (p: string) => p === "/market" || p.startsWith("/market/items") },
+  { href: "/", label: "회원권 거래", icon: ArrowUpDown, match: (p: string) => p === "/" || p === "/market" || p.startsWith("/market/items") },
   { href: "/market/search", label: "회원권 검색", icon: Search, match: (p: string) => p.startsWith("/market/search") },
   { href: "/market/my", label: "나의 회원권", icon: IdCard, match: (p: string) => p.startsWith("/market/my") && !p.startsWith("/market/mypage") },
   { href: "/market/mypage", label: "마이페이지", icon: UserRound, match: (p: string) => p.startsWith("/market/mypage") },

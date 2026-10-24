@@ -40,7 +40,7 @@ export function DetailTopBar({ id, name }: { id: string; name: string }) {
     <div className="sticky top-0 z-40 h-0">
       <div className={cn("absolute inset-x-0 top-0 transition-colors", solid && "border-b border-line bg-surface")}>
         <div className="mx-auto flex h-14 max-w-[480px] items-center justify-between px-3">
-          <Link href="/market" aria-label="뒤로" className={cn("pressable flex size-11 items-center justify-center rounded-full text-ink", backing)}>
+          <Link href="/" aria-label="뒤로" className={cn("pressable flex size-11 items-center justify-center rounded-full text-ink", backing)}>
             <ChevronLeft className="size-7" aria-hidden />
           </Link>
           <div className={cn("flex items-center rounded-full", backing)}>

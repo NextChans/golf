@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-// 회원권 화면의 select·textarea 외형(bookings/new/booking-form.tsx와 같은 apple.com 폼 필드)
+// 회원권 화면의 select·textarea 외형(apple.com 폼 필드)
 export const fieldLabelClass = "pointer-events-none absolute top-2.5 left-4 text-micro text-muted-foreground";
 export const selectClass = cn(
   "h-14 w-full appearance-none rounded-xl border border-input bg-card pt-5 pr-10 pb-1.5 pl-4 text-body outline-none transition",
