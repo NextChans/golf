@@ -1,5 +1,9 @@
 import { expect, test } from "@playwright/test";
 import { createOnboardedCustomer, loginAsCustomer } from "./customer";
+import { brokerageFee, formatManWon } from "../lib/domain/market/schema";
+import { FEE_POLICY } from "../lib/mock/market";
+import { getMarketDetail } from "../lib/mock/market-detail";
+import { findMarketItem } from "../lib/mock/market";
 
 /** 홈 팝업(공지 → 혜택 시트)을 차례로 닫는다 */
 async function closeHomePopups(page: import("@playwright/test").Page) {
@@ -70,7 +74,7 @@ test.describe("회원권 앱(/market)", () => {
     await page.getByRole("button", { name: "닫기" }).last().click();
     await page.getByRole("button", { name: "닫기" }).click();
     await page.getByRole("combobox", { name: "보유 회원권 골프장명" }).fill("청람");
-    await page.getByRole("option", { name: /청람레이크CC/ }).getByRole("button").click();
+    await page.getByRole("option", { name: /청람레이크CC.*개인 정회원/ }).getByRole("button").click();
     const result = page.getByRole("region", { name: "예상 판매가" });
     await expect(result).toContainText("4,600만원");
     await expect(result).toContainText("예상 수령액");
@@ -144,7 +148,7 @@ test.describe("회원권 앱(/market)", () => {
     await expect(page.getByRole("heading", { name: "최근 확인한 회원권" })).toHaveCount(0);
     await page.getByRole("link", { name: /구매가능/ }).first().click();
     await expect(page).toHaveURL(/\/market\/items\//);
-    const name = (await page.getByRole("heading", { level: 2 }).first().innerText()).trim();
+    const name = (await page.getByRole("heading", { level: 1 }).first().innerText()).trim();
     await page.waitForFunction(() => window.localStorage.getItem("googolf.market.recent") !== null);
     await page.goto("/market");
     await expect(page.getByRole("heading", { name: "최근 확인한 회원권" })).toBeVisible();
@@ -191,5 +195,148 @@ test.describe("회원권 앱(/market)", () => {
     const copied = await page.evaluate(() => navigator.clipboard.readText());
     expect(copied.endsWith("/market")).toBe(true);
     expect(copied).not.toContain("?");
+  });
+});
+
+// 회원권 상세 개편(D-85): 탭·차트·표·계산기·FAQ. 솔빛힐스CC(m01, 개인 정회원)는 법인 정회원(m17)과 같은 골프장이다.
+test.describe("회원권 상세(/market/items/[id])", () => {
+  test("직접 진입하면 팝업 없이 가격 카드와 탭 4개가 보인다", async ({ page }) => {
+    await page.goto("/market/items/m01");
+    await expect(page.getByRole("heading", { name: "솔빛힐스CC" })).toBeVisible();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    const card = page.getByRole("region", { name: "가격 정보" });
+    for (const label of ["현재 시세", "즉시 구매가", "즉시 판매가", "최근 거래가"]) await expect(card).toContainText(label);
+    const tabs = page.getByRole("navigation", { name: "상세 정보 탭" });
+    await expect(tabs.getByRole("link")).toHaveText(["시세", "회원권 정보", "이용 정보", "골프장 정보"]);
+    await expect(tabs.getByRole("link", { name: "시세" })).toHaveAttribute("aria-current", "true");
+    // 현재 시세 설명 토글
+    await card.getByRole("button", { name: /현재 시세/ }).click();
+    await expect(card).toContainText("주간 조사 기준 평균 시세");
+  });
+
+  test("매물·입찰이 없으면 가격 카드와 표가 빈 상태를 보인다", async ({ page }) => {
+    await page.goto("/market/items/m06"); // 매물 없음(askPrice null)
+    await expect(page.getByRole("region", { name: "가격 정보" })).toContainText("매물 없음");
+    await page.getByRole("button", { name: "구매 가능 매물" }).click();
+    await expect(page.getByText("구매 가능한 매물이 없어요")).toBeVisible();
+    await page.getByRole("button", { name: "판매 입찰" }).click();
+    await expect(page.getByRole("table", { name: "판매 입찰" })).toBeVisible();
+  });
+
+  test("탭 '이용 정보'를 누르면 그린피 표로 이동하고 탭이 활성화된다", async ({ page }) => {
+    await page.goto("/market/items/m01");
+    const tabs = page.getByRole("navigation", { name: "상세 정보 탭" });
+    await tabs.getByRole("link", { name: "이용 정보" }).click();
+    await expect(tabs.getByRole("link", { name: "이용 정보" })).toHaveAttribute("aria-current", "true");
+    await expect(tabs.getByRole("link", { name: "시세" })).not.toHaveAttribute("aria-current", "true");
+    const table = page.getByRole("table", { name: /그린피/ });
+    await expect(table).toBeVisible();
+    await expect(table).toContainText("특별회원");
+    await expect(table).toContainText("비회원");
+  });
+
+  test("기간 탭을 바꾸면 시세 동향 문장의 기간이 바뀐다", async ({ page }) => {
+    await page.goto("/market/items/m01");
+    const sentence = page.getByTestId("trend-sentence");
+    await expect(page.getByRole("button", { name: "3년" })).toHaveAttribute("aria-pressed", "true");
+    await expect(sentence).toContainText("최근 3년간");
+    await page.getByRole("button", { name: "6개월" }).click();
+    await expect(page.getByRole("button", { name: "6개월" })).toHaveAttribute("aria-pressed", "true");
+    await expect(sentence).toContainText("최근 6개월간");
+    await page.getByRole("button", { name: "전체" }).click();
+    await expect(sentence).toContainText("전체 기간 동안");
+  });
+
+  test("개인/법인 토글로 입회 체크리스트 값이 바뀐다", async ({ page }) => {
+    await page.goto("/market/items/m01");
+    const list = page.getByTestId("admission-list");
+    const d = getMarketDetail(findMarketItem("m01")!);
+    await expect(list).toContainText(d.admission.personal[0]!.value);
+    await expect(list).not.toContainText("법인 서류 확인");
+    await page.getByRole("button", { name: "법인", exact: true }).click();
+    await expect(list).toContainText("법인 서류 확인");
+    await expect(list).toContainText("법인 대표자·임원 명의로 입회");
+    await expect(page.getByText("정회원 1명만 이용 가능해요")).toBeVisible();
+  });
+
+  test("계산기: 구매·판매 비용을 수수료 규칙대로 보여 주고 잘못된 입력은 알린다", async ({ page }) => {
+    await page.goto("/market/items/m01");
+    const input = page.getByLabel("얼마에 구매하고 싶으신가요?");
+    await expect(input).toHaveValue("48000"); // 기본값 = 현재 시세(만원)
+    const price = 11_400 * 10_000;
+    const fee = brokerageFee(price, "개인 정회원", FEE_POLICY);
+    await input.fill("11400");
+    await expect(page.getByText("1억 1,400만원").first()).toBeVisible();
+    await page.getByRole("button", { name: "계산하기" }).click();
+    const result = page.getByRole("region", { name: "예상 비용" });
+    await expect(result).toContainText(`중개 수수료${formatManWon(fee)}`);
+    await expect(result).toContainText(`총 예상 비용${formatManWon(price + fee)}`);
+
+    await page.getByRole("button", { name: "판매 비용" }).click();
+    await expect(result).toHaveCount(0);
+    await page.getByLabel("얼마에 판매하고 싶으신가요?").fill("11400");
+    await page.getByRole("button", { name: "계산하기" }).click();
+    await expect(result).toContainText(`예상 수령액${formatManWon(price - fee)}`);
+    await expect(result).toContainText("명의개서 비용과 세금은 별도");
+
+    await page.getByRole("button", { name: "100만원 늘리기" }).click();
+    await expect(page.getByLabel("얼마에 판매하고 싶으신가요?")).toHaveValue("11500");
+
+    await page.getByLabel("얼마에 판매하고 싶으신가요?").fill("0");
+    await page.getByRole("button", { name: "계산하기" }).click();
+    await expect(page.getByRole("alert").filter({ hasText: "1만원 이상" })).toBeVisible();
+    await page.getByLabel("얼마에 판매하고 싶으신가요?").fill("5000001");
+    await page.getByRole("button", { name: "계산하기" }).click();
+    await expect(page.getByRole("alert").filter({ hasText: "5,000,000만원 이하" })).toBeVisible();
+    await expect(page.getByText("쿠폰은 거래 매칭 후 적용 가능해요")).toBeVisible();
+  });
+
+  test("FAQ 항목을 펼칠 수 있다", async ({ page }) => {
+    await page.goto("/market/items/m01");
+    const summary = page.getByText("거래 대금은 어떻게 보관되나요?");
+    await summary.scrollIntoViewIfNeeded();
+    await expect(page.getByText(/검토 중이에요/)).toBeHidden();
+    await summary.click();
+    await expect(page.getByText(/검토 중이에요/)).toBeVisible();
+  });
+
+  test("주소 복사와 맨 위로 버튼", async ({ page, context }) => {
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+    await page.goto("/market/items/m01");
+    const d = getMarketDetail(findMarketItem("m01")!);
+    await expect(page.getByRole("link", { name: "상담 문의" })).toHaveAttribute("href", "/market/mypage/support");
+    await expect(page.getByRole("button", { name: "맨 위로" })).toHaveCount(0);
+    await page.getByRole("button", { name: "주소 복사" }).scrollIntoViewIfNeeded();
+    await expect(page.getByRole("button", { name: "맨 위로" })).toBeVisible();
+    await page.getByRole("button", { name: "주소 복사" }).click();
+    await expect(page.getByText("주소를 복사했어요")).toBeVisible();
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(d.address);
+    await page.getByRole("button", { name: "맨 위로" }).click();
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+    await expect(page.getByRole("button", { name: "맨 위로" })).toHaveCount(0);
+  });
+
+  test("하단 CTA 링크와 공유 폴백", async ({ page, context }) => {
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+    await page.addInitScript(() => { Object.defineProperty(navigator, "share", { value: undefined, configurable: true }); });
+    await page.goto("/market/items/m02");
+    await expect(page.getByRole("link", { name: "구매하기" })).toHaveAttribute("href", "/memberships");
+    await expect(page.getByRole("link", { name: "판매하기" })).toHaveAttribute("href", "/market/mypage/asks/new?item=m02");
+    await page.getByRole("button", { name: "공유" }).click();
+    await expect(page.getByText("링크를 복사했어요")).toBeVisible();
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toMatch(/\/market\/items\/m02$/);
+  });
+
+  test("같은 골프장의 다른 회원권 유형으로 이동하고, 유형이 하나뿐이면 비활성이다", async ({ page }) => {
+    await page.goto("/market/items/m01");
+    const select = page.getByRole("combobox", { name: "회원권 종류" });
+    await expect(select).toBeEnabled();
+    await select.selectOption({ label: "법인 정회원" });
+    await expect(page).toHaveURL(/\/market\/items\/m17$/);
+    await expect(page.getByRole("heading", { name: "솔빛힐스CC" })).toBeVisible();
+    await expect(page.getByRole("combobox", { name: "회원권 종류" })).toHaveValue("m17");
+
+    await page.goto("/market/items/m03");
+    await expect(page.getByRole("combobox", { name: "회원권 종류" })).toBeDisabled();
   });
 });

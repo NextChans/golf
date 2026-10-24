@@ -24,7 +24,8 @@
 | (가입 2·3단계) | `/onboarding` | 2단계 정보 입력(이름 카카오 닉네임 미리 채움·연락처·약관, 하단 고정 "가입 완료") → 3단계 환영 화면(같은 페이지 상태, 혜택 카드·"회원권 둘러보기"), D-82 |
 | 기업 회원가입(사업자명·사업자등록번호) | `/market/signup/business` | 검증번호 확인 후 "다음" → 담당자 카카오 연결. "사업자 인증이 안되시나요?" → 고객센터 |
 | 마이페이지 | `/market/mypage` | 관심 회원권·쿠폰함·판매 희망가 / 개인정보·판매 관리·구매 관리·설정 / 고객센터 |
-| (캡처 없음, 추정) | `/market/items/[id]` 회원권 상세, `/market/report` 이번주 시세, `/market/notifications`, `/market/notices/fee`, `/market/guide/guarantee` | 그린판다 실제 화면 캡처를 받으면 맞춘다 |
+| 회원권 상세(캡처 12장, D-85) | `/market/items/[id]` | 사진 영역·요약·종류 선택·가격 카드·고정 탭 4개(시세/회원권 정보/이용 정보/골프장 정보)·차트·표·계산기·FAQ·떠 있는 버튼·하단 CTA(구매하기 → `/memberships`, 판매하기 → `/market/mypage/asks/new?item=`). 한 페이지 스크롤 |
+| (캡처 없음, 추정) | `/market/report` 이번주 시세, `/market/notifications`, `/market/notices/fee`, `/market/guide/guarantee` | 그린판다 실제 화면 캡처를 받으면 맞춘다 |
 
 ### 따라 하지 않는 것(법·신뢰)
 - 그린판다의 로고·일러스트·사진·문구·수수료 수치를 그대로 쓰지 않는다. 구조와 상호작용만 참고하고 브랜드·문구·그림은 Googolf 것으로 만든다(부정경쟁방지법상 트레이드 드레스 위험).
@@ -96,10 +97,12 @@
 | `SellEstimator` | sell-estimator.tsx | combobox 검색 → 예상 판매가 카드 |
 | `SearchFilter` | search-filter.tsx | 지역 원형 타일·가격대 칩·하단 고정 버튼 |
 | `FavoriteButton`·`useFavorites` | favorites.tsx | 관심 하트(목업: localStorage) |
+| `components/market/detail/*` | detail/ | 상세 전용(D-85). `DetailTopBar`(사진 위 → 흰 바 고정, 공유), `DetailHero`, `DetailSummary`·`KindSelect`, `PriceCard`·`PriceInfo`, `DetailTabs`(sticky, IntersectionObserver)·`ScrollLink`, `PriceTrend`·`TrendChart`(선 그래프), `DealTables`, `Features`, `Admission`(개인/법인), `UsageInfo`, `CourseInfo`·`CopyAddress`, `CostCalculator`, `ReportBanner`, `DetailFaq`, `FloatingActions`, `BottomCta` |
+| `shareOrCopy`·`copyText` | share.ts | `navigator.share` → 없으면 클립보드. 결과 `shared/copied/failed/aborted` |
 | `storage.ts` | | localStorage 래퍼(모든 접근 try/catch) |
 
 ## 5. 데이터와 규칙
-- 목업: `lib/mock/market.ts`(가상 골프장 16개, 12주 시세, 체결·쿠폰·알림·FAQ·수수료 정책). 실데이터 연결 때 같은 `MarketItem` 타입으로 바꿔 끼운다.
+- 목업: `lib/mock/market.ts`(가상 골프장 16곳·항목 18개(같은 골프장 두 유형 2곳), 12주 시세, 체결·쿠폰·알림·FAQ·수수료 정책). 실데이터 연결 때 같은 `MarketItem` 타입으로 바꿔 끼운다.
 - 규칙(순수 함수, Vitest): `lib/domain/market/schema.ts` — 금액 표기, 변화율, 평균 시세, 가격대(하한 포함·상한 미포함), 필터(지역 OR·가격대 OR·조건 사이 AND), 탭 정렬, 수수료, KST "오늘 그만 보기".
 - 저장: 관심·팝업 숨김·설정·취향은 이 브라우저에만 저장(미리보기). 실데이터 단계에서 로그인 고객 기준 DB로 옮긴다(RLS·감사 로그 규칙 적용).
 
@@ -113,3 +116,4 @@
 - 가입 2·3단계(`e2e/onboarding.spec.ts`, `e2e/contact.spec.ts`): 목록 "가입 단계 2/3"·"가입 단계 3/3", 헤딩 /정보를 알려주세요/, 라벨 "이름"(정확히)·"연락처(휴대폰)", checkbox "전체 동의"·/\[필수\]/, 버튼 "가입 완료", 헤딩 "{이름}님, 환영합니다!", 링크 /첫 거래 수수료 20% 할인 쿠폰/, 버튼 "회원권 둘러보기"
 - 로그인 유도 링크 href는 `/market/login?next=<경로>`
 - 홈 구매 탭(D-83, 판매 탭 제외): 링크 "알림"이 스크롤 후에도 뷰포트에 보임, 목록 카드 링크(/구매가능/)가 처음 5건 → "더보기" 클릭 후 10건, 헤딩 "최근 확인한 회원권"(상세 방문 후에만), 지역 링크(예: "강원")→`/market/search/results?region=gangwon`, region "Googolf 소식"(텍스트 "1/4", 링크 4개), footer에 "(준비 중)"·"중개 서비스입니다", 버튼 "초대 링크 보내기"(복사 후 "링크를 복사했어요", 주소는 `/market`로 끝남·쿼리 없음)
+- 회원권 상세(D-85, `e2e/market.spec.ts` "회원권 상세"): 직접 진입 시 팝업 없음, heading 골프장명(h1, 1개), region "가격 정보"(현재 시세·즉시 구매가·즉시 판매가·최근 거래가), navigation "상세 정보 탭" 링크 4개 `["시세","회원권 정보","이용 정보","골프장 정보"]`·활성 `aria-current="true"`, table /그린피/, 기간 group 버튼 6개월·1년·3년·전체(`aria-pressed`)와 `data-testid="trend-sentence"`("최근 6개월간" 등), 개인/법인 버튼과 `data-testid="admission-list"`, 계산기 라벨 "얼마에 구매하고 싶으신가요?"/"얼마에 판매하고 싶으신가요?"·버튼 "계산하기"·"100만원 늘리기"·region "예상 비용"("중개 수수료"·"총 예상 비용"/"예상 수령액")·`role="alert"`, 링크 "상담 문의", 버튼 "맨 위로"(300px 이상일 때만)·"주소 복사"·"공유", 링크 "구매하기"·"판매하기", combobox "회원권 종류"

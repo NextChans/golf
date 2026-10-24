@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { shareOrCopy } from "./share";
 
 type Status = "idle" | "shared" | "copied" | "failed";
 
@@ -9,20 +10,8 @@ export function InviteCard() {
   const [status, setStatus] = useState<Status>("idle");
 
   async function send() {
-    const url = `${window.location.origin}/market`;
-    try {
-      if (typeof navigator.share === "function") {
-        await navigator.share({ title: "Googolf 회원권", url });
-        setStatus("shared");
-        return;
-      }
-      await navigator.clipboard.writeText(url);
-      setStatus("copied");
-    } catch (e) {
-      // 사용자가 공유창을 닫은 경우는 오류가 아니다
-      if (e instanceof DOMException && e.name === "AbortError") return;
-      setStatus("failed");
-    }
+    const result = await shareOrCopy({ title: "Googolf 회원권", url: `${window.location.origin}/market` });
+    if (result !== "aborted") setStatus(result); // 사용자가 공유창을 닫은 경우는 오류가 아니다
   }
 
   return (
