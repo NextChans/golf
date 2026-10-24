@@ -9,7 +9,7 @@ Googolf는 회사명이자 브랜드명이다. 전화로 받던 골프 부킹과
 4. `docs/DECISIONS.md` — 확정된 결정과 기본값. PRD와 충돌하면 이 문서가 우선한다
 5. `docs/state-machine.md` — 상태 전이 표. DB 함수와 1:1로 맞춘다
 6. `docs/RUNBOOK.md` — 환경 구성, 명령어, 자주 쓰는 SQL
-7. `docs/DESIGN.md` — apple.com 스타일 디자인 가이드와 **E2E 테스트 계약**(UI를 바꿀 때 필수)
+7. `docs/DESIGN.md` — apple.com 스타일 디자인 가이드와 **E2E 테스트 계약**(UI를 바꿀 때 필수). 회원권 앱(`/market`)은 `docs/DESIGN-APP.md`
 8. `deploy/README.md` — 운영 Supabase 반영 절차
 
 ## 작업 방식

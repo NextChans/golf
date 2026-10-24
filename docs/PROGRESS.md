@@ -22,6 +22,14 @@
 | M5 회원권 | 완료·머지(NextChans/golf#7) | pgTAP 194, Vitest 158, Playwright 36. D-53~62 |
 | M6 알림 outbox | 완료·머지(NextChans/golf#8) | D-63~66 |
 | M7 골프 모임 커뮤니티 | 완료·머지(NextChans/golf#10) | pgTAP 260, Vitest 201, Playwright 42. D-67~73 |
+| M8 후보 1차: 회원권 앱 개편(그린판다 벤치마크, 목업) | **완료, 오너 검토 대기** | `/market` 18개 화면, Vitest +18, Playwright +6. D-80, docs/DESIGN-APP.md |
+
+## M8 후보 1차 결과 요약(회원권 앱, D-80)
+
+- 경로: `/market`(홈 구매·판매 탭, 팝업), `/market/search`(+results), `/market/items/[id]`, `/market/my`, `/market/mypage`(+favorites·coupons·asks·asks/new·trades·settings·support), `/market/report`, `/market/notifications`, `/market/notices/fee`, `/market/guide/guarantee`, `/market/welcome`
+- 모두 목업 데이터(`lib/mock/market.ts`). 로그인 판단만 실제 세션을 쓴다(마이페이지 이름, 나의 회원권, 판매 희망가). 판매 희망가 등록은 서버로 보내지 않는다(미리보기)
+- 기존 화면과 연결: 개인정보 → `/me`, 판매·구매 관리 → `/deals`, 구매 상담 → `/memberships`, 실제 매도 상담 → `/memberships/sell`
+- 다음(오너 결정 후): ① 그린판다 추가 캡처(상세·검색 결과·판매 등록·알림·로그인)로 화면 맞춤 ② 실데이터 연결(`membership_quotes` 주간 시세, 매물 최저가=즉시 구매가, 관심 회원권·알림 설정 테이블) ③ 홈(`/`)과 GlobalNav를 앱 구조로 전환(기존 E2E 계약 갱신 필요) ④ 지역 사진 에셋
 
 ## M1 결과 요약
 

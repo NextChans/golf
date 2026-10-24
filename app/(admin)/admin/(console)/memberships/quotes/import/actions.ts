@@ -9,7 +9,7 @@ import { bulkQuoteIssueMessage, bulkQuoteRowsSchemaAt } from "@/lib/domain/membe
 export type ImportQuotesResult = { ok: true; count: number } | { ok: false; error: string };
 
 /**
- * 시세 일괄 반영(D-74). 브라우저 미리보기를 믿지 않고 zod로 다시 검증한 뒤 DB 함수 하나(한 트랜잭션)로 반영한다.
+ * 시세 일괄 반영(D-80). 브라우저 미리보기를 믿지 않고 zod로 다시 검증한 뒤 DB 함수 하나(한 트랜잭션)로 반영한다.
  * 한 행이라도 DB가 거부하면 전부 반영되지 않는다. DB의 행 번호(detail)는 화면에 내보내지 않는다(toAppError).
  */
 export async function importQuotes(rows: unknown): Promise<ImportQuotesResult> {

@@ -17,7 +17,7 @@ import { boxClass, FormAlert } from "../../form-parts";
 import { importQuotes } from "./actions";
 
 /**
- * 시세 일괄 입력 폼(D-74). 붙여넣기 또는 파일 → 미리보기(브라우저에서 파싱·상품 매핑·행 검증) → 오류 0건일 때만 반영.
+ * 시세 일괄 입력 폼(D-80). 붙여넣기 또는 파일 → 미리보기(브라우저에서 파싱·상품 매핑·행 검증) → 오류 0건일 때만 반영.
  * 내용을 고치면 미리보기를 지워서, 확인하지 않은 내용이 반영되지 않게 한다.
  */
 export function QuoteImportForm({ products, today }: { products: QuoteProductRef[]; today: string }) {

@@ -77,7 +77,7 @@ test("조건 저장 → 단계 진행 → 거래 완료 시 매물 판매완료"
   expect(await listingStatus(listingId)).toBe("sold");
   await expect(page.getByRole("button", { name: "거래 취소" })).toHaveCount(0);
 
-  // 판매 완료 매물은 404가 아니라 "거래 완료"로 보이고, 체결가가 자동으로 공개된다(D-74)
+  // 판매 완료 매물은 404가 아니라 "거래 완료"로 보이고, 체결가가 자동으로 공개된다(D-80)
   const anon = await browser.newContext();
   const ap = await anon.newPage();
   const res = await ap.goto(`/memberships/${listingId}`);

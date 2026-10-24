@@ -3,7 +3,7 @@ import { todayKst } from "@/lib/domain/booking/schema";
 import { MAX_MEMBERSHIP_PRICE } from "./admin-schema";
 
 /**
- * 운영자 시세 일괄 입력(CSV, D-74).
+ * 운영자 시세 일괄 입력(CSV, D-80).
  * 브라우저에서 파싱·상품 매핑·행 검증을 해서 미리보기로 보여 주고, 서버 액션은 매핑된 행을 zod로 다시 검증한 뒤
  * DB 함수 bulk_upsert_quotes(한 트랜잭션, 1~500행)를 부른다. 최종 판단(권한·미래 날짜·상품 존재)은 DB가 한다.
  */
