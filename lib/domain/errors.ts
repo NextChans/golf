@@ -4,7 +4,7 @@
  */
 export type AppErrorCode =
   | "unauthenticated" | "forbidden" | "onboarding_required" | "not_found"
-  | "version_conflict" | "invalid_state" | "proposal_expired" | "listing_unavailable"
+  | "version_conflict" | "invalid_state" | "listing_unavailable"
   | "duplicate_inquiry" | "idempotency_key_reused" | "invalid_input" | "rate_limited"
   | "phone_not_verified" | "terms_required" | "contact_required" | "duplicate_name"
   | "limit_exceeded" | "group_full" | "meeting_full" | "duplicate_report" | "unknown";
@@ -18,7 +18,6 @@ const MESSAGES: Record<AppErrorCode, string> = {
   not_found: "요청하신 정보를 찾을 수 없습니다.",
   version_conflict: "다른 곳에서 먼저 변경되었습니다. 새로고침 후 다시 시도해 주세요.",
   invalid_state: "현재 상태에서는 처리할 수 없습니다. 새로고침 후 확인해 주세요.",
-  proposal_expired: "제안 유효시간이 지났습니다.",
   listing_unavailable: "이미 다른 상담이 진행 중인 매물입니다.",
   duplicate_inquiry: "이미 진행 중인 상담이 있습니다.",
   idempotency_key_reused: "이미 처리된 요청입니다. 새로고침 후 확인해 주세요.",

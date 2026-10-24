@@ -59,84 +59,6 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
-                },"booking_events": {
-                  Row: {
-                    "created_at": string,"from_status": Database["public"]['Enums']["booking_status"] | null,"id": number,"message": string | null,"request_id": string,"to_status": Database["public"]['Enums']["booking_status"]
-                  }
-                  ComputedFields: never
-                  Insert: {
-                    "created_at"?: string,"from_status"?: Database["public"]['Enums']["booking_status"] | null,"id"?: never,"message"?: string | null,"request_id": string,"to_status": Database["public"]['Enums']["booking_status"]
-                  }
-                  Update: {
-                    "created_at"?: string,"from_status"?: Database["public"]['Enums']["booking_status"] | null,"id"?: never,"message"?: string | null,"request_id"?: string,"to_status"?: Database["public"]['Enums']["booking_status"]
-                  }
-                  Relationships: [
-                    {
-      foreignKeyName: "booking_events_request_id_fkey"
-      columns: ["request_id"]
-isOneToOne: false
-      referencedRelation: "booking_requests"
-      referencedColumns: ["id"]
-    }
-                  ]
-                },"booking_proposals": {
-                  Row: {
-                    "created_at": string,"created_by": string,"decided_at": string | null,"expires_at": string,"green_fee_per_person": number,"id": string,"memo": string | null,"request_id": string,"status": Database["public"]['Enums']["proposal_status"],"tee_time": string,"updated_at": string
-                  }
-                  ComputedFields: never
-                  Insert: {
-                    "created_at"?: string,"created_by": string,"decided_at"?: string | null,"expires_at": string,"green_fee_per_person": number,"id"?: string,"memo"?: string | null,"request_id": string,"status"?: Database["public"]['Enums']["proposal_status"],"tee_time": string,"updated_at"?: string
-                  }
-                  Update: {
-                    "created_at"?: string,"created_by"?: string,"decided_at"?: string | null,"expires_at"?: string,"green_fee_per_person"?: number,"id"?: string,"memo"?: string | null,"request_id"?: string,"status"?: Database["public"]['Enums']["proposal_status"],"tee_time"?: string,"updated_at"?: string
-                  }
-                  Relationships: [
-                    {
-      foreignKeyName: "booking_proposals_created_by_fkey"
-      columns: ["created_by"]
-isOneToOne: false
-      referencedRelation: "profiles"
-      referencedColumns: ["id"]
-    },{
-      foreignKeyName: "booking_proposals_request_id_fkey"
-      columns: ["request_id"]
-isOneToOne: false
-      referencedRelation: "booking_requests"
-      referencedColumns: ["id"]
-    }
-                  ]
-                },"booking_requests": {
-                  Row: {
-                    "assignee_id": string | null,"budget_per_person": number | null,"close_reason": string | null,"course_name_free": string | null,"created_at": string,"first_responded_at": string | null,"golf_course_id": string | null,"id": string,"note": string | null,"play_date": string,"players": number,"sla_breached_at": string | null,"sla_due_at": string,"status": Database["public"]['Enums']["booking_status"],"time_from": string | null,"time_pref": Database["public"]['Enums']["time_pref"],"time_to": string | null,"updated_at": string,"user_id": string,"version": number
-                  }
-                  ComputedFields: never
-                  Insert: {
-                    "assignee_id"?: string | null,"budget_per_person"?: number | null,"close_reason"?: string | null,"course_name_free"?: string | null,"created_at"?: string,"first_responded_at"?: string | null,"golf_course_id"?: string | null,"id"?: string,"note"?: string | null,"play_date": string,"players": number,"sla_breached_at"?: string | null,"sla_due_at": string,"status"?: Database["public"]['Enums']["booking_status"],"time_from"?: string | null,"time_pref": Database["public"]['Enums']["time_pref"],"time_to"?: string | null,"updated_at"?: string,"user_id": string,"version"?: number
-                  }
-                  Update: {
-                    "assignee_id"?: string | null,"budget_per_person"?: number | null,"close_reason"?: string | null,"course_name_free"?: string | null,"created_at"?: string,"first_responded_at"?: string | null,"golf_course_id"?: string | null,"id"?: string,"note"?: string | null,"play_date"?: string,"players"?: number,"sla_breached_at"?: string | null,"sla_due_at"?: string,"status"?: Database["public"]['Enums']["booking_status"],"time_from"?: string | null,"time_pref"?: Database["public"]['Enums']["time_pref"],"time_to"?: string | null,"updated_at"?: string,"user_id"?: string,"version"?: number
-                  }
-                  Relationships: [
-                    {
-      foreignKeyName: "booking_requests_assignee_id_fkey"
-      columns: ["assignee_id"]
-isOneToOne: false
-      referencedRelation: "profiles"
-      referencedColumns: ["id"]
-    },{
-      foreignKeyName: "booking_requests_golf_course_id_fkey"
-      columns: ["golf_course_id"]
-isOneToOne: false
-      referencedRelation: "golf_courses"
-      referencedColumns: ["id"]
-    },{
-      foreignKeyName: "booking_requests_user_id_fkey"
-      columns: ["user_id"]
-isOneToOne: false
-      referencedRelation: "profiles"
-      referencedColumns: ["id"]
-    }
-                  ]
                 },"business_holidays": {
                   Row: {
                     "holiday": string,"name": string
@@ -579,36 +501,7 @@ isOneToOne: false
                 }
           }
           Functions: {
-            "accept_proposal":
-{ Args: { "p_expected_version": number,"p_idempotency_key": string,"p_proposal_id": string }; Returns: {
-              "assignee_id": string | null,
-"budget_per_person": number | null,
-"close_reason": string | null,
-"course_name_free": string | null,
-"created_at": string,
-"first_responded_at": string | null,
-"golf_course_id": string | null,
-"id": string,
-"note": string | null,
-"play_date": string,
-"players": number,
-"sla_breached_at": string | null,
-"sla_due_at": string,
-"status": Database["public"]['Enums']["booking_status"],
-"time_from": string | null,
-"time_pref": Database["public"]['Enums']["time_pref"],
-"time_to": string | null,
-"updated_at": string,
-"user_id": string,
-"version": number
-            }
-                          SetofOptions: {
-        from: "*"
-        to: "booking_requests"
-        isOneToOne: true
-        isSetofReturn: false
-      } },
-"add_activity_note":
+            "add_activity_note":
 { Args: { "p_body": string,"p_customer_id": string,"p_subject_id": string,"p_subject_type": string }; Returns: {
               "author_id": string,
 "body": string,
@@ -646,35 +539,6 @@ isOneToOne: false
                           SetofOptions: {
         from: "*"
         to: "membership_deals"
-        isOneToOne: true
-        isSetofReturn: false
-      } },
-"assign_booking":
-{ Args: { "p_assignee_id": string,"p_expected_version": number,"p_request_id": string }; Returns: {
-              "assignee_id": string | null,
-"budget_per_person": number | null,
-"close_reason": string | null,
-"course_name_free": string | null,
-"created_at": string,
-"first_responded_at": string | null,
-"golf_course_id": string | null,
-"id": string,
-"note": string | null,
-"play_date": string,
-"players": number,
-"sla_breached_at": string | null,
-"sla_due_at": string,
-"status": Database["public"]['Enums']["booking_status"],
-"time_from": string | null,
-"time_pref": Database["public"]['Enums']["time_pref"],
-"time_to": string | null,
-"updated_at": string,
-"user_id": string,
-"version": number
-            }
-                          SetofOptions: {
-        from: "*"
-        to: "booking_requests"
         isOneToOne: true
         isSetofReturn: false
       } },
@@ -758,35 +622,6 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
-"cancel_booking":
-{ Args: { "p_expected_version": number,"p_reason"?: string,"p_request_id": string }; Returns: {
-              "assignee_id": string | null,
-"budget_per_person": number | null,
-"close_reason": string | null,
-"course_name_free": string | null,
-"created_at": string,
-"first_responded_at": string | null,
-"golf_course_id": string | null,
-"id": string,
-"note": string | null,
-"play_date": string,
-"players": number,
-"sla_breached_at": string | null,
-"sla_due_at": string,
-"status": Database["public"]['Enums']["booking_status"],
-"time_from": string | null,
-"time_pref": Database["public"]['Enums']["time_pref"],
-"time_to": string | null,
-"updated_at": string,
-"user_id": string,
-"version": number
-            }
-                          SetofOptions: {
-        from: "*"
-        to: "booking_requests"
-        isOneToOne: true
-        isSetofReturn: false
-      } },
 "cancel_deal":
 { Args: { "p_deal_id": string,"p_expected_version": number,"p_reason"?: string }; Returns: {
               "agreed_price": number | null,
@@ -857,35 +692,6 @@ isOneToOne: false
                           SetofOptions: {
         from: "*"
         to: "profiles"
-        isOneToOne: true
-        isSetofReturn: false
-      } },
-"create_booking_request":
-{ Args: { "p_budget_per_person": number,"p_course_name_free": string,"p_golf_course_id": string,"p_idempotency_key": string,"p_note": string,"p_play_date": string,"p_players": number,"p_time_from": string,"p_time_pref": Database["public"]['Enums']["time_pref"],"p_time_to": string }; Returns: {
-              "assignee_id": string | null,
-"budget_per_person": number | null,
-"close_reason": string | null,
-"course_name_free": string | null,
-"created_at": string,
-"first_responded_at": string | null,
-"golf_course_id": string | null,
-"id": string,
-"note": string | null,
-"play_date": string,
-"players": number,
-"sla_breached_at": string | null,
-"sla_due_at": string,
-"status": Database["public"]['Enums']["booking_status"],
-"time_from": string | null,
-"time_pref": Database["public"]['Enums']["time_pref"],
-"time_to": string | null,
-"updated_at": string,
-"user_id": string,
-"version": number
-            }
-                          SetofOptions: {
-        from: "*"
-        to: "booking_requests"
         isOneToOne: true
         isSetofReturn: false
       } },
@@ -997,35 +803,6 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
-"decline_proposal":
-{ Args: { "p_expected_version": number,"p_proposal_id": string,"p_reason"?: string }; Returns: {
-              "assignee_id": string | null,
-"budget_per_person": number | null,
-"close_reason": string | null,
-"course_name_free": string | null,
-"created_at": string,
-"first_responded_at": string | null,
-"golf_course_id": string | null,
-"id": string,
-"note": string | null,
-"play_date": string,
-"players": number,
-"sla_breached_at": string | null,
-"sla_due_at": string,
-"status": Database["public"]['Enums']["booking_status"],
-"time_from": string | null,
-"time_pref": Database["public"]['Enums']["time_pref"],
-"time_to": string | null,
-"updated_at": string,
-"user_id": string,
-"version": number
-            }
-                          SetofOptions: {
-        from: "*"
-        to: "booking_requests"
-        isOneToOne: true
-        isSetofReturn: false
-      } },
 "delete_post":
 { Args: { "p_post_id": string }; Returns: undefined
                            },
@@ -1095,58 +872,9 @@ isOneToOne: false
 "moderate_post":
 { Args: { "p_hidden": boolean,"p_post_id": string }; Returns: undefined
                            },
-"propose_booking":
-{ Args: { "p_expected_version": number,"p_green_fee_per_person": number,"p_memo"?: string,"p_request_id": string,"p_tee_time": string,"p_valid_minutes"?: number }; Returns: {
-              "created_at": string,
-"created_by": string,
-"decided_at": string | null,
-"expires_at": string,
-"green_fee_per_person": number,
-"id": string,
-"memo": string | null,
-"request_id": string,
-"status": Database["public"]['Enums']["proposal_status"],
-"tee_time": string,
-"updated_at": string
-            }
-                          SetofOptions: {
-        from: "*"
-        to: "booking_proposals"
-        isOneToOne: true
-        isSetofReturn: false
-      } },
 "record_auth_event":
 { Args: { "p_event": string }; Returns: undefined
                            },
-"reject_booking":
-{ Args: { "p_expected_version": number,"p_reason": string,"p_request_id": string }; Returns: {
-              "assignee_id": string | null,
-"budget_per_person": number | null,
-"close_reason": string | null,
-"course_name_free": string | null,
-"created_at": string,
-"first_responded_at": string | null,
-"golf_course_id": string | null,
-"id": string,
-"note": string | null,
-"play_date": string,
-"players": number,
-"sla_breached_at": string | null,
-"sla_due_at": string,
-"status": Database["public"]['Enums']["booking_status"],
-"time_from": string | null,
-"time_pref": Database["public"]['Enums']["time_pref"],
-"time_to": string | null,
-"updated_at": string,
-"user_id": string,
-"version": number
-            }
-                          SetofOptions: {
-        from: "*"
-        to: "booking_requests"
-        isOneToOne: true
-        isSetofReturn: false
-      } },
 "report_content":
 { Args: { "p_detail": string,"p_reason": Database["public"]['Enums']["report_reason"],"p_target_id": string,"p_target_type": Database["public"]['Enums']["report_target"] }; Returns: {
               "created_at": string,
@@ -1391,7 +1119,7 @@ isOneToOne: false
       } }
           }
           Enums: {
-            "booking_status": "requested"|"in_review"|"proposed"|"confirmed"|"rejected"|"cancelled","deal_side": "buy"|"sell","deal_status": "inquiry"|"negotiating"|"contract_scheduled"|"contracted"|"transferring"|"completed"|"cancelled","group_join_policy": "open"|"approval","group_member_status": "pending"|"active"|"banned","group_role": "owner"|"manager"|"member","group_status": "active"|"review"|"hidden"|"closed","group_type": "round"|"screen"|"practice"|"join"|"level"|"membership","listing_status": "listed"|"reserved"|"sold"|"hidden","meeting_status": "scheduled"|"cancelled","notify_channel": "alimtalk"|"sms"|"slack"|"email","outbox_status": "pending"|"sending"|"sent"|"failed"|"dead","proposal_status": "offered"|"accepted"|"declined"|"expired"|"withdrawn","region": "seoul_gyeonggi"|"gangwon"|"chungcheong"|"jeolla"|"gyeongsang"|"jeju","report_reason": "not_golf"|"spam"|"abuse"|"illegal"|"other","report_status": "open"|"resolved"|"dismissed","report_target": "group"|"post"|"user","time_pref": "part_1"|"part_2"|"range"
+            "deal_side": "buy"|"sell","deal_status": "inquiry"|"negotiating"|"contract_scheduled"|"contracted"|"transferring"|"completed"|"cancelled","group_join_policy": "open"|"approval","group_member_status": "pending"|"active"|"banned","group_role": "owner"|"manager"|"member","group_status": "active"|"review"|"hidden"|"closed","group_type": "round"|"screen"|"practice"|"join"|"level"|"membership","listing_status": "listed"|"reserved"|"sold"|"hidden","meeting_status": "scheduled"|"cancelled","notify_channel": "alimtalk"|"sms"|"slack"|"email","outbox_status": "pending"|"sending"|"sent"|"failed"|"dead","region": "seoul_gyeonggi"|"gangwon"|"chungcheong"|"jeolla"|"gyeongsang"|"jeju","report_reason": "not_golf"|"spam"|"abuse"|"illegal"|"other","report_status": "open"|"resolved"|"dismissed","report_target": "group"|"post"|"user"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -1507,7 +1235,7 @@ export type CompositeTypes<
 export const Constants = {
   "public": {
           Enums: {
-            "booking_status": ["requested", "in_review", "proposed", "confirmed", "rejected", "cancelled"],"deal_side": ["buy", "sell"],"deal_status": ["inquiry", "negotiating", "contract_scheduled", "contracted", "transferring", "completed", "cancelled"],"group_join_policy": ["open", "approval"],"group_member_status": ["pending", "active", "banned"],"group_role": ["owner", "manager", "member"],"group_status": ["active", "review", "hidden", "closed"],"group_type": ["round", "screen", "practice", "join", "level", "membership"],"listing_status": ["listed", "reserved", "sold", "hidden"],"meeting_status": ["scheduled", "cancelled"],"notify_channel": ["alimtalk", "sms", "slack", "email"],"outbox_status": ["pending", "sending", "sent", "failed", "dead"],"proposal_status": ["offered", "accepted", "declined", "expired", "withdrawn"],"region": ["seoul_gyeonggi", "gangwon", "chungcheong", "jeolla", "gyeongsang", "jeju"],"report_reason": ["not_golf", "spam", "abuse", "illegal", "other"],"report_status": ["open", "resolved", "dismissed"],"report_target": ["group", "post", "user"],"time_pref": ["part_1", "part_2", "range"]
+            "deal_side": ["buy", "sell"],"deal_status": ["inquiry", "negotiating", "contract_scheduled", "contracted", "transferring", "completed", "cancelled"],"group_join_policy": ["open", "approval"],"group_member_status": ["pending", "active", "banned"],"group_role": ["owner", "manager", "member"],"group_status": ["active", "review", "hidden", "closed"],"group_type": ["round", "screen", "practice", "join", "level", "membership"],"listing_status": ["listed", "reserved", "sold", "hidden"],"meeting_status": ["scheduled", "cancelled"],"notify_channel": ["alimtalk", "sms", "slack", "email"],"outbox_status": ["pending", "sending", "sent", "failed", "dead"],"region": ["seoul_gyeonggi", "gangwon", "chungcheong", "jeolla", "gyeongsang", "jeju"],"report_reason": ["not_golf", "spam", "abuse", "illegal", "other"],"report_status": ["open", "resolved", "dismissed"],"report_target": ["group", "post", "user"]
           }
         }
 } as const

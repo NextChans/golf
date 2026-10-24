@@ -126,15 +126,14 @@ begin
 end;
 $$;
 
--- 고객 요청 생성 단축 헬퍼(현재 인증된 고객으로 호출)
-create or replace function tests.new_booking(p_course uuid default '00000000-0000-4000-a000-000000000001')
-returns public.booking_requests
+-- 회원권 매도 상담 생성 단축 헬퍼(현재 인증된 고객으로 호출). 매물이 없어 같은 고객이 여러 건 만들 수 있다
+create or replace function tests.new_deal(p_product uuid default '00000000-0000-4000-b000-000000000003')
+returns public.membership_deals
 language sql
 set search_path = ''
 as $$
-  select * from public.create_booking_request(
-    gen_random_uuid(), p_course, null, (now() at time zone 'Asia/Seoul')::date + 7,
-    'part_1', null, null, 4, 200000, '테스트');
+  select * from public.create_deal_inquiry(
+    gen_random_uuid(), 'sell', null, p_product, 170000000, null, '테스트');
 $$;
 
 grant execute on all functions in schema tests to anon, authenticated;

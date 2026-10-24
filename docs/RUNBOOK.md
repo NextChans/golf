@@ -23,7 +23,7 @@ pnpm exec supabase status -o env   # 로컬 URL·키 확인 → .env.local에 �
 |---|---|
 | 마이그레이션+seed 재적용 | `pnpm db:reset` |
 | pgTAP 전체 | `pnpm db:test` |
-| 특정 테스트만 | `pnpm exec supabase test db supabase/tests/003_booking_transitions.test.sql` (000_setup이 먼저 한 번 실행돼 있어야 함) |
+| 특정 테스트만 | `pnpm exec supabase test db supabase/tests/004_deal_transitions.test.sql` (000_setup이 먼저 한 번 실행돼 있어야 함) |
 | 동시성 | `pnpm test:concurrency` (`ITERATIONS=200`으로 반복 수 조정) |
 | 타입 생성 | `pnpm db:types` → `types/database.ts` |
 | 타입체크 | `pnpm typecheck` |
@@ -49,7 +49,7 @@ OWNER_EMAIL=me@example.com pnpm seed:owner   # 최초 owner(임시 비밀번호 
 | GB401 | unauthenticated | 로그인 필요 | 401 |
 | GB403 | forbidden / onboarding_required / audit_logs is append-only | 권한 없음, 온보딩 미완료 | 403 |
 | GB404 | not_found | 없음 또는 남의 데이터 | 404 |
-| GB409 | version_conflict / invalid_state / proposal_expired / listing_unavailable / duplicate_inquiry / idempotency_key_reused | 동시성·상태 충돌 | 409 |
+| GB409 | version_conflict / invalid_state / listing_unavailable / duplicate_inquiry / idempotency_key_reused | 동시성·상태 충돌 | 409 |
 | GB422 | invalid_input | 입력 검증 실패(detail에 사유) | 422 |
 | GB429 | rate_limited | 10분당 5건 초과 | 429 |
 | 42501 | (Postgres) permission denied | 직접 DML 시도 | 403 |
@@ -59,25 +59,15 @@ OWNER_EMAIL=me@example.com pnpm seed:owner   # 최초 owner(임시 비밀번호 
 슈퍼유저(psql) 기준. 운영 DB에서는 읽기 전용 쿼리만 실행한다.
 
 ```sql
--- 특정 부킹 요청의 전체 이력(감사 로그)
+-- 특정 회원권 거래의 전체 이력(감사 로그)
 select occurred_at, actor_role, actor_id, action, before->>'status' as from_status, after->>'status' as to_status, host(ip) ip
   from public.audit_logs
- where entity_type = 'booking_request' and entity_id = '<request_id>'
+ where entity_type = 'membership_deal' and entity_id = '<deal_id>'
  order by occurred_at;
 
 -- 고객 타임라인(고객에게 보이는 것)
 select created_at at time zone 'Asia/Seoul' as kst, from_status, to_status, message
-  from public.booking_events where request_id = '<request_id>' order by id;
-
--- SLA 초과·미배정 요청
-select id, created_at at time zone 'Asia/Seoul' as kst, sla_due_at at time zone 'Asia/Seoul' as due_kst
-  from public.booking_requests
- where status = 'requested' and first_responded_at is null and sla_due_at < now()
- order by sla_due_at;
-
--- 만료 대기 중 제안
-select p.id, p.request_id, p.expires_at at time zone 'Asia/Seoul' as expires_kst
-  from public.booking_proposals p where p.status = 'offered' order by p.expires_at;
+  from public.deal_events where deal_id = '<deal_id>' order by id;
 
 -- 매물 선점 상태와 점유 거래
 select l.id, l.status, d.id as deal_id, d.status as deal_status
@@ -115,7 +105,7 @@ begin;
 select set_config('request.jwt.claims',
   '{"sub":"<user_id>","role":"authenticated","aal":"aal2","app_metadata":{"role":"admin"}}', true);
 set local role authenticated;
-select * from public.assign_booking('<request_id>', '<admin_id>', 1);
+select * from public.start_deal('<deal_id>', 1);
 rollback;   -- 확인만 하고 되돌린다
 ```
 

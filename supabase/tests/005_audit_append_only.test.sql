@@ -5,7 +5,7 @@ select plan(8);
 select tests.create_user('a@test.local') as a \gset
 select tests.create_user('owner@test.local', 'owner') as owner \gset
 select tests.authenticate_as(:'a', 'aal1');
-select tests.new_booking();
+select tests.new_deal();
 
 select tests.clear_authentication();
 select ok((select count(*) from public.audit_logs) > 0, '감사 로그가 존재한다');

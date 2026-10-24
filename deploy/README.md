@@ -16,7 +16,7 @@ select count(*) as rls_off from pg_class c join pg_namespace n on n.oid = c.reln
 select count(*) as dml_grants from information_schema.role_table_grants
  where table_schema = 'public' and grantee in ('anon','authenticated','service_role')
    and privilege_type in ('INSERT','UPDATE','DELETE','TRUNCATE');
-select jobname from cron.job order by 1;   -- expire-proposals, mark-sla-breaches, purge-idempotency-keys
+select jobname from cron.job order by 1;   -- 초기 스키마 직후: expire-proposals, mark-sla-breaches, purge-idempotency-keys (013 후 notify-dispatch 추가, 017 후 부킹 잡 2개 제거)
 ```
 
 ## 1-1. 추가 변경분(순서대로, 한 번씩)
@@ -28,15 +28,55 @@ select jobname from cron.job order by 1;   -- expire-proposals, mark-sla-breache
 | `2026-10-20-03-admin-ops.sql` | 010: 골프장 저장·통화 메모·배정 대상 목록(M4) | 적용 완료(머지 전 선반영, D-50) |
 | `2026-10-20-04-membership-admin.sql` | 011: 회원권 상품·매물·시세 저장, 거래 담당자 배정(M5) | 적용 완료(머지 전 선반영, D-50) |
 | `2026-10-20-05-deal-status-label.sql` | 012: 거래 상태 라벨을 화면과 통일(D-61) | 적용 완료(머지 전 선반영) |
-| `2026-10-20-09-quotes-source-grant.sql` | 016: 시세 출처 컬럼 조회 권한(015 보완) | **미적용** — 이번 PR 머지 **전에** 반드시 실행(없으면 매물 상세가 오류) |
+| `2026-10-20-09-quotes-source-grant.sql` | 016: 시세 출처 컬럼 조회 권한(015 보완) | 적용 완료(2026-10-24 지시문 기준 운영 001~016 적용) |
 | `2026-10-20-08-quotes-auto-pii-log.sql` | 015: 체결가 자동 기록, 시세 일괄 입력, 연락처 열람 기록 — 추가만 | 적용 완료(머지 전 선반영) |
 | `2026-10-20-07-community.sql` | 014: 골프 모임 커뮤니티(M7) — 새 테이블·함수만 추가 | 적용 완료(머지 전 선반영) |
 | `2026-10-20-06-outbox-dispatch.sql` | 013: 알림 발송(claim·성공·실패·재시도, pg_net, 1분 cron)(M6) | 적용 완료, 발송 켜기 완료(2026-10-20 22:24 UTC 첫 발송 10건) |
+| `2026-10-24-01-drop-booking.sql` | 017: **부킹 DB 제거(D-88)** — 부킹 테이블 3·함수 12·cron 2·enum 3 삭제, 부킹 메모·미발송 부킹 알림 삭제, 공용 함수의 부킹 분기 제거. 1-2의 확인 쿼리와 함께 실행 | **미적용 — 되돌릴 수 없음. 오너가 확인 후 SQL Editor에서 실행** |
 
 **순서 규칙(D-50)**: 추가만 하는 변경(새 함수·컬럼·인덱스)은 DB 먼저, 기존 동작을 막는 변경(트리거·제약 강화)은 그 에러를 처리하는 앱을 먼저 배포한 뒤 DB. 각 PR 설명에 어느 쪽인지 적는다.
 
 각 파일은 앞부분에서 이미 적용된 버전인지 검사하므로 실수로 두 번 실행해도 멈춘다.
 적용 여부 확인: `select version, name from supabase_migrations.schema_migrations order by version;`
+
+## 1-2. 부킹 DB 제거(`2026-10-24-01-drop-booking.sql`, D-88)
+
+**되돌릴 수 없다.** 부킹 요청·제안·타임라인 행, 부킹 대상 통화 메모, 아직 보내지 않은 부킹 알림이 지워진다(감사 로그 `audit_logs`와 보낸·실패(dead) 알림 이력은 남는다). 필요하면 실행 전에 Dashboard → Database → Backups에서 백업 시점을 확인하거나 아래 "전" 쿼리 결과를 저장해 둔다.
+
+순서(D-50): 앱은 이미 부킹 화면 없이 배포됨(PR #13) → **SQL 실행** → GitHub Actions **functions-deploy**(target=prod, 부킹 템플릿 제거). 두 단계의 순서는 바뀌어도 된다(발송기는 모르는 템플릿을 기본 문구로 보낸다).
+
+실행 **전**(값을 기록해 둔다):
+```sql
+select version, name from supabase_migrations.schema_migrations where version >= '20261020000016';  -- 016만 있어야 한다
+select (select count(*) from public.booking_requests) as requests,
+       (select count(*) from public.booking_proposals) as proposals,
+       (select count(*) from public.booking_events) as events,
+       (select count(*) from public.activity_notes where subject_type = 'booking') as booking_notes;
+select status, count(*) from public.notification_outbox
+ where event_type like 'booking.%' group by 1 order by 1;   -- pending/failed/sending은 지워지고 sent/dead는 남는다
+select jobname from cron.job order by 1;                    -- expire-proposals, mark-sla-breaches, notify-dispatch, purge-idempotency-keys
+```
+
+실행: SQL Editor에 파일 전체를 붙여넣고 Run. 결과 창의 NOTICE에 삭제 전 행 수와 정리 건수가 나온다. 한 트랜잭션이라 실패하면 아무것도 바뀌지 않는다(예상 밖 의존 객체가 있으면 cascade 없이 멈춘다 — 오류 메시지를 그대로 공유).
+
+실행 **후**(모두 기대값이어야 정상):
+```sql
+select count(*) as booking_tables from pg_class c join pg_namespace n on n.oid = c.relnamespace
+ where n.nspname = 'public' and c.relname in ('booking_requests', 'booking_proposals', 'booking_events');   -- 0
+select count(*) as booking_functions from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+ where n.nspname in ('public', 'app') and p.proname in ('create_booking_request', 'assign_booking', 'propose_booking',
+   'accept_proposal', 'decline_proposal', 'reject_booking', 'cancel_booking', 'expire_proposals', 'mark_sla_breaches',
+   'lock_booking', 'booking_payload', 'booking_event');                                                         -- 0
+select count(*) as booking_types from pg_type t join pg_namespace n on n.oid = t.typnamespace
+ where n.nspname = 'public' and t.typname in ('booking_status', 'proposal_status', 'time_pref');               -- 0
+select count(*) as booking_cron from cron.job where jobname in ('expire-proposals', 'mark-sla-breaches');      -- 0
+select jobname from cron.job order by 1;                                                                     -- notify-dispatch, purge-idempotency-keys
+select count(*) as pending_booking_outbox from public.notification_outbox
+ where status in ('pending', 'failed', 'sending') and event_type like 'booking.%';                           -- 0
+select before from public.audit_logs where entity_type = 'migration' and entity_id = '20261020000017';       -- 1행(정리 내역)
+select version, name from supabase_migrations.schema_migrations where version >= '20261020000016' order by 1; -- 016, 017(drop_booking)
+```
+그 다음 1절 3의 RLS·DML 권한 점검 쿼리(0이어야 정상)와 운영 사이트에서 회원권 목록·상담 신청·운영자 거래 화면이 열리는지 확인한다.
 
 ## 2. Auth 설정 (대시보드)
 
@@ -86,7 +126,7 @@ values ('실제 골프장명', 'seoul_gyeonggi', '주소', 180000, 240000, '위�
 ## 5. 동작 확인
 
 1. https://golf-lac-delta.vercel.app → 로그인 → **카카오로 시작하기** → 가입 마무리(이름·약관) → 내 정보
-2. 부킹 요청 → 운영자 계정으로 /admin 로그인 → 요청 인박스 → 나에게 배정 → 티타임 제안 → 고객 화면에서 확정
+2. 회원권 매도 상담 신청(/memberships/sell) → 운영자 계정으로 /admin 로그인 → 회원권 상담 → 협의 시작 → 고객 화면(/deals)에서 단계 확인 (부킹은 D-87·D-88로 제거)
 3. SQL Editor: `select action, entity_type, occurred_at from public.audit_logs order by id desc limit 10;` 으로 감사 로그 기록 확인
 
 ## 6. 알림 발송 켜기 (M6)

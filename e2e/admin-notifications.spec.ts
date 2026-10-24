@@ -9,7 +9,7 @@ test("운영자는 실패(dead) 알림을 보고 다시 보낼 수 있다", asyn
   const id = await withDb(async (db) => {
     const { rows } = await db.query<{ id: string }>(
       `insert into public.notification_outbox (event_type, recipient_kind, channel, template_code, payload, dedupe_key, status, attempts, last_error)
-       values ('e2e', 'admins', 'slack', 'ADMIN_SLA_BREACHED', '{}'::jsonb, $1, 'dead', 5, 'slack webhook 404') returning id::text`,
+       values ('e2e', 'admins', 'slack', 'ADMIN_DEAL_REQUESTED', '{}'::jsonb, $1, 'dead', 5, 'slack webhook 404') returning id::text`,
       [`e2e:${randomUUID()}`],
     );
     return rows[0]!.id;
