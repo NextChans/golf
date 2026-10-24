@@ -7,7 +7,7 @@ import {
 } from "./schema";
 
 const item = (over: Partial<MarketItem>): MarketItem => ({
-  id: "x", courseName: "테스트CC", region: "jeju", kind: "개인 정회원", holes: 18, weekly: [100_000_000],
+  id: "x", courseId: "cx", courseName: "테스트CC", region: "jeju", kind: "개인 정회원", holes: 18, weekly: [100_000_000],
   askPrice: null, bidPrice: null, likes: 0, benefits: [], verified: true, ...over,
 });
 

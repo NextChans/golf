@@ -49,7 +49,7 @@ export function MarketHomeScreen({ searchParams: sp }: { searchParams: HomeSearc
   const unread = NOTIFICATIONS.filter((n) => !n.read).length;
 
   return (
-    <AppScreen tone="canvas">
+    <AppScreen tone="canvas" floating>
       <header className="sticky top-0 z-30 flex h-16 items-center justify-between bg-canvas px-6">
         <Logo href="/" />
         <div className="flex items-center gap-1">

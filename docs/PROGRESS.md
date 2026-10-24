@@ -25,6 +25,7 @@
 | M8 후보 1차: 회원권 앱 개편(그린판다 벤치마크, 목업) | **완료, 오너 검토 대기** | `/market` 22개 화면(가입 4 포함) + 가입 2·3단계(`/onboarding`), Vitest +31, Playwright +10. D-80·D-81·D-82, docs/DESIGN-APP.md |
 | 루트 전환·부킹 화면 제거(D-87) | 완료·머지(NextChans/golf#13) | `/` = 앱 홈(URL 유지), `/market`·`/bookings/**`·`/admin/bookings/**` redirect. 부킹 DB는 D-88로 제거. pgTAP 275(불변), Vitest 218(부킹 테스트 제거로 268→218), Playwright 73(부킹 9 삭제, 루트 7 추가) |
 | 부킹 DB 제거(D-88) | **완료, 오너 검토·운영 반영 대기** | 마이그레이션 017(테이블 3·함수 12·cron 2·enum 3 제거, 공용 함수 부킹 분기 제거). pgTAP 269(003 삭제 −24, 007 12→8, 018 +22, 나머지 소재를 회원권 거래로 교체), 동시성 3×50회, Vitest 222, Playwright 73. 운영 반영 `deploy/2026-10-24-01-drop-booking.sql` + `functions-deploy` |
+| 상담 문의 플로팅·검색 결과 골프장 단위·골프장 상세(D-89) | **완료, 오너 검토 대기** | 앱 UI·목업만(DB 불변). 플로팅 공용화(접힘/펼침), 결과 골프장 카드·정렬 시트·필터 버튼, `/market/courses/[courseId]`, 목업 23개·`courseId`. Vitest +15(222→237), Playwright +9(73→82) |
 
 ## M8 후보 1차 결과 요약(회원권 앱, D-80)
 

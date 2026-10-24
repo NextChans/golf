@@ -16,7 +16,8 @@
 | 홈 · 회원권 구매 탭 | `/`(D-87, `/market`은 `/`로 redirect) | 고정 헤더, 거래 체결 티커, 검색 진입, 기획전 배너, 이번주 시세 카드, 즉시 구매/인기/상승/하락 카드 목록(5건+더보기), 최근 확인한 회원권, 지역별 타일, 프로모 캐러셀, 친구 초대, 회사 정보 푸터(D-83) |
 | 홈 · 회원권 판매 탭 | `/?tab=sell` | "지금 팔면 얼마일까?" 골프장 검색 → 즉시 판매가·예상 수수료·예상 수령액 |
 | 공지 모달 + 쿠폰 바텀시트 | 홈 팝업 | "오늘 그만 보기"(KST 날짜), "다시 보지 않기"(영구), "닫기"(세션) |
-| 맞춤 회원권 검색 | `/market/search` → `/market/search/results` | 지역(복수)·가격대(복수)·검색어, 하단 초기화 + 전체보기/N건 보기 |
+| 맞춤 회원권 검색 | `/market/search` → `/market/search/results` | 지역(복수)·가격대(복수)·검색어, 하단 초기화 + 전체보기/N건 보기. 결과(D-89)는 골프장 단위 카드(유형 행 → 회원권 상세, 헤더 › → 골프장 상세)·정렬 시트(`?sort=`)·하단 중앙 필터 버튼 |
+| 골프장 상세(캡처 2장, D-89) | `/market/courses/[courseId]` | 사진 자리·유형 행 목록·골프장 정보·하단 CTA "지금 가장 핫한 매물 보러가기" |
 | 나의 회원권 | `/market/my` | 비로그인: 로그인 유도 카드. 로그인: 보유 회원권 현재 가치·취득가 대비 |
 | 로그인(이메일·소셜 4종) | `/market/login` | **카카오만**(D-81). 다른 수단은 추후 |
 | 신규 회원가입 · 회원 유형 | `/market/signup` | 개인회원 / 기업회원 카드 |
@@ -97,7 +98,11 @@
 | `SellEstimator` | sell-estimator.tsx | combobox 검색 → 예상 판매가 카드 |
 | `SearchFilter` | search-filter.tsx | 지역 원형 타일·가격대 칩·하단 고정 버튼 |
 | `FavoriteButton`·`useFavorites` | favorites.tsx | 관심 하트(목업: localStorage) |
-| `components/market/detail/*` | detail/ | 상세 전용(D-85). `DetailTopBar`(사진 위 → 흰 바 고정, 공유), `DetailHero`, `DetailSummary`·`KindSelect`, `PriceCard`·`PriceInfo`, `DetailTabs`(sticky, IntersectionObserver)·`ScrollLink`, `PriceTrend`·`TrendChart`(선 그래프), `DealTables`, `Features`, `Admission`(개인/법인), `UsageInfo`, `CourseInfo`·`CopyAddress`, `CostCalculator`, `ReportBanner`, `DetailFaq`, `FloatingActions`, `BottomCta` |
+| `components/market/detail/*` | detail/ | 상세 전용(D-85). `DetailTopBar`(사진 위 → 흰 바 고정, 공유), `DetailHero`, `DetailSummary`·`KindSelect`, `PriceCard`·`PriceInfo`, `DetailTabs`(sticky, IntersectionObserver)·`ScrollLink`, `PriceTrend`·`TrendChart`(선 그래프), `DealTables`, `Features`, `Admission`(개인/법인), `UsageInfo`, `CourseInfo`·`CopyAddress`, `CostCalculator`, `ReportBanner`, `DetailFaq`, `BottomCta` |
+| `FloatingInquiry` | floating-inquiry.tsx | "상담 문의" 떠 있는 알약(D-89). `position` tab·cta·stacked, `topButton`이면 "맨 위로". 스크롤 내리면 아이콘만, 멈춘 지 1.2초·위로 스크롤하면 펼침 |
+| `CourseCard`·`TypeRows`·`CourseAvatar` | course/ | 검색 결과 골프장 카드, 유형 행(결과·골프장 상세 공용), 글자 아바타 |
+| `SortSheet` | course/sort-sheet.tsx | 정렬 아이콘 + 바텀시트(링크 선택지, body 포털) |
+| `CourseTopBar` | course/course-top-bar.tsx | 골프장 상세 왼쪽 제목 상단 바 |
 | `shareOrCopy`·`copyText` | share.ts | `navigator.share` → 없으면 클립보드. 결과 `shared/copied/failed/aborted` |
 | `storage.ts` | | localStorage 래퍼(모든 접근 try/catch) |
 
@@ -112,8 +117,8 @@
 - 갱신: 새 버전은 `npm pack pretendard@<버전>`으로 받아 새 폴더에 풀고(스크립트 실행 금지), `dist/web/variable/woff2-dynamic-subset/*.woff2`를 같은 폴더에 교체, `pretendardvariable-dynamic-subset.css`의 `url(./woff2-dynamic-subset/`를 `url(/fonts/pretendard/`로 바꿔 `app/market/pretendard.css`에 덮어쓴다. 조각 번호(라틴 조각 91)가 바뀌면 `font-preload.tsx`도 고친다. `e2e/font.spec.ts`로 확인.
 
 ## 5. 데이터와 규칙
-- 목업: `lib/mock/market.ts`(가상 골프장 16곳·항목 18개(같은 골프장 두 유형 2곳), 12주 시세, 체결·쿠폰·알림·FAQ·수수료 정책). 실데이터 연결 때 같은 `MarketItem` 타입으로 바꿔 끼운다.
-- 규칙(순수 함수, Vitest): `lib/domain/market/schema.ts` — 금액 표기, 변화율, 평균 시세, 가격대(하한 포함·상한 미포함), 필터(지역 OR·가격대 OR·조건 사이 AND), 탭 정렬, 수수료, KST "오늘 그만 보기".
+- 목업: `lib/mock/market.ts`(가상 골프장 16곳·항목 23개(`courseId`·유형 `label`, 같은 골프장 여러 유형 7곳), 12주 시세, 체결·쿠폰·알림·FAQ·수수료 정책). 실데이터 연결 때 같은 `MarketItem` 타입으로 바꿔 끼운다.
+- 규칙(순수 함수, Vitest): `lib/domain/market/group.ts`(골프장 묶음·정렬·필터 개수, D-89)와 `lib/domain/market/schema.ts` — 금액 표기, 변화율, 평균 시세, 가격대(하한 포함·상한 미포함), 필터(지역 OR·가격대 OR·조건 사이 AND), 탭 정렬, 수수료, KST "오늘 그만 보기".
 - 저장: 관심·팝업 숨김·설정·취향은 이 브라우저에만 저장(미리보기). 실데이터 단계에서 로그인 고객 기준 DB로 옮긴다(RLS·감사 로그 규칙 적용).
 
 ## 6. E2E 계약(바꾸지 말 것, `e2e/market.spec.ts`)
@@ -128,3 +133,4 @@
 - 루트(D-87, `e2e/root.spec.ts`): `/`가 URL 그대로 앱 홈(제목 "Googolf — 골프 회원권 거래", 미리보기 띠, `navigation` "앱 메뉴"의 "회원권 거래" `aria-current="page"`·href `/`), `navigation` "거래 구분" 링크 "회원권 구매"(`/`)·"회원권 판매"(`/?tab=sell`), "목록 정렬" 링크 `/?list=…`, 앱 화면의 "뒤로"·로고는 `/`. `/market`·`/bookings/**`는 `/`로, `/admin/bookings/**`는 `/admin`으로 redirect(307)
 - 홈 구매 탭(D-83, 판매 탭 제외): 링크 "알림"이 스크롤 후에도 뷰포트에 보임, 목록 카드 링크(/구매가능/)가 처음 5건 → "더보기" 클릭 후 10건, 헤딩 "최근 확인한 회원권"(상세 방문 후에만), 지역 링크(예: "강원")→`/market/search/results?region=gangwon`, region "Googolf 소식"(텍스트 "1/4", 링크 4개), footer에 "(준비 중)"·"중개 서비스입니다", 버튼 "초대 링크 보내기"(복사 후 "링크를 복사했어요", 주소는 홈 `/`·쿼리 없음)
 - 회원권 상세(D-85, `e2e/market.spec.ts` "회원권 상세"): 직접 진입 시 팝업 없음, heading 골프장명(h1, 1개), region "가격 정보"(현재 시세·즉시 구매가·즉시 판매가·최근 거래가), navigation "상세 정보 탭" 링크 4개 `["시세","회원권 정보","이용 정보","골프장 정보"]`·활성 `aria-current="true"`, table /그린피/, 기간 group 버튼 6개월·1년·3년·전체(`aria-pressed`)와 `data-testid="trend-sentence"`("최근 6개월간" 등), 개인/법인 버튼과 `data-testid="admission-list"`, 계산기 라벨 "얼마에 구매하고 싶으신가요?"/"얼마에 판매하고 싶으신가요?"·버튼 "계산하기"·"100만원 늘리기"·region "예상 비용"("중개 수수료"·"총 예상 비용"/"예상 수령액")·`role="alert"`, 링크 "상담 문의", 버튼 "맨 위로"(300px 이상일 때만)·"주소 복사"·"공유", 링크 "구매하기"·"판매하기", combobox "회원권 종류"
+- 검색 결과·골프장 상세·상담 문의(D-89, `e2e/market.spec.ts` "골프장 단위 검색 결과와 골프장 상세"·"상담 문의 플로팅"): 목록 "골프장"의 카드, 링크 "골프장 정보: <골프장명>"(헤더), 유형 행 링크 이름은 골프장명으로 시작(`/^백운파인CC/`), 목록 "<골프장명> 회원권 유형", 문구 "골프장 N곳 · 회원권 M건 · 이번 주 시세 기준", 버튼 "정렬" → dialog "정렬"(링크 5개, 현재 `aria-current="true"`, URL `sort=`), 링크 "필터"/"필터 · N개 적용됨"(→ `/market/search?…`), 골프장 상세 h1·"주소 복사"·링크 "지금 가장 핫한 매물 보러가기"(`/market/search/results?q=`)·없는 id는 404("페이지를 찾을 수 없어요"). 링크 "상담 문의"(`/market/mypage/support`)는 홈·검색 결과·상세·골프장 상세·나의 회원권·마이페이지에 있고 로그인·가입·고객센터·공지·보장 안내·알림·검색 조건에는 없다. 스크롤하면 폭 60px 미만(아이콘만)·이름 유지, 멈추면 90px 초과로 복귀, 맨 아래에서 마지막 내용이 플로팅·CTA 위

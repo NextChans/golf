@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { MarketHomeScreen } from "@/components/market/home-screen";
+import { FloatingInquiry } from "@/components/market/floating-inquiry";
 import { MarketShell } from "@/components/market/market-shell";
 import { TabBar } from "@/components/market/tab-bar";
 
@@ -16,6 +17,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
   return (
     <MarketShell>
       <MarketHomeScreen searchParams={await searchParams} />
+      <FloatingInquiry position="tab" />
       <TabBar />
     </MarketShell>
   );

@@ -20,7 +20,7 @@ export default async function MyMembershipsPage() {
     : [];
 
   return (
-    <AppScreen>
+    <AppScreen floating>
       <TopBar title="나의 회원권" />
       <main className="px-6 pt-6 pb-10">
         <h2 className="text-heading font-bold text-ink-sub">보유 회원권</h2>

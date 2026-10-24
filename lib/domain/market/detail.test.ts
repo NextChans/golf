@@ -109,7 +109,7 @@ describe("상세 목업 데이터", () => {
   });
   it("같은 골프장 두 유형이 있는 곳은 2곳", () => {
     const multi = new Set(MARKET_ITEMS.map((i) => i.courseName).filter((n) => MARKET_ITEMS.filter((i) => i.courseName === n).length > 1));
-    expect(multi.size).toBe(2);
+    expect(multi.size).toBe(7);
     expect(siblingKinds(MARKET_ITEMS, MARKET_ITEMS.find((i) => i.id === "m01")!).map((s) => s.id)).toEqual(["m01", "m17"]);
   });
 });
