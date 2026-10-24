@@ -9,7 +9,7 @@ Googolf는 회사명이자 브랜드명이다. 전화로 받던 골프 부킹과
 4. `docs/DECISIONS.md` — 확정된 결정과 기본값. PRD와 충돌하면 이 문서가 우선한다
 5. `docs/state-machine.md` — 상태 전이 표. DB 함수와 1:1로 맞춘다
 6. `docs/RUNBOOK.md` — 환경 구성, 명령어, 자주 쓰는 SQL
-7. `docs/DESIGN.md` — apple.com 스타일 디자인 가이드와 **E2E 테스트 계약**(UI를 바꿀 때 필수)
+7. `docs/DESIGN.md` — apple.com 스타일 디자인 가이드와 **E2E 테스트 계약**(UI를 바꿀 때 필수). 회원권 앱(`/market`)은 `docs/DESIGN-APP.md`
 8. `deploy/README.md` — 운영 Supabase 반영 절차
 
 ## 작업 방식
@@ -20,6 +20,18 @@ Googolf는 회사명이자 브랜드명이다. 전화로 받던 골프 부킹과
 - 오너가 범위를 넓히면(예: 커뮤니티) 진행 중인 마일스톤에 섞지 않고 별도 마일스톤 후보로 PROGRESS/DECISIONS에 기록한다.
 - 응답과 문서는 한국어. 코드 식별자와 커밋 메시지 접두어(feat/fix/docs/test/chore)는 영어.
 - 무료 환경에서 진행한다(D-25). 유료 서비스가 필요한 기능은 어댑터 뒤에 두고 개발용 대체 구현을 쓴다.
+
+## 연결된 외부 서비스 (한눈에, 자세한 절차는 각 문서)
+
+| 서비스 | 값 | 반영 방법 | 문서 |
+|---|---|---|---|
+| GitHub | `NextChans/golf`, 작업 브랜치 `claude/affectionate-maxwell-vs76ph` | 마일스톤마다 PR, CI `web`(lint·typecheck·Vitest·build·Playwright)·`db`(pgTAP·동시성·타입) | PROGRESS.md |
+| Vercel | 프로젝트 `golf`, production `https://golf-lac-delta.vercel.app`, 리전 `icn1`(vercel.json), Hobby | Git 연동 자동 배포(main → production, PR → preview `*-babadung-6380s-projects.vercel.app`). 환경변수는 Vercel 대시보드 | PROGRESS.md "M3 전에", RUNBOOK 7 |
+| Supabase prod | `sacsqmsfwujuuudwjhbp`(서울), 개발은 로컬 Supabase | DB: `deploy/*.sql`을 오너가 SQL Editor에서 실행(또는 Actions `db-deploy`, prod 승인자 필수). 함수: Actions `functions-deploy`. Auth 설정은 대시보드만(`config.toml` push 금지) | deploy/README.md, RUNBOOK 6·7 |
+| 카카오 | 고객 로그인 유일 수단(D-81). Redirect URI `https://sacsqmsfwujuuudwjhbp.supabase.co/auth/v1/callback` | 카카오 Developers 콘솔 | deploy/README.md 2 |
+
+- 클라우드 컨테이너는 HTTPS만 나가므로 원격 Postgres에 직접 붙지 않는다(D-32). 원격 DB 상태는 오너 확인 또는 Actions로만 본다.
+- 앱만 바뀐 변경(마이그레이션 없음)은 머지하면 Vercel이 배포한다. 마이그레이션이 있으면 D-50 순서(추가만 하는 변경은 DB 먼저)를 PR에 적는다.
 
 ## 절대 규칙 (모든 마일스톤 공통, 위반 시 머지 불가)
 

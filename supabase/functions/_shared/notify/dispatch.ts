@@ -40,7 +40,8 @@ export type DispatchSummary = { claimed: number; sent: number; failed: number; d
  * 결과 기록(complete/fail) 자체가 실패하면 그 건은 lease 만료 후 다시 잡힌다(중복 발송 가능성은 dedupe_key로 대행사 측 멱등 처리).
  */
 export async function runDispatch(store: OutboxStore, adapters: AdapterSet, opts: { siteUrl: string; limit?: number }): Promise<DispatchSummary> {
-  const items = await store.claim(opts.limit ?? 20);
+  // 한 번에 10건: Slack 호출 하나당 최대 10초라 Edge Function 시간 한도 안에 끝나게 한다(M6 리스크)
+  const items = await store.claim(opts.limit ?? 10);
   const summary: DispatchSummary = { claimed: items.length, sent: 0, failed: 0, dead: 0, errors: 0 };
   for (const item of items) {
     try {

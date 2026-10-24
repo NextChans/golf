@@ -10,6 +10,7 @@ select tests.create_user('admin@test.local', 'admin') as admin \gset
 
 -- 테스트가 만든 알림만 다루도록 기존 대기 행을 미래로 미룬다(로컬에 남은 데이터와 무관하게)
 update public.notification_outbox set next_attempt_at = now() + interval '1 day' where status in ('pending', 'failed');
+update public.notification_outbox set locked_at = now() where status = 'sending'; -- lease 만료된 잔여 행도 잡히지 않게
 
 select tests.authenticate_as(:'cust', 'aal1');
 select id as req from tests.new_booking() \gset

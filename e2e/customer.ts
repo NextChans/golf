@@ -96,6 +96,51 @@ export async function createOnboardedCustomer(opts: { withContact?: boolean } = 
   return { userId, email, password, displayName };
 }
 
+/**
+ * 카카오 로그인만 마치고 온보딩(가입 2단계) 전인 고객. 테스트 픽스처 전용.
+ * kakaoName은 카카오가 user_metadata에 넣는 프로필 이름을 흉내 낸다(이름 칸 기본값 확인용).
+ */
+export async function createSignedUpCustomer(opts: { kakaoName?: string } = {}): Promise<Customer> {
+  nextEnv.loadEnvConfig(process.cwd());
+  const admin = adminClient();
+  const email = `e2e-new-${Date.now()}-${rand()}@test.local`;
+  const password = `E2e-new-${rand()}-pass`;
+  const displayName = opts.kakaoName ?? "";
+
+  const created = await admin.auth.admin.createUser({
+    email, password, email_confirm: true,
+    user_metadata: opts.kakaoName ? { name: opts.kakaoName, full_name: opts.kakaoName } : {},
+  });
+  if (created.error) throw created.error;
+  const userId = created.data.user.id;
+
+  // 운영에서는 카카오 OAuth가 identity와 providers를 만든다. onboarded는 아직 없다.
+  await withDb(async (db) => {
+    await db.query("begin");
+    try {
+      const kakaoSub = `e2e-${randomUUID()}`;
+      await db.query(
+        `insert into auth.identities (provider_id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+         values ($1, $2, jsonb_build_object('sub', $1::text), 'kakao', now(), now(), now())`,
+        [kakaoSub, userId],
+      );
+      await db.query(
+        `update auth.users
+            set raw_app_meta_data = coalesce(raw_app_meta_data, '{}'::jsonb)
+                  || '{"provider":"kakao","providers":["email","kakao"]}'::jsonb
+          where id = $1`,
+        [userId],
+      );
+      await db.query("commit");
+    } catch (err) {
+      await db.query("rollback");
+      throw err;
+    }
+  });
+
+  return { userId, email, password, displayName };
+}
+
 /** 비밀번호 grant로 로그인해 @supabase/ssr이 실제로 설정하는 쿠키(이름·청크·base64 인코딩)를 그대로 만든다. */
 export async function customerCookies(c: Customer): Promise<PlaywrightCookie[]> {
   const { url, anonKey } = env();

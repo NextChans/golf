@@ -447,14 +447,14 @@ isOneToOne: false
                   ]
                 },"membership_quotes": {
                   Row: {
-                    "buy_price": number | null,"created_at": string,"created_by": string | null,"id": number,"product_id": string,"quoted_on": string,"sell_price": number | null
+                    "buy_price": number | null,"created_at": string,"created_by": string | null,"id": number,"product_id": string,"quoted_on": string,"sell_price": number | null,"source": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "buy_price"?: number | null,"created_at"?: string,"created_by"?: string | null,"id"?: never,"product_id": string,"quoted_on": string,"sell_price"?: number | null
+                    "buy_price"?: number | null,"created_at"?: string,"created_by"?: string | null,"id"?: never,"product_id": string,"quoted_on": string,"sell_price"?: number | null,"source"?: string
                   }
                   Update: {
-                    "buy_price"?: number | null,"created_at"?: string,"created_by"?: string | null,"id"?: never,"product_id"?: string,"quoted_on"?: string,"sell_price"?: number | null
+                    "buy_price"?: number | null,"created_at"?: string,"created_by"?: string | null,"id"?: never,"product_id"?: string,"quoted_on"?: string,"sell_price"?: number | null,"source"?: string
                   }
                   Relationships: [
                     {
@@ -465,6 +465,32 @@ isOneToOne: false
       referencedColumns: ["id"]
     },{
       foreignKeyName: "membership_quotes_product_id_fkey"
+      columns: ["product_id"]
+isOneToOne: false
+      referencedRelation: "membership_products"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"membership_trades": {
+                  Row: {
+                    "created_at": string,"deal_id": string,"id": number,"price": number,"product_id": string,"side": Database["public"]['Enums']["deal_side"],"traded_on": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"deal_id": string,"id"?: never,"price": number,"product_id": string,"side": Database["public"]['Enums']["deal_side"],"traded_on": string
+                  }
+                  Update: {
+                    "created_at"?: string,"deal_id"?: string,"id"?: never,"price"?: number,"product_id"?: string,"side"?: Database["public"]['Enums']["deal_side"],"traded_on"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "membership_trades_deal_id_fkey"
+      columns: ["deal_id"]
+isOneToOne: true
+      referencedRelation: "membership_deals"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "membership_trades_product_id_fkey"
       columns: ["product_id"]
 isOneToOne: false
       referencedRelation: "membership_products"
@@ -705,6 +731,9 @@ isOneToOne: false
                            },
 "bootstrap_owner":
 { Args: { "p_user_id": string }; Returns: undefined
+                           },
+"bulk_upsert_quotes":
+{ Args: { "p_rows": Json }; Returns: number
                            },
 "cancel_attendance":
 { Args: { "p_meeting_id": string }; Returns: {
@@ -1036,6 +1065,9 @@ isOneToOne: false
               "created_at": string,"email": string,"id": string,"last_sign_in_at": string,"mfa_enabled": boolean,"password_change_required": boolean,"role": string
             }[]
                            },
+"log_pii_view":
+{ Args: { "p_subject_id": string,"p_subject_type": string }; Returns: undefined
+                           },
 "moderate_group":
 { Args: { "p_group_id": string,"p_reason": string,"p_status": Database["public"]['Enums']["group_status"] }; Returns: {
               "capacity": number,
@@ -1348,7 +1380,8 @@ isOneToOne: false
 "id": number,
 "product_id": string,
 "quoted_on": string,
-"sell_price": number | null
+"sell_price": number | null,
+"source": string
             }
                           SetofOptions: {
         from: "*"

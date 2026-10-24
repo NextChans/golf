@@ -9,6 +9,7 @@ import { ActivityNotes, fetchNoteAuthors } from "@/components/admin/activity-not
 import { requireStaff } from "@/lib/auth/guards";
 import { createClient } from "@/lib/supabase/server";
 import { formatPhone } from "@/lib/domain/phone";
+import { logPiiView } from "@/lib/admin/pii";
 import { BOOKING_STATUS_LABEL, BOOKING_STATUS_VARIANT } from "@/lib/domain/booking/status";
 import { DEAL_SIDE_LABEL, DEAL_STATUS_LABEL } from "@/lib/domain/membership/status";
 import { formatKst, formatKstDate } from "@/lib/format/kst";
@@ -58,7 +59,11 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
       .order("id", { ascending: false })
       .limit(100),
   ]);
-  const authors = notes.data ? await fetchNoteAuthors(supabase, notes.data) : {};
+  // 상세 화면은 고객 전체 번호를 보여 주므로 열람을 기록한다(D-75)
+  const [authors] = await Promise.all([
+    notes.data ? fetchNoteAuthors(supabase, notes.data) : Promise.resolve({} as Record<string, string>),
+    logPiiView(supabase, "customer", id),
+  ]);
 
   return (
     <div className="space-y-10">

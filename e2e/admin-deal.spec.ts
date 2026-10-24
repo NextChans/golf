@@ -48,7 +48,7 @@ test("상담 신청 → 협의 시작(매물 상담 중) → 취소 시 매물 �
   expect(await listingStatus(listingId)).toBe("listed");
 });
 
-test("조건 저장 → 단계 진행 → 거래 완료 시 매물 판매완료", async ({ page }) => {
+test("조건 저장 → 단계 진행 → 거래 완료 시 매물 판매완료", async ({ page, browser }) => {
   const [customer, staff] = await Promise.all([createOnboardedCustomer(), createStaff("deal-done")]);
   const { listingId, dealId } = await seedInquiry(customer.userId);
   page.on("dialog", (d) => d.accept());
@@ -76,4 +76,14 @@ test("조건 저장 → 단계 진행 → 거래 완료 시 매물 판매완료"
   }
   expect(await listingStatus(listingId)).toBe("sold");
   await expect(page.getByRole("button", { name: "거래 취소" })).toHaveCount(0);
+
+  // 판매 완료 매물은 404가 아니라 "거래 완료"로 보이고, 체결가가 자동으로 공개된다(D-80)
+  const anon = await browser.newContext();
+  const ap = await anon.newPage();
+  const res = await ap.goto(`/memberships/${listingId}`);
+  expect(res?.status()).toBe(200);
+  await expect(ap.getByTestId("listing-status")).toHaveText("거래 완료");
+  await expect(ap.getByRole("link", { name: "로그인하고 상담 신청" })).toHaveCount(0);
+  await expect(ap.getByRole("list", { name: "최근 체결가" })).toContainText("9,150만 원");
+  await anon.close();
 });

@@ -6,6 +6,7 @@ import { Tile } from "@/components/site/section";
 import { ActivityNoteForm } from "@/components/admin/activity-note-form";
 import { ActivityNotes, fetchNoteAuthors } from "@/components/admin/activity-notes";
 import { createClient } from "@/lib/supabase/server";
+import { logPiiView } from "@/lib/admin/pii";
 import { requireStaff } from "@/lib/auth/guards";
 import { formatKst, formatKstDate } from "@/lib/format/kst";
 import { formatPhone } from "@/lib/domain/phone";
@@ -51,7 +52,8 @@ export default async function AdminDealDetailPage({ params }: { params: Promise<
   if (error) throw new Error("admin deal detail query failed");
   if (!d) notFound();
 
-  const authors = await fetchNoteAuthors(supabase, notes ?? []);
+  // 상세 화면은 고객 전체 번호를 보여 주므로 열람을 기록한다(D-75)
+  const [authors] = await Promise.all([fetchNoteAuthors(supabase, notes ?? []), logPiiView(supabase, "deal", d.id)]);
   const actions = dealAdminActions(d.status, { isAssignee: d.assignee_id === session.userId, isOwner: session.role === "owner" });
   const next = nextDealStatus(d.status);
   const blocker = next ? advanceBlocker(next, d) : null;

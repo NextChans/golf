@@ -2,7 +2,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 /** Googolf 로고. 심볼은 public/brand/googolf-mark.svg와 같은 도형을 인라인으로 그린다(색 테마 대응). */
-export function Logo({ href = "/", className, size = "md" }: { href?: "/" | "/admin"; className?: string; size?: "sm" | "md" }) {
+export function Logo({ href = "/", className, size = "md" }: { href?: "/" | "/admin" | "/market"; className?: string; size?: "sm" | "md" }) {
   return (
     <Link href={href} className={cn("inline-flex items-center gap-2 font-extrabold tracking-tight", className)} aria-label="Googolf 홈">
       <svg viewBox="0 0 64 64" className={size === "sm" ? "size-6 shrink-0" : "size-8 shrink-0"} aria-hidden="true">

@@ -21,7 +21,17 @@
 | M4 어드민 부킹·CRM | 완료·머지(NextChans/golf#6) | pgTAP 177, Vitest 120, Playwright 23. D-49~52 |
 | M5 회원권 | 완료·머지(NextChans/golf#7) | pgTAP 194, Vitest 158, Playwright 36. D-53~62 |
 | M6 알림 outbox | 완료·머지(NextChans/golf#8) | D-63~66 |
-| M7 골프 모임 커뮤니티 | **완료, 오너 승인 대기** | pgTAP 260, Vitest 201, Playwright 42. D-67~73 |
+| M7 골프 모임 커뮤니티 | 완료·머지(NextChans/golf#10) | pgTAP 260, Vitest 201, Playwright 42. D-67~73 |
+| M8 후보 1차: 회원권 앱 개편(그린판다 벤치마크, 목업) | **완료, 오너 검토 대기** | `/market` 22개 화면(가입 4 포함) + 가입 2·3단계(`/onboarding`), Vitest +31, Playwright +10. D-80·D-81·D-82, docs/DESIGN-APP.md |
+
+## M8 후보 1차 결과 요약(회원권 앱, D-80)
+
+- 경로: `/market`(홈 구매·판매 탭, 팝업), `/market/search`(+results), `/market/items/[id]`, `/market/my`, `/market/mypage`(+favorites·coupons·asks·asks/new·trades·settings·support), `/market/report`, `/market/notifications`, `/market/notices/fee`, `/market/guide/guarantee`, `/market/welcome`
+- 가입·로그인(D-81): `/market/login`(카카오만) → `/market/signup`(개인·기업) → 개인은 카카오 → `/onboarding`, 기업은 사업자번호 검증 → 카카오. 콜백이 온보딩 전 고객을 `/onboarding?next=`로 보낸다
+- 가입 2·3단계(D-82): `/onboarding`을 앱 스타일로(이름 카카오 닉네임 미리 채움·연락처·약관 → 같은 페이지 환영 화면 "{이름}님, 환영합니다!"·혜택 카드 → "회원권 둘러보기"). Vitest +6, Playwright +2(`e2e/onboarding.spec.ts`)
+- 모두 목업 데이터(`lib/mock/market.ts`). 로그인 판단만 실제 세션을 쓴다(마이페이지 이름, 나의 회원권, 판매 희망가). 판매 희망가 등록은 서버로 보내지 않는다(미리보기)
+- 기존 화면과 연결: 개인정보 → `/me`, 판매·구매 관리 → `/deals`, 구매 상담 → `/memberships`, 실제 매도 상담 → `/memberships/sell`
+- 다음(오너 결정 후): ① 그린판다 추가 캡처(상세·검색 결과·판매 등록·알림·로그인)로 화면 맞춤 ② 실데이터 연결(`membership_quotes` 주간 시세, 매물 최저가=즉시 구매가, 관심 회원권·알림 설정 테이블) ③ 홈(`/`)과 GlobalNav를 앱 구조로 전환(기존 E2E 계약 갱신 필요) ④ 지역 사진 에셋
 
 ## M1 결과 요약
 
@@ -35,7 +45,7 @@
 
 ## 운영 반영 상태
 
-- 운영 DB: 001~014 적용 완료(오너, 2026-10-20). 013(M6)도 적용 완료, 운영 발송 켜짐(2026-10-20, 함수 배포·비밀값·Vault, 고객 채널은 console). 절차·장애 대응은 `deploy/README.md` 6장. 010(M4)도 적용 완료(`deploy/2026-10-20-03-admin-ops.sql`, 머지 전 선반영). 절차·상태는 `deploy/README.md` 1-1
+- 운영 DB: 001~015 적용 완료(오너, 2026-10-20). 013(M6)도 적용 완료, 운영 발송 켜짐(2026-10-20, 함수 배포·비밀값·Vault, 고객 채널은 console). 절차·장애 대응은 `deploy/README.md` 6장. 010(M4)도 적용 완료(`deploy/2026-10-20-03-admin-ops.sql`, 머지 전 선반영). 절차·상태는 `deploy/README.md` 1-1
 - 운영 데이터 정리 필요: `golf_courses`의 README 예시 행 "실제 골프장명" — M4 배포 후 골프장 화면에서 수정하거나 운영 중지
 - 카카오 앱·Supabase Kakao provider 설정: 오너 완료(2026-10-20)
 
