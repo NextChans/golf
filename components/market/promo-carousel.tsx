@@ -33,7 +33,7 @@ export function PromoCarousel() {
             <Link href={href as Route} className="pressable flex min-h-[140px] items-center justify-between gap-4 px-6 py-8">
               <span className="min-w-0">
                 <span className="block text-caption font-semibold text-ink-sub">{lead}</span>
-                <span className="mt-1 block whitespace-pre-line text-heading font-extrabold text-ink">{title}</span>
+                <span className="mt-1 block whitespace-pre-line text-heading font-bold text-ink">{title}</span>
               </span>
               <Icon className="size-16 shrink-0 text-info" strokeWidth={1.4} aria-hidden />
             </Link>

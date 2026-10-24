@@ -19,7 +19,7 @@ export function DealTables({ rows }: { rows: Record<TabId, DealRow[]> }) {
   const list = rows[tab];
   return (
     <div>
-      <h2 className="text-heading font-extrabold text-ink">실거래가 및 입찰가</h2>
+      <h2 className="text-heading font-bold text-ink">실거래가 및 입찰가</h2>
       <div role="group" aria-label="거래 구분" className="mt-4 grid grid-cols-3 gap-1 rounded-control bg-fill p-1">
         {TABS.map((t) => (
           <button

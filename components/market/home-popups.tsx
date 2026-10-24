@@ -66,7 +66,7 @@ export function HomePopups() {
         >
           <div className="relative bg-[#1a1b1e] px-7 pt-8 pb-10 text-white">
             <span className="inline-block rounded-md bg-white px-2 py-0.5 text-caption font-bold text-[#1a1b1e]">지금 거래하면</span>
-            <h2 id="coupon-title" className="mt-3 text-display font-extrabold leading-tight">
+            <h2 id="coupon-title" className="mt-3 text-display font-bold leading-tight">
               수수료 최대
               <br />
               <span className="text-[#4ee59a]">20%</span> 할인!
@@ -81,7 +81,7 @@ export function HomePopups() {
             {/* 쿠폰 그림: 이미지 대신 CSS 티켓 */}
             <div aria-hidden className="absolute right-5 bottom-10 w-[46%] -rotate-6 rounded-xl bg-gradient-to-br from-[#4ee59a] to-[#249a62] px-4 py-5 text-center shadow-xl">
               <span className="inline-flex items-center gap-0.5 rounded bg-[#ffd43b] px-1.5 text-tiny font-bold text-[#1a1b1e]"><Zap className="size-3" />선착순</span>
-              <p className="mt-1.5 flex items-center justify-center gap-1 text-caption font-extrabold text-[#0d2b1c]"><Ticket className="size-4" />수수료 할인 쿠폰</p>
+              <p className="mt-1.5 flex items-center justify-center gap-1 text-caption font-semibold text-[#0d2b1c]"><Ticket className="size-4" />수수료 할인 쿠폰</p>
             </div>
           </div>
           <div className="flex h-16 items-center justify-between bg-surface px-8 pb-safe text-label font-semibold text-ink-sub">

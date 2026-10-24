@@ -16,7 +16,7 @@ export function ItemCard({ item, instant }: { item: ItemCardData; instant: boole
   return (
     <li>
       <Link href={`/market/items/${item.id}`} className="pressable flex min-h-[92px] items-center gap-3 rounded-card bg-fill px-4 py-4">
-        <span aria-hidden className="flex size-14 shrink-0 items-center justify-center rounded-full bg-surface text-heading font-extrabold text-brand-ink shadow-sm">
+        <span aria-hidden className="flex size-14 shrink-0 items-center justify-center rounded-full bg-surface text-heading font-bold text-brand-ink shadow-sm">
           {item.courseName.slice(0, 1)}
         </span>
         <span className="min-w-0 flex-1">

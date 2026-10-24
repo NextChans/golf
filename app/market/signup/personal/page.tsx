@@ -17,7 +17,7 @@ export default async function PersonalSignupPage({ searchParams }: { searchParam
       <TopBar title="개인 회원가입" back="/market/signup" />
       <Stepper steps={SIGNUP_STEPS} current={0} />
       <main className="px-6 pt-4 pb-12">
-        <h2 className="text-heading font-extrabold text-ink">카카오 계정으로<br />간편하게 가입하세요</h2>
+        <h2 className="text-heading font-bold text-ink">카카오 계정으로<br />간편하게 가입하세요</h2>
         <p className="mt-2 text-caption text-ink-mute">다음 단계에서 이름·연락처를 입력하고 약관에 동의하면 가입이 끝나요.</p>
         <form action={signInWithKakao} className="mt-10">
           <input type="hidden" name="next" value={next} />

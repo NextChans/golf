@@ -101,6 +101,16 @@
 | `shareOrCopy`·`copyText` | share.ts | `navigator.share` → 없으면 클립보드. 결과 `shared/copied/failed/aborted` |
 | `storage.ts` | | localStorage 래퍼(모든 접근 try/catch) |
 
+## 4-1. 폰트(D-86)
+
+- 앱 영역(`/market/**`, `/onboarding`)만 **Pretendard Variable**을 서버에서 직접 내려준다(외부 CDN 없음). 루트(`/`)와 기존 apple 스타일 화면은 `--font-sans` 그대로(D-84).
+- 출처: npm `pretendard@1.3.9`(https://github.com/orioncactus/pretendard, Kil Hyung-jin). 라이선스 SIL Open Font License 1.1(상업 사용·셀프 호스팅 가능, 폰트와 함께 라이선스 문구 배포 필수) — 문구는 `public/fonts/pretendard/LICENSE.txt`, 각 @font-face 앞 CSS 머리말에도 있다.
+- 파일: `public/fonts/pretendard/PretendardVariable.subset.{0..91}.woff2`(한글을 92조각으로 나눈 dynamic subset, 합계 약 3.1MB) + `LICENSE.txt`. 선언은 `app/market/pretendard.css`(`font-family: "Pretendard Variable"`, `font-display: swap`, `unicode-range`). 브라우저는 화면에 쓰인 글자가 속한 조각만 받는다(`/market` 첫 로드 약 13개).
+- 로드: `components/market/font-preload.tsx`(`AppFontPreload`)가 CSS를 import하고 라틴·숫자 조각(subset 91)만 preload한다. `app/market/layout.tsx`와 `/onboarding` 페이지에서만 렌더하므로 다른 경로에는 새지 않는다. swap이라 첫 글자는 시스템 폰트로 보였다가 바뀐다(FOUT, 글자 가림 없음).
+- 적용: `font-app` 유틸리티(`--font-app`)를 `AppScreen` 루트·`TabBar`·미리보기 띠·환영 화면 루트에 둔다(fixed 요소는 모두 `AppScreen` 안이라 상속). `AppScreen`은 `tabular-nums`도 켜서 가격·시세 자릿수가 흔들리지 않게 한다. 새 앱 화면이 `AppScreen` 밖이면 루트에 `font-app`을 준다.
+- 굵기: 헤드라인(`text-display`/`text-heading`)·큰 금액은 `font-bold`(700), 라벨·버튼·부제는 `font-semibold`(600) 이하. `font-extrabold`(800)는 앱 영역에서 쓰지 않는다.
+- 갱신: 새 버전은 `npm pack pretendard@<버전>`으로 받아 새 폴더에 풀고(스크립트 실행 금지), `dist/web/variable/woff2-dynamic-subset/*.woff2`를 같은 폴더에 교체, `pretendardvariable-dynamic-subset.css`의 `url(./woff2-dynamic-subset/`를 `url(/fonts/pretendard/`로 바꿔 `app/market/pretendard.css`에 덮어쓴다. 조각 번호(라틴 조각 91)가 바뀌면 `font-preload.tsx`도 고친다. `e2e/font.spec.ts`로 확인.
+
 ## 5. 데이터와 규칙
 - 목업: `lib/mock/market.ts`(가상 골프장 16곳·항목 18개(같은 골프장 두 유형 2곳), 12주 시세, 체결·쿠폰·알림·FAQ·수수료 정책). 실데이터 연결 때 같은 `MarketItem` 타입으로 바꿔 끼운다.
 - 규칙(순수 함수, Vitest): `lib/domain/market/schema.ts` — 금액 표기, 변화율, 평균 시세, 가격대(하한 포함·상한 미포함), 필터(지역 OR·가격대 OR·조건 사이 AND), 탭 정렬, 수수료, KST "오늘 그만 보기".

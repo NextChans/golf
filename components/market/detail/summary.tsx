@@ -8,7 +8,7 @@ export function DetailSummary({ item, siblings }: { item: MarketItem; siblings: 
   return (
     <section aria-label="회원권 요약" className="relative -mt-6 rounded-t-sheet bg-surface px-6 pt-6">
       <div className="flex items-start gap-3">
-        <span aria-hidden className="flex size-14 shrink-0 items-center justify-center rounded-card border border-line bg-surface text-subhead font-extrabold text-brand-ink">
+        <span aria-hidden className="flex size-14 shrink-0 items-center justify-center rounded-card border border-line bg-surface text-subhead font-semibold text-brand-ink">
           {item.courseName.slice(0, 1)}
         </span>
         <div className="min-w-0 flex-1">
@@ -20,7 +20,7 @@ export function DetailSummary({ item, siblings }: { item: MarketItem; siblings: 
             </Link>
             <p className="shrink-0 pt-2 text-caption font-semibold text-ink-sub">{MARKET_REGION_LABEL[item.region]}·{item.holes}홀</p>
           </div>
-          <p className="text-heading font-extrabold text-ink">{item.kind}</p>
+          <p className="text-heading font-bold text-ink">{item.kind}</p>
         </div>
       </div>
       <div className="mt-5">

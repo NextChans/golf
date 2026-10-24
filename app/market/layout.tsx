@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AppFontPreload } from "@/components/market/font-preload";
 
 export const metadata: Metadata = {
   title: { default: "회원권 거래", template: "%s · Googolf 회원권" },
@@ -9,7 +10,8 @@ export const metadata: Metadata = {
 export default function MarketLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <p className="bg-ink py-1 text-center text-tiny font-medium text-surface">미리보기 · 시세와 매물은 예시 데이터입니다</p>
+      <AppFontPreload />
+      <p className="bg-ink py-1 text-center font-app text-tiny font-medium text-surface">미리보기 · 시세와 매물은 예시 데이터입니다</p>
       {children}
     </>
   );

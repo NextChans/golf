@@ -30,7 +30,7 @@ export function CourseInfo({ name, holes, detail }: { name: string; holes: numbe
   ];
   return (
     <div>
-      <h2 className="text-heading font-extrabold text-ink">골프장 정보</h2>
+      <h2 className="text-heading font-bold text-ink">골프장 정보</h2>
       <div className="mt-2"><CopyAddress address={detail.address} /></div>
       <MapPlaceholder name={name} />
       <dl className="mt-4 overflow-hidden rounded-card border border-line">

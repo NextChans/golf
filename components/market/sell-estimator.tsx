@@ -47,7 +47,7 @@ export function SellEstimator() {
           </button>
         </div>
         <p className="mt-5 text-caption font-semibold text-ink-sub">지금 팔면</p>
-        <p className="text-display font-extrabold text-ink tabular-nums">{formatManWon(sellAt)}</p>
+        <p className="text-display font-bold text-ink tabular-nums">{formatManWon(sellAt)}</p>
         <dl className="mt-4 space-y-2 text-label">
           <div className="flex justify-between"><dt className="text-ink-mute">이번 주 시세</dt><dd className="font-semibold tabular-nums">{formatManWon(quote)} <span className={rateClass(rate)}>{formatRate(rate)}</span></dd></div>
           <div className="flex justify-between"><dt className="text-ink-mute">예상 수수료</dt><dd className="font-semibold tabular-nums">{formatManWon(fee)}</dd></div>

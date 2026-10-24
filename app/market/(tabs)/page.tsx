@@ -107,7 +107,7 @@ export default async function MarketHome({ searchParams }: { searchParams: Searc
               <span className="flex items-center justify-between text-label font-semibold text-ink-mute">
                 이번주 시세 <ChevronRight className="size-5 text-ink-faint" aria-hidden />
               </span>
-              <span className="mt-1 block text-heading font-extrabold text-ink tabular-nums">
+              <span className="mt-1 block text-heading font-bold text-ink tabular-nums">
                 전국 평균 {formatManWon(avg[avg.length - 1] ?? 0)}{" "}
                 <span className={cn("text-label font-semibold", rateClass(avgRate))}>{formatRate(avgRate)}</span>
               </span>
@@ -145,7 +145,7 @@ export default async function MarketHome({ searchParams }: { searchParams: Searc
             <RecentList items={recentData} />
 
             <section aria-labelledby="region-title" className="mt-12">
-              <h2 id="region-title" className="text-heading font-extrabold text-ink">지역별 회원권</h2>
+              <h2 id="region-title" className="text-heading font-bold text-ink">지역별 회원권</h2>
               <ul className="no-scrollbar -mx-6 mt-4 flex gap-3 overflow-x-auto px-6">
                 {[{ href: "/market/search/results", label: "전체", tone: "from-[#8fb98a] via-[#5c9c4f] to-[#2b6a35]" }, ...MARKET_REGIONS.map((r) => ({
                   href: `/market/search/results?region=${r}`, label: MARKET_REGION_LABEL[r], tone: REGION_TONE[r],
@@ -153,7 +153,7 @@ export default async function MarketHome({ searchParams }: { searchParams: Searc
                   <li key={t.label} className="shrink-0">
                     <Link
                       href={t.href as never}
-                      className={cn("pressable flex size-[92px] items-center justify-center rounded-full bg-gradient-to-b text-label font-extrabold text-white [text-shadow:0_1px_4px_rgb(0_0_0/0.45)]", t.tone)}
+                      className={cn("pressable flex size-[92px] items-center justify-center rounded-full bg-gradient-to-b text-label font-semibold text-white [text-shadow:0_1px_4px_rgb(0_0_0/0.45)]", t.tone)}
                     >
                       {t.label}
                     </Link>
@@ -168,7 +168,7 @@ export default async function MarketHome({ searchParams }: { searchParams: Searc
         ) : (
           <div className="flex min-h-[60dvh] flex-col">
             <div className="flex-1 px-6 pt-10 pb-10">
-              <h1 className="text-display font-extrabold text-ink">
+              <h1 className="text-display font-bold text-ink">
                 내 회원권,
                 <br />
                 지금 팔면 얼마일까?

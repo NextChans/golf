@@ -18,7 +18,7 @@ export default function FeeNoticePage() {
       <TopBar title="공지사항" back="/market" />
       <main className="px-6 pt-4 pb-12">
         <p className="text-caption font-semibold text-brand-ink">안내</p>
-        <h2 className="mt-1 text-heading font-extrabold text-ink">{FEE_NOTICE.termsTitle}</h2>
+        <h2 className="mt-1 text-heading font-bold text-ink">{FEE_NOTICE.termsTitle}</h2>
         <p className="mt-3 text-label text-ink-sub">{FEE_NOTICE.body} 시행일은 {FEE_NOTICE.effectiveDate.replaceAll("-", ".")}입니다.</p>
 
         <h3 className="mt-8 text-subhead font-bold text-ink">바뀌는 수수료</h3>

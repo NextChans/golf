@@ -4,7 +4,7 @@ import { COMPANY_INFO } from "@/lib/company";
 export function CompanyFooter() {
   return (
     <footer className="mt-0 bg-fill px-6 pt-8 pb-8 text-ink-mute">
-      <div className="flex items-center gap-2 text-subhead font-extrabold text-ink-sub">
+      <div className="flex items-center gap-2 text-subhead font-semibold text-ink-sub">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/brand/googolf-mark.svg" alt="" className="size-6" />
         Googolf

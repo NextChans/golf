@@ -22,7 +22,7 @@ export function PriceTrend({ monthly }: { monthly: number[] }) {
 
   return (
     <div>
-      <h2 className="text-heading font-extrabold text-ink">시세 동향</h2>
+      <h2 className="text-heading font-bold text-ink">시세 동향</h2>
       <p className="mt-2 text-label text-ink-sub" data-testid="trend-sentence">
         {s.lead}{" "}
         {s.value && <><strong className={cn("font-bold", color)}>{s.value}</strong>{" "}</>}

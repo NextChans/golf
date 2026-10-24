@@ -49,7 +49,7 @@ export function SearchFilter({ initial }: { initial: MarketFilter }) {
       </form>
 
       <div className="mx-auto max-w-[480px] rounded-t-sheet bg-surface px-6 pt-8 pb-[calc(7rem+env(safe-area-inset-bottom))]">
-        <h1 className="text-heading font-extrabold text-ink">맞춤 회원권 검색</h1>
+        <h1 className="text-heading font-bold text-ink">맞춤 회원권 검색</h1>
 
         <fieldset className="mt-8">
           <legend className="text-subhead font-bold text-ink-sub">지역별</legend>
@@ -60,7 +60,7 @@ export function SearchFilter({ initial }: { initial: MarketFilter }) {
                 <button
                   key={r} type="button" aria-pressed={on} onClick={() => setRegions(toggle(regions, r))}
                   className={cn(
-                    "pressable relative mx-auto flex aspect-square w-full max-w-[104px] items-center justify-center overflow-hidden rounded-full bg-gradient-to-b text-subhead font-extrabold text-white",
+                    "pressable relative mx-auto flex aspect-square w-full max-w-[104px] items-center justify-center overflow-hidden rounded-full bg-gradient-to-b text-subhead font-semibold text-white",
                     REGION_TONE[r], on && "ring-[3px] ring-brand ring-offset-2 ring-offset-surface",
                   )}
                 >

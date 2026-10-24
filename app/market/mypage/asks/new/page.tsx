@@ -17,7 +17,7 @@ export default async function NewAskPage({ searchParams }: { searchParams: Searc
       <main className="px-6 pt-4 pb-10">
         {session?.role === "customer" ? (
           <>
-            <h2 className="mb-6 text-heading font-extrabold text-ink">얼마에 팔고 싶으세요?</h2>
+            <h2 className="mb-6 text-heading font-bold text-ink">얼마에 팔고 싶으세요?</h2>
             <AskForm initialItem={item} />
           </>
         ) : (

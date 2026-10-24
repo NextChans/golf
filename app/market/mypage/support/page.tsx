@@ -11,7 +11,7 @@ export default function SupportPage() {
       <TopBar title="고객센터" back="/market/mypage" />
       <main className="pb-10">
         <section className="px-6 pt-4 pb-7">
-          <p className="text-heading font-extrabold text-ink">무엇을 도와드릴까요?</p>
+          <p className="text-heading font-bold text-ink">무엇을 도와드릴까요?</p>
           <p className="mt-1 text-caption text-ink-mute">{SUPPORT.hours}</p>
           <a href={`tel:${SUPPORT.phone}`} className="pressable mt-5 flex h-14 items-center justify-center gap-2 rounded-control bg-brand text-subhead font-bold text-white">
             <Phone className="size-5" aria-hidden /> 전화 상담 {SUPPORT.phone}

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AppFontPreload } from "@/components/market/font-preload";
 import { AppScreen, StateView, Stepper, TopBar } from "@/components/market/ui";
 import { createClient } from "@/lib/supabase/server";
 import { requireSignedInCustomer } from "@/lib/auth/guards";
@@ -25,15 +26,20 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
 
   if (error || !terms) {
     return (
+      <>
+      <AppFontPreload />
       <AppScreen withTabBar={false}>
         <TopBar title="회원가입" />
         <Stepper steps={SIGNUP_STEPS} current={1} />
         <StateView tone="error" title="약관 정보를 불러오지 못했어요" body="잠시 후 새로고침해 주세요." />
       </AppScreen>
+      </>
     );
   }
 
   return (
+    <>
+    <AppFontPreload />
     <AppScreen withTabBar={false}>
       <OnboardingForm
         terms={terms.flatMap((t) => (t.code && t.title ? [{ code: t.code, title: t.title, required: !!t.required }] : []))}
@@ -44,5 +50,6 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
         defaultName={pickDefaultName(user?.user_metadata)}
       />
     </AppScreen>
+    </>
   );
 }

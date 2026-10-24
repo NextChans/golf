@@ -15,7 +15,7 @@ export function Admission({ courseName, kind, admission, companion }: {
   const rows = admission[who];
   return (
     <div>
-      <h2 className="text-heading font-extrabold text-ink">회원권 구성</h2>
+      <h2 className="text-heading font-bold text-ink">회원권 구성</h2>
       <p className="mt-1 text-label font-semibold text-ink-mute">{courseName} · {kind}</p>
       <div role="group" aria-label="입회 구분" className="mt-4 grid grid-cols-2 gap-1 rounded-control bg-fill p-1">
         {([["personal", "개인"], ["corporate", "법인"]] as const).map(([id, label]) => (

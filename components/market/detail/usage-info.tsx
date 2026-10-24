@@ -7,7 +7,7 @@ const won = (n: number | null) => (n === null ? "이용 불가" : `${n.toLocaleS
 export function UsageInfo({ detail }: { detail: Pick<MarketDetail, "bookingNotes" | "greenFees" | "cartFee" | "caddieFee"> }) {
   return (
     <div>
-      <h2 className="text-heading font-extrabold text-ink">이용 정보</h2>
+      <h2 className="text-heading font-bold text-ink">이용 정보</h2>
 
       <h3 className="mt-6 text-subhead font-bold text-ink">부킹 특이사항</h3>
       <div className="mt-3 space-y-4 rounded-card bg-fill px-5 py-5">

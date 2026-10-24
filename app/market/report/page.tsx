@@ -25,7 +25,7 @@ export default function ReportPage() {
       <main className="pb-12">
         <section className="px-6 pt-4 pb-8">
           <p className="text-caption font-semibold text-ink-mute">전국 평균 · {MARKET_ITEMS.length}개 회원권</p>
-          <p className="text-display font-extrabold tabular-nums">
+          <p className="text-display font-bold tabular-nums">
             {formatManWon(avg[avg.length - 1] ?? 0)} <span className={cn("text-label font-bold", rateClass(rate))}>{formatRate(rate)}</span>
           </p>
           <Sparkline values={avg} label={`최근 12주 전국 평균 시세 추이, 이번 주 ${formatRate(rate)}`} className="mt-5 h-auto w-full" />

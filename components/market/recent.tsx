@@ -46,7 +46,7 @@ export function RecentList({ items }: { items: RecentCardData[] }) {
   if (!cards.length) return null;
   return (
     <section aria-labelledby="recent-title" className="mt-12">
-      <h2 id="recent-title" className="text-heading font-extrabold text-ink">최근 확인한 회원권</h2>
+      <h2 id="recent-title" className="text-heading font-bold text-ink">최근 확인한 회원권</h2>
       <ul className="no-scrollbar -mx-6 mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-6">
         {cards.map((c) => (
           <li key={c.id} className="relative w-[56%] shrink-0 snap-start">

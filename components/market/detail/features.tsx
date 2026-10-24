@@ -7,7 +7,7 @@ const ICONS = { flag: Flag, "map-pin": MapPin, star: Star } as const;
 export function Features({ features }: { features: MarketDetail["features"] }) {
   return (
     <div>
-      <h2 className="text-heading font-extrabold text-ink">회원권 특징</h2>
+      <h2 className="text-heading font-bold text-ink">회원권 특징</h2>
       <ul className="mt-4 space-y-3">
         {features.map((f) => {
           const Icon = ICONS[f.icon];

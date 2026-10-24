@@ -30,7 +30,7 @@ export default async function AsksPage() {
                     <p className="text-label font-bold text-ink">{item.courseName}</p>
                     <span className="rounded-full bg-brand-soft px-2.5 py-1 text-tiny font-bold text-brand-ink">{a.status}</span>
                   </div>
-                  <p className="mt-2 text-heading font-extrabold tabular-nums">{formatManWon(a.price)}</p>
+                  <p className="mt-2 text-heading font-bold tabular-nums">{formatManWon(a.price)}</p>
                   <p className="text-caption text-ink-mute">이번 주 시세 {formatManWon(currentPrice(item))} · {formatKst(a.createdAt)} 등록</p>
                 </li>
               );

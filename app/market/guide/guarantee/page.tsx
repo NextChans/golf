@@ -21,7 +21,7 @@ export default function GuaranteePage() {
       <main className="px-6 pt-4 pb-12">
         <div className="rounded-card bg-gradient-to-b from-[#3b5fc0] to-[#9cc0f5] p-7 text-white">
           <ShieldCheck className="size-12" strokeWidth={1.5} aria-hidden />
-          <h2 className="mt-4 text-heading font-extrabold">회원권 거래,<br />처음부터 끝까지 안심하세요</h2>
+          <h2 className="mt-4 text-heading font-bold">회원권 거래,<br />처음부터 끝까지 안심하세요</h2>
         </div>
         <ol className="mt-8 space-y-5">
           {STEPS.map((s, k) => (

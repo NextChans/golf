@@ -13,7 +13,7 @@ const DETAIL_FAQ = [
 export function DetailFaq() {
   return (
     <section aria-labelledby="faq-title" className="px-6 py-8">
-      <h2 id="faq-title" className="text-heading font-extrabold text-ink">자주 묻는 질문</h2>
+      <h2 id="faq-title" className="text-heading font-bold text-ink">자주 묻는 질문</h2>
       <div className="mt-2">
         {DETAIL_FAQ.map((f) => (
           <details key={f.q} className="group border-b border-line last:border-0">

@@ -91,7 +91,7 @@ function InfoStep({ terms, verifiedPhone, phoneRequired, defaultName, onDone }: 
         className="flex min-h-[calc(100dvh-9.5rem)] flex-col"
       >
         <div className="flex-1 px-6 pt-4 pb-8">
-          <h2 className="text-heading font-extrabold break-keep text-ink">거의 다 됐어요!<br />정보를 알려주세요</h2>
+          <h2 className="text-heading font-bold break-keep text-ink">거의 다 됐어요!<br />정보를 알려주세요</h2>
           <p className="mt-2 text-caption break-keep text-ink-mute">
             {phoneRequired ? "예약·거래 안내를 받을 휴대폰 번호를 인증하고 약관에 동의해 주세요." : "담당자가 연락드릴 이름과 연락처를 알려 주세요."}
           </p>
@@ -243,7 +243,7 @@ function Welcome({ name, next }: { name: string; next: string }) {
           </span>
           <h2
             ref={headingRef} tabIndex={-1}
-            className="mt-5 text-display font-extrabold break-keep text-ink outline-none [overflow-wrap:anywhere]"
+            className="mt-5 text-display font-bold break-keep text-ink outline-none [overflow-wrap:anywhere]"
           >
             {name}님, 환영합니다!
           </h2>

@@ -12,18 +12,18 @@ export function PriceCard({ quote, rate, askPrice, bidPrice, lastDeal }: {
     <section aria-label="가격 정보" className="px-6 pt-5">
       <div className="rounded-card border border-line bg-fill px-5 py-4">
         <PriceInfo />
-        <p className="text-display font-extrabold text-ink tabular-nums">
+        <p className="text-display font-bold text-ink tabular-nums">
           {formatManWon(quote)} <span className={`text-label font-bold ${rateClass(rate)}`}>{formatRate(rate)}</span>
         </p>
         <hr className="my-4 border-line" />
         <dl className="grid grid-cols-2 gap-x-3">
           <div>
             <dt className="text-label font-semibold text-ink-sub">즉시 구매가</dt>
-            <dd className="mt-1 text-subhead font-extrabold text-up tabular-nums">{askPrice !== null ? formatManWon(askPrice) : "매물 없음"}</dd>
+            <dd className="mt-1 text-subhead font-bold text-up tabular-nums">{askPrice !== null ? formatManWon(askPrice) : "매물 없음"}</dd>
           </div>
           <div>
             <dt className="text-label font-semibold text-ink-sub">즉시 판매가</dt>
-            <dd className="mt-1 text-subhead font-extrabold text-down tabular-nums">{bidPrice !== null ? formatManWon(bidPrice) : "입찰 없음"}</dd>
+            <dd className="mt-1 text-subhead font-bold text-down tabular-nums">{bidPrice !== null ? formatManWon(bidPrice) : "입찰 없음"}</dd>
           </div>
         </dl>
         <hr className="my-4 border-line" />

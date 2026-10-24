@@ -39,7 +39,7 @@ export function CostCalculator({ kind, quote }: { kind: MembershipKind; quote: n
 
   return (
     <div>
-      <h2 className="text-heading font-extrabold text-ink">거래 비용 계산기</h2>
+      <h2 className="text-heading font-bold text-ink">거래 비용 계산기</h2>
       <p className="mt-2 text-label text-ink-mute">희망 금액을 입력하면 예상 비용을 바로 확인할 수 있어요</p>
 
       <div role="group" aria-label="계산 구분" className="mt-4 grid grid-cols-2 gap-1 rounded-control bg-fill p-1">
@@ -96,7 +96,7 @@ export function CostCalculator({ kind, quote }: { kind: MembershipKind; quote: n
             </div>
             <div className="flex justify-between gap-3 border-t border-line pt-3">
               <dt className="text-label font-bold text-ink">{result.side === "buy" ? "총 예상 비용" : "예상 수령액"}</dt>
-              <dd className="text-subhead font-extrabold text-brand-ink tabular-nums">{formatManWon(result.total)}</dd>
+              <dd className="text-subhead font-bold text-brand-ink tabular-nums">{formatManWon(result.total)}</dd>
             </div>
           </dl>
           <p className="mt-3 text-caption text-ink-mute">명의개서 비용과 세금은 별도예요. 수수료 기준은 확정 전 예시 값이에요.</p>
