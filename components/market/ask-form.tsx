@@ -30,7 +30,7 @@ export function AskForm({ initialItem }: { initialItem: string | null }) {
     return (
       <div role="status" className="enter-fade flex flex-col items-center px-2 py-12 text-center">
         <CircleCheck className="size-14 text-brand" aria-hidden />
-        <p className="mt-4 text-heading font-extrabold text-ink">판매 희망가를 등록했어요</p>
+        <p className="mt-4 text-heading font-bold text-ink">판매 희망가를 등록했어요</p>
         <p className="mt-2 text-caption text-ink-mute">{item.courseName} {formatManWon(won)}. 담당자가 회원권 정보를 확인한 뒤 매물로 공개합니다.</p>
         <p className="mt-6 rounded-card bg-fill px-4 py-3 text-caption text-ink-sub">
           미리보기 화면이라 실제로 접수되지 않았습니다. 실제 매도 상담은{" "}

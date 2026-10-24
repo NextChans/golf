@@ -39,7 +39,7 @@ export default async function MyMembershipsPage() {
                       <span className="text-caption font-semibold text-ink-mute">{MARKET_REGION_LABEL[item.region]} · {item.kind}</span>
                       <span className="mt-0.5 block text-subhead font-bold text-ink">{item.courseName}</span>
                       <span className="mt-4 block text-caption text-ink-mute">현재 가치</span>
-                      <span className="block text-heading font-extrabold tabular-nums">
+                      <span className="block text-heading font-bold tabular-nums">
                         {formatManWon(now)} <span className={cn("text-caption font-bold", rateClass(rate))}>{formatRate(rate)}</span>
                       </span>
                       <span className={cn("mt-1 block text-caption font-semibold tabular-nums", rateClass(gain))}>

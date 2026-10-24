@@ -12,6 +12,7 @@ export const STORAGE_KEYS = {
   welcomed: "googolf.market.welcomed",
   prefs: "googolf.market.prefs",
   settings: "googolf.market.settings",
+  recent: "googolf.market.recent",
 } as const;
 
 export function readJson<T>(key: string, fallback: T): T {

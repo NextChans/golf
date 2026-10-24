@@ -31,6 +31,9 @@ export const MARKET_ITEMS: MarketItem[] = [
   { id: "m14", courseName: "오름골드GC", region: "jeju", kind: "가족 회원", holes: 36, weekly: series(11_000, [0, 0, 0, 200, 0, 0, 0, 0, 0, 0, 0]), askPrice: 11_300 * MAN, bidPrice: 10_800 * MAN, likes: 88, benefits: ["가족 3인 등록", "리조트 30% 할인"], verified: true },
   { id: "m15", courseName: "대관령그린CC", region: "gangwon", kind: "개인 정회원", holes: 18, weekly: series(7_600, [0, 0, 0, 0, -100, 0, 0, 0, 0, 0, 0]), askPrice: 7_500 * MAN, bidPrice: 7_200 * MAN, likes: 349, benefits: ["회원 그린피 5만원", "스키 시즌권 할인"], verified: true },
   { id: "m16", courseName: "다이아몬드힐스CC", region: "seoul_gyeonggi", kind: "법인 정회원", holes: 27, weekly: series(152_000, [0, 0, 2_000, 0, 0, 0, 1_000, 0, 0, 0, 0]), askPrice: 156_000 * MAN, bidPrice: 152_000 * MAN, likes: 199, benefits: ["무기명 4인", "전용 라운지"], verified: true },
+  // 같은 골프장의 다른 회원권 유형(상세 화면 "회원권 종류" 선택용, D-85)
+  { id: "m17", courseName: "솔빛힐스CC", region: "seoul_gyeonggi", kind: "법인 정회원", holes: 27, weekly: series(52_000, [0, 200, 0, 0, 300, 0, 0, 0, -100, 0, 100]), askPrice: 53_000 * MAN, bidPrice: 51_000 * MAN, likes: 121, benefits: ["기명 2인 등록", "주말 우선 부킹"], verified: true },
+  { id: "m18", courseName: "청람레이크CC", region: "seoul_gyeonggi", kind: "주중 회원", holes: 18, weekly: series(2_900, [0, 0, -50, 0, 0, 0, 0, 0, 0, 0, 50]), askPrice: 2_850 * MAN, bidPrice: 2_700 * MAN, likes: 84, benefits: ["주중 그린피 4만원"], verified: true },
 ];
 
 export const findMarketItem = (id: string) => MARKET_ITEMS.find((i) => i.id === id) ?? null;

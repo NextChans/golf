@@ -32,7 +32,7 @@ export default async function MarketLoginPage({ searchParams }: { searchParams: 
           <rect x="31" y="14" width="2.4" height="32" rx="1.2" fill="#FFFFFF" />
           <path d="M33.4 14 L48 19.5 L33.4 25 Z" fill="#C6E26B" />
         </svg>
-        <h1 className="mt-4 text-display font-extrabold text-brand-ink">Googolf</h1>
+        <h1 className="mt-4 text-display font-bold text-brand-ink">Googolf</h1>
         <p className="mt-3 text-center text-label text-ink-sub">카카오 계정 하나로 시세 확인부터<br />회원권 거래 상담까지 시작하세요.</p>
 
         {error && (

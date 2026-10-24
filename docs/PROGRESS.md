@@ -29,6 +29,9 @@
 - 경로: `/market`(홈 구매·판매 탭, 팝업), `/market/search`(+results), `/market/items/[id]`, `/market/my`, `/market/mypage`(+favorites·coupons·asks·asks/new·trades·settings·support), `/market/report`, `/market/notifications`, `/market/notices/fee`, `/market/guide/guarantee`, `/market/welcome`
 - 가입·로그인(D-81): `/market/login`(카카오만) → `/market/signup`(개인·기업) → 개인은 카카오 → `/onboarding`, 기업은 사업자번호 검증 → 카카오. 콜백이 온보딩 전 고객을 `/onboarding?next=`로 보낸다
 - 가입 2·3단계(D-82): `/onboarding`을 앱 스타일로(이름 카카오 닉네임 미리 채움·연락처·약관 → 같은 페이지 환영 화면 "{이름}님, 환영합니다!"·혜택 카드 → "회원권 둘러보기"). Vitest +6, Playwright +2(`e2e/onboarding.spec.ts`)
+- 홈 구매 탭 개편(D-83): 고정 헤더, 카드 목록 5건+더보기, 최근 확인한 회원권(localStorage), 지역 원형 타일, 프로모 캐러셀 "n/4", 친구 초대 카드(공유 링크는 `/market`뿐), 회사 정보 푸터(`lib/company.ts` 전부 "(준비 중)" — 오너 값 필요). Vitest +5, Playwright +7
+- 상세 개편(D-85): `/market/items/[id]`를 사진·요약·가격 카드·고정 탭 4개·시세 차트·거래 표·회원권/이용/골프장 정보·계산기·FAQ·떠 있는 버튼·하단 CTA로 전면 개편(`components/market/detail/*`, 가상 데이터는 시드 생성). 홈·루트·GlobalNav 불변. Vitest +14, Playwright +10(기존 2건 최소 수정). 참고 구조 정리: `docs/research/greenpanda-reference.md`
+- 앱 폰트(D-86): `/market/**`·`/onboarding`만 Pretendard Variable 셀프호스팅(`public/fonts/pretendard`, OFL 동봉), 굵기 800 → 700/600 정리, 루트·기존 화면 폰트 불변, `e2e/font.spec.ts`
 - 모두 목업 데이터(`lib/mock/market.ts`). 로그인 판단만 실제 세션을 쓴다(마이페이지 이름, 나의 회원권, 판매 희망가). 판매 희망가 등록은 서버로 보내지 않는다(미리보기)
 - 기존 화면과 연결: 개인정보 → `/me`, 판매·구매 관리 → `/deals`, 구매 상담 → `/memberships`, 실제 매도 상담 → `/memberships/sell`
 - 다음(오너 결정 후): ① 그린판다 추가 캡처(상세·검색 결과·판매 등록·알림·로그인)로 화면 맞춤 ② 실데이터 연결(`membership_quotes` 주간 시세, 매물 최저가=즉시 구매가, 관심 회원권·알림 설정 테이블) ③ 홈(`/`)과 GlobalNav를 앱 구조로 전환(기존 E2E 계약 갱신 필요) ④ 지역 사진 에셋

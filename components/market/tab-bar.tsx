@@ -16,7 +16,7 @@ const TABS = [
 export function TabBar() {
   const pathname = usePathname();
   return (
-    <nav aria-label="앱 메뉴" className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface pb-safe">
+    <nav aria-label="앱 메뉴" className="fixed inset-x-0 bottom-0 z-40 border-t font-app border-line bg-surface pb-safe">
       <ul className="mx-auto grid h-16 max-w-[480px] grid-cols-4">
         {TABS.map(({ href, label, icon: Icon, match }) => {
           const active = match(pathname);

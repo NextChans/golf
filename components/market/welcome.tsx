@@ -25,8 +25,8 @@ export function Welcome() {
   };
 
   return (
-    <div className="mx-auto flex min-h-[calc(100dvh-1.5rem)] max-w-[480px] flex-col bg-surface px-6 pt-16 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
-      <h1 className="text-center text-display font-extrabold text-ink">
+    <div className="mx-auto flex min-h-[calc(100dvh-1.5rem)] font-app tabular-nums max-w-[480px] flex-col bg-surface px-6 pt-16 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
+      <h1 className="text-center text-display font-bold text-ink">
         Googolf가 고객님께
         <br />
         <span className="text-brand-ink">딱 맞는 회원권을</span> 찾아드릴게요

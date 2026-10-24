@@ -27,7 +27,7 @@ export function BusinessSignup({ kakao }: { kakao: React.ReactNode }) {
         <Stepper steps={SIGNUP_STEPS} current={0} />
         <main className="px-6 pt-4 pb-12">
           <p className="text-caption font-semibold text-ink-mute">{name.trim()} · {formatBusinessNumber(number)}</p>
-          <h2 className="mt-1 text-heading font-extrabold text-ink">담당자 카카오 계정을<br />연결해 주세요</h2>
+          <h2 className="mt-1 text-heading font-bold text-ink">담당자 카카오 계정을<br />연결해 주세요</h2>
           <p className="mt-2 text-caption text-ink-mute">거래 진행 안내는 담당자 연락처로 보내 드려요.</p>
           <div className="mt-10">{kakao}</div>
           <p className="mt-6 rounded-control bg-fill px-4 py-3 text-caption text-ink-sub">

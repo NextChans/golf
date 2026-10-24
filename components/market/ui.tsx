@@ -13,7 +13,7 @@ export function AppScreen({ children, tone = "surface", className, withTabBar = 
   children: React.ReactNode; tone?: "surface" | "canvas"; className?: string; withTabBar?: boolean;
 }) {
   return (
-    <div className={cn("min-h-dvh", tone === "canvas" ? "bg-canvas" : "bg-surface")}>
+    <div className={cn("min-h-dvh font-app tabular-nums", tone === "canvas" ? "bg-canvas" : "bg-surface")}>
       <div className={cn("mx-auto min-h-dvh max-w-[480px] text-ink", withTabBar && "pb-[calc(4rem+env(safe-area-inset-bottom))]", className)}>
         {children}
       </div>

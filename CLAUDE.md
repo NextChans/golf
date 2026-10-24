@@ -96,7 +96,7 @@ pnpm db:types                         # types/database.ts 재생성(스키마 �
 pnpm typecheck
 pnpm lint
 pnpm test                             # Vitest
-pnpm build && pnpm test:e2e           # Playwright (클라우드 컨테이너: PW_CHROMIUM_PATH=/opt/pw-browsers/chromium-1194/chrome-linux/chrome)
+pnpm build && pnpm test:e2e           # Playwright (클라우드 컨테이너: PW_CHROMIUM_PATH=/opt/pw-browsers/chromium — 컨테이너마다 버전 폴더(chromium-NNNN)가 달라 `ls /opt/pw-browsers`로 확인)
 pnpm seed:owner                       # 최초 owner(OWNER_EMAIL, service_role 필요)
 ```
 

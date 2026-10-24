@@ -10,17 +10,8 @@ import {
 } from "@/lib/domain/market/schema";
 import { MARKET_ITEMS } from "@/lib/mock/market";
 import { cn } from "@/lib/utils";
+import { REGION_TONE } from "./region-tone";
 import { chipClass, primaryButtonClass, secondaryButtonClass } from "./ui";
-
-/** 지역별 원형 타일 색(사진 대신 지역 인상을 담은 그라디언트). 실제 사진은 오너 제공 시 교체 */
-const REGION_TONE: Record<Region, string> = {
-  seoul_gyeonggi: "from-[#7aa8d8] via-[#6fae5a] to-[#3f8a3a]",
-  gangwon: "from-[#8cc6f0] via-[#79b85a] to-[#2f7d4a]",
-  chungcheong: "from-[#a9c9e8] via-[#5ea65b] to-[#2c6f3b]",
-  gyeongsang: "from-[#c4d8c0] via-[#5c9c4f] to-[#2b6a35]",
-  jeolla: "from-[#b7d3e6] via-[#6aae62] to-[#30733e]",
-  jeju: "from-[#6fa6d6] via-[#8fb5a3] to-[#4f8d4b]",
-};
 
 const toggle = <T,>(list: T[], v: T) => (list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
 
@@ -58,7 +49,7 @@ export function SearchFilter({ initial }: { initial: MarketFilter }) {
       </form>
 
       <div className="mx-auto max-w-[480px] rounded-t-sheet bg-surface px-6 pt-8 pb-[calc(7rem+env(safe-area-inset-bottom))]">
-        <h1 className="text-heading font-extrabold text-ink">맞춤 회원권 검색</h1>
+        <h1 className="text-heading font-bold text-ink">맞춤 회원권 검색</h1>
 
         <fieldset className="mt-8">
           <legend className="text-subhead font-bold text-ink-sub">지역별</legend>
@@ -69,7 +60,7 @@ export function SearchFilter({ initial }: { initial: MarketFilter }) {
                 <button
                   key={r} type="button" aria-pressed={on} onClick={() => setRegions(toggle(regions, r))}
                   className={cn(
-                    "pressable relative mx-auto flex aspect-square w-full max-w-[104px] items-center justify-center overflow-hidden rounded-full bg-gradient-to-b text-subhead font-extrabold text-white",
+                    "pressable relative mx-auto flex aspect-square w-full max-w-[104px] items-center justify-center overflow-hidden rounded-full bg-gradient-to-b text-subhead font-semibold text-white",
                     REGION_TONE[r], on && "ring-[3px] ring-brand ring-offset-2 ring-offset-surface",
                   )}
                 >
