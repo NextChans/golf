@@ -1,6 +1,6 @@
 # Googolf — 작업 지침 (LLM/개발자 공통)
 
-Googolf는 회사명이자 브랜드명이다. 골프 회원권 거래(시세 조회·매매 상담)와 골프 모임 커뮤니티를 온라인으로 옮기는 서비스다. 처음에는 골프 부킹 서비스였으나 오너 지시로 부킹 화면·코드를 제거했다(D-87, 부킹 DB 제거는 별도 PR).
+Googolf는 회사명이자 브랜드명이다. 골프 회원권 거래(시세 조회·매매 상담)와 골프 모임 커뮤니티를 온라인으로 옮기는 서비스다. 처음에는 골프 부킹 서비스였으나 오너 지시로 부킹 화면·코드를 제거했다(D-87), 부킹 DB도 제거했다(D-88).
 이 파일은 어떤 LLM 세션이든 이어서 작업할 수 있도록 하는 단일 진입점이다. 작업 전에 아래 순서로 읽는다.
 
 1. `docs/PROGRESS.md` — 지금 어디까지 했고 다음에 무엇을 하는지(가장 먼저)
@@ -50,13 +50,13 @@ Googolf는 회사명이자 브랜드명이다. 골프 회원권 거래(시세 �
 
 - 마이그레이션: `supabase/migrations/YYYYMMDDHHMMSS_<설명>.sql`. 이미 원격에 적용된 파일은 수정하지 않고 새 파일을 추가한다(현재는 원격 미적용 — PROGRESS.md 참고).
 - 스키마: API 노출은 `public`, 내부 헬퍼는 `app`(PostgREST 비노출), 테스트 헬퍼는 `tests`(로컬 전용).
-- 상태 함수 템플릿(`20261020000004_booking_functions.sql` 참고):
-  권한(`app.require_customer/require_admin`) → 대상 행 `FOR UPDATE`(`app.lock_booking/lock_deal`) → version 검증 → 현재 상태 검증 → 변경(version+1) → 고객 타임라인(`*_events`) → `app.write_audit` → `app.enqueue_notification`
-- 잠금 순서: `booking_requests → booking_proposals`, `membership_deals → membership_listings`. 반대로 잠그지 않는다.
+- 상태 함수 템플릿(`20261020000005_membership_functions.sql` 참고):
+  권한(`app.require_customer/require_admin`) → 대상 행 `FOR UPDATE`(`app.lock_deal` 등) → version 검증 → 현재 상태 검증 → 변경(version+1) → 고객 타임라인(`*_events`) → `app.write_audit` → `app.enqueue_notification`
+- 잠금 순서: `membership_deals → membership_listings`. 반대로 잠그지 않는다.
 - 에러는 `raise exception '<기계 코드>' using errcode = 'GBxxx'`. 코드표는 `20261020000003_helpers.sql` 상단과 RUNBOOK.md.
 - 새 테이블: RLS enable, SELECT 정책만, DML grant 없음. 새 RPC: `grant execute ... to authenticated`를 명시(기본은 회수됨).
 - RLS 정책 안에서는 `(select auth.uid())`, `(select app.is_admin())`처럼 감싸 쿼리당 1회만 평가되게 한다.
-- 알림 dedupe_key는 전이마다 결정적으로 만든다(예: `booking:<id>:confirmed`).
+- 알림 dedupe_key는 전이마다 결정적으로 만든다(예: `deal:<id>:contracted`).
 
 ## 앱(Next.js) 규약
 
@@ -77,7 +77,7 @@ Googolf는 회사명이자 브랜드명이다. 골프 회원권 거래(시세 �
 ## 테스트 규약
 
 - pgTAP: `supabase/tests/NNN_<주제>.test.sql`. `000_setup.test.sql`이 `tests` 스키마 헬퍼를 커밋한다(가장 먼저 실행). 나머지는 `begin; ... rollback;`.
-- 헬퍼: `tests.create_user(email, role, onboarded)`, `tests.authenticate_as(uid, aal)`, `tests.authenticate_anon()`, `tests.clear_authentication()`, `tests.new_booking()`.
+- 헬퍼: `tests.create_user(email, role, onboarded)`, `tests.authenticate_as(uid, aal)`, `tests.authenticate_anon()`, `tests.clear_authentication()`, `tests.new_deal()`.
 - psql 변수 비교 시 타입을 명시한다(`:'x'::uuid`). plan 수를 정확히 맞춘다.
 - 동시성: `scripts/concurrency/run.ts`(두 커넥션 경쟁, 50회 반복).
 - pgTAP는 로컬 DB에 남은 데이터(E2E 계정 등)에 의존하지 않게 쓴다. 전체 개수 대신 테스트가 만든 id로 센다.
