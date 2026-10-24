@@ -4,7 +4,7 @@ import { Tile } from "@/components/site/section";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
-import { formatWon } from "@/lib/domain/booking/money";
+import { formatWon } from "@/lib/format/money";
 import { formatKstDate } from "@/lib/format/kst";
 import { LISTING_STATUS_ADMIN_LABEL, type ListingStatus } from "@/lib/domain/membership/admin-schema";
 import { cn } from "@/lib/utils";

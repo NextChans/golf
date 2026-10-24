@@ -76,6 +76,13 @@ test.describe.serial("운영자 최초 로그인 → 비밀번호 변경 → OTP
 
     await expect(page).toHaveURL(/\/admin$/);
     await expect(page.getByRole("heading", { name: "운영자 홈" })).toBeVisible();
+    // 부킹 화면 제거(D-87): 회원권·알림·커뮤니티 카드만, 부킹 카운트·SLA·"요청 인박스" 메뉴는 없다
+    await expect(page.getByRole("link", { name: /신규 회원권 상담/ })).toHaveAttribute("href", "/admin/deals?tab=new");
+    await expect(page.getByRole("link", { name: /내 담당 상담/ })).toHaveAttribute("href", "/admin/deals?tab=mine");
+    await expect(page.getByRole("link", { name: /알림 재시도·실패/ })).toHaveAttribute("href", "/admin/notifications");
+    await expect(page.getByRole("link", { name: /커뮤니티 신고/ })).toBeVisible();
+    await expect(page.getByText(/신규 요청|SLA 초과|요청 인박스|부킹/)).toHaveCount(0);
+    await expect(page.locator('a[href^="/admin/bookings"]')).toHaveCount(0);
   });
 
   test("owner는 운영자 계정을 발급할 수 있다", async ({ page }) => {

@@ -3,7 +3,7 @@ import { MoreLink, Tile } from "@/components/site/section";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { todayKst } from "@/lib/domain/booking/schema";
+import { todayKst } from "@/lib/format/kst";
 import { QUOTE_CSV_HEADER, type QuoteProductRef } from "@/lib/domain/membership/quote-csv";
 import { QuoteImportForm } from "./import-form";
 

@@ -9,7 +9,7 @@ import { fail, ok, type ActionResult } from "@/lib/action-result";
 
 /**
  * 통화 메모 추가(A-06, append-only). 권한·소유 검증·감사 로그는 DB 함수(add_activity_note)가 한다.
- * useActionState용 시그니처. 성공하면 고객 상세(및 대상 부킹 상세)를 다시 그린다.
+ * useActionState용 시그니처. 성공하면 고객 상세를 다시 그린다.
  */
 export async function addNote(_prev: ActionResult<{ id: number }> | null, formData: FormData): Promise<ActionResult<{ id: number }>> {
   await requireStaff();
@@ -27,6 +27,5 @@ export async function addNote(_prev: ActionResult<{ id: number }> | null, formDa
   if (error || !data) return fail(toAppError(error));
 
   revalidatePath(`/admin/customers/${customerId}`);
-  if (subjectType === "booking" && subjectId) revalidatePath(`/admin/bookings/${subjectId}`);
   return ok({ id: data.id });
 }

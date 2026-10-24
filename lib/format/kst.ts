@@ -17,3 +17,29 @@ export function formatKstDate(value: string | null | undefined): string {
   const d = new Date(`${value}T12:00:00+09:00`);
   return Number.isNaN(d.getTime()) ? "-" : dateOnly.format(d);
 }
+
+const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
+
+/** 오늘 날짜(KST) "YYYY-MM-DD". KST는 서머타임이 없어 +9h 고정 */
+export function todayKst(now: Date = new Date()): string {
+  return new Date(now.getTime() + KST_OFFSET_MS).toISOString().slice(0, 10);
+}
+
+const LOCAL_DT_RE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/;
+
+/** datetime-local 값(KST로 입력) → ISO 문자열(+09:00). KST는 서머타임이 없다 */
+export function kstLocalToIso(local: string): string | null {
+  const m = LOCAL_DT_RE.exec(local);
+  if (!m) return null;
+  const iso = `${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:00+09:00`;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  // 2026-02-31 같은 값은 Date가 넘겨 계산하므로 되돌려 비교해 거부한다
+  const back = new Date(d.getTime() + KST_OFFSET_MS).toISOString().slice(0, 16);
+  return back === local ? iso : null;
+}
+
+/** ISO → datetime-local 기본값(KST) */
+export function isoToKstLocal(iso: string): string {
+  return new Date(new Date(iso).getTime() + KST_OFFSET_MS).toISOString().slice(0, 16);
+}

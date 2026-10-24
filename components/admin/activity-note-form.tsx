@@ -6,7 +6,7 @@ import { addNote } from "@/app/(admin)/admin/(console)/customers/actions";
 import { NOTE_MAX, type NoteSubjectType } from "@/lib/domain/crm/schema";
 import { cn } from "@/lib/utils";
 
-/** 통화 메모 입력(A-06). 고객 상세(customer)와 부킹 상세(booking)에서 함께 쓴다. */
+/** 통화 메모 입력(A-06). 고객 상세(customer)와 거래 상세(deal)에서 함께 쓴다. */
 export function ActivityNoteForm({ customerId, subjectType, subjectId, className }: {
   customerId: string; subjectType: NoteSubjectType; subjectId?: string; className?: string;
 }) {

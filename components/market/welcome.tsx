@@ -21,7 +21,7 @@ export function Welcome() {
     writeJson(STORAGE_KEYS.welcomed, true);
     if (!skip) writeJson(STORAGE_KEYS.prefs, { regions, band });
     const pick = !skip && (regions.length > 0 || band);
-    router.replace((pick ? `/market/search/results${filterToQuery({ regions, bands: band ? [band] : [], q: "" })}` : "/market") as never);
+    router.replace((pick ? `/market/search/results${filterToQuery({ regions, bands: band ? [band] : [], q: "" })}` : "/") as never);
   };
 
   return (

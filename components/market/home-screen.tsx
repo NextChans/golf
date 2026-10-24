@@ -18,12 +18,15 @@ import {
 import { BANNERS, findMarketItem, MARKET_ITEMS, MARKET_WEEK_LABEL, NOTIFICATIONS, RECENT_DEALS } from "@/lib/mock/market";
 import { cn } from "@/lib/utils";
 
-type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+export type HomeSearchParams = Record<string, string | string[] | undefined>;
 
 const BANNER_ICON = { shield: ShieldCheck, building: Building2, chart: ChartLine } as const;
 
-export default async function MarketHome({ searchParams }: { searchParams: SearchParams }) {
-  const sp = await searchParams;
+/**
+ * 회원권 앱 홈(구매·판매 탭, D-83). 루트(`/`)가 렌더한다(D-87, `app/page.tsx`).
+ * 탭·정렬은 쿼리(?tab=sell, ?list=…)로 바꾼다.
+ */
+export function MarketHomeScreen({ searchParams: sp }: { searchParams: HomeSearchParams }) {
   const tab = sp.tab === "sell" ? "sell" : "buy";
   const list: ListTab = LIST_TABS.some((t) => t.id === sp.list) ? (sp.list as ListTab) : "instant";
 
@@ -48,7 +51,7 @@ export default async function MarketHome({ searchParams }: { searchParams: Searc
   return (
     <AppScreen tone="canvas">
       <header className="sticky top-0 z-30 flex h-16 items-center justify-between bg-canvas px-6">
-        <Logo href="/market" />
+        <Logo href="/" />
         <div className="flex items-center gap-1">
           <Link href="/market/notifications" aria-label={unread ? `알림 ${unread}개 안 읽음` : "알림"} className="pressable relative flex size-11 items-center justify-center text-ink-sub">
             <Bell className="size-7" aria-hidden />
@@ -66,7 +69,7 @@ export default async function MarketHome({ searchParams }: { searchParams: Searc
           {([["buy", "회원권 구매"], ["sell", "회원권 판매"]] as const).map(([id, label]) => (
             <Link
               key={id}
-              href={id === "buy" ? "/market" : "/market?tab=sell"}
+              href={id === "buy" ? "/" : "/?tab=sell"}
               scroll={false}
               aria-current={tab === id ? "page" : undefined}
               className={cn(
@@ -120,7 +123,7 @@ export default async function MarketHome({ searchParams }: { searchParams: Searc
                 {LIST_TABS.map((t) => (
                   <Link
                     key={t.id}
-                    href={t.id === "instant" ? "/market" : `/market?list=${t.id}`}
+                    href={t.id === "instant" ? "/" : `/?list=${t.id}`}
                     scroll={false}
                     aria-current={list === t.id ? "true" : undefined}
                     className={cn(

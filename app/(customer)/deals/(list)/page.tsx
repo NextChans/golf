@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { requireCustomer } from "@/lib/auth/guards";
 import { formatKstDate } from "@/lib/format/kst";
-import { todayKst } from "@/lib/domain/booking/schema";
+import { todayKst } from "@/lib/format/kst";
 import { formatKoreanPrice } from "@/lib/domain/membership/schema";
 import { DEAL_SIDE_LABEL, DEAL_STATUS_LABEL, DEAL_STATUS_VARIANT } from "@/lib/domain/membership/status";
 

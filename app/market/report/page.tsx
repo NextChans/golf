@@ -21,7 +21,7 @@ export default function ReportPage() {
 
   return (
     <AppScreen withTabBar={false}>
-      <TopBar title="이번주 시세" back="/market" />
+      <TopBar title="이번주 시세" back="/" />
       <main className="pb-12">
         <section className="px-6 pt-4 pb-8">
           <p className="text-caption font-semibold text-ink-mute">전국 평균 · {MARKET_ITEMS.length}개 회원권</p>

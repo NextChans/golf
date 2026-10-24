@@ -10,7 +10,7 @@ import { logPiiView } from "@/lib/admin/pii";
 import { requireStaff } from "@/lib/auth/guards";
 import { formatKst, formatKstDate } from "@/lib/format/kst";
 import { formatPhone } from "@/lib/domain/phone";
-import { formatWon } from "@/lib/domain/booking/money";
+import { formatWon } from "@/lib/format/money";
 import { DEAL_SIDE_LABEL, DEAL_STATUS_LABEL } from "@/lib/domain/membership/status";
 import { DEAL_FLOW, advanceBlocker, dealAdminActions, nextDealStatus } from "@/lib/domain/membership/deal-admin";
 import { cn } from "@/lib/utils";

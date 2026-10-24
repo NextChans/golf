@@ -115,7 +115,7 @@ export function CourseForm({ course }: { course?: CourseFormValues }) {
         />
         <span>
           운영 중
-          <span className="ml-2 text-small text-muted-foreground">해제하면 고객 부킹 화면에 나오지 않습니다</span>
+          <span className="ml-2 text-small text-muted-foreground">해제하면 모임 장소 선택에 나오지 않습니다</span>
         </span>
       </label>
       {state.error && <p role="alert" className="rounded-tile bg-destructive/10 px-5 py-4 text-small text-destructive">{state.error}</p>}

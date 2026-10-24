@@ -17,7 +17,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           <Logo />
           <h1 className="mt-8 text-title tracking-tight">Googolf에 로그인</h1>
           <p className="mt-3 text-body text-muted-foreground">
-            카카오 계정 하나로 부킹 요청과 회원권 상담을 시작하세요.
+            카카오 계정 하나로 회원권 상담과 골프 모임을 시작하세요.
           </p>
           {error && (
             <div role="alert" className="mt-8 w-full rounded-tile bg-destructive/10 px-5 py-4 text-left text-small text-destructive">

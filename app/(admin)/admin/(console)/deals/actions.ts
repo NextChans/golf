@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireStaff } from "@/lib/auth/guards";
 import { appError, toAppError } from "@/lib/domain/errors";
 import { fail, ok, type ActionResult } from "@/lib/action-result";
-import { fieldErrors } from "@/lib/domain/booking/admin";
+import { fieldErrors } from "@/lib/domain/form";
 import {
   advanceDealSchema, assignDealSchema, cancelDealAdminSchema, dealRefSchema, dealTermsSchema,
 } from "@/lib/domain/membership/deal-admin";

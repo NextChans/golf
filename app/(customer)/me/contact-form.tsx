@@ -35,7 +35,7 @@ export function ContactRow({ phone, verified, editable }: { phone: string | null
     <div id="contact" className="space-y-3 px-6 py-5">
       <dt className="text-body font-semibold">연락처</dt>
       <dd className="space-y-3">
-        {!phone && <p className="text-small text-muted-foreground">부킹 요청 전에 확인 전화를 받을 휴대폰 번호를 입력해 주세요.</p>}
+        {!phone && <p className="text-small text-muted-foreground">회원권 상담 전에 확인 전화를 받을 휴대폰 번호를 입력해 주세요.</p>}
         <form
           className="space-y-3"
           onSubmit={(e) => {

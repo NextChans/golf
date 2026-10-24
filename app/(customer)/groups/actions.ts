@@ -16,7 +16,7 @@ import {
  * 제자리 갱신은 revalidatePath로 한다(D-62: [id]에는 loading.tsx·Suspense를 두지 않는다).
  * 정모 개설·모임 수정은 돌아갈 모임 화면을 revalidatePath로 비운다: 폼 화면의 "‹ 모임" 링크가 미리 받아 둔(prefetch)
  * 옛 화면이 router.replace 후 그대로 그려지는 것을 막는다(D-62, admin memberships/actions.ts와 같은 이유).
- * 모임 만들기는 새 id라 미리 받은 화면이 없으므로 부르지 않는다(bookings/actions.ts: router.replace와 경합).
+ * 모임 만들기는 새 id라 미리 받은 화면이 없으므로 부르지 않는다(router.replace와 경합).
  */
 
 export type FormState = {

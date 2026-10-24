@@ -1,6 +1,6 @@
 # Googolf — 작업 지침 (LLM/개발자 공통)
 
-Googolf는 회사명이자 브랜드명이다. 전화로 받던 골프 부킹과 회원권 상담을 온라인으로 옮기는 서비스다.
+Googolf는 회사명이자 브랜드명이다. 골프 회원권 거래(시세 조회·매매 상담)와 골프 모임 커뮤니티를 온라인으로 옮기는 서비스다. 처음에는 골프 부킹 서비스였으나 오너 지시로 부킹 화면·코드를 제거했다(D-87, 부킹 DB 제거는 별도 PR).
 이 파일은 어떤 LLM 세션이든 이어서 작업할 수 있도록 하는 단일 진입점이다. 작업 전에 아래 순서로 읽는다.
 
 1. `docs/PROGRESS.md` — 지금 어디까지 했고 다음에 무엇을 하는지(가장 먼저)
@@ -69,6 +69,7 @@ Googolf는 회사명이자 브랜드명이다. 전화로 받던 골프 부킹과
 - service_role 클라이언트(`lib/supabase/admin.ts`)는 Auth Admin API 전용. ESLint가 그 외 위치의 import를 막는다.
 - 운영자 화면은 `app/(admin)/admin/(console)` 아래에 둔다(레이아웃이 `requireStaff`). 로그인·MFA·비밀번호 화면만 그 밖에 있다.
 - 로컬·E2E 주소는 `http://localhost:3000`(127.0.0.1 아님 — `next start`의 request.url이 localhost로 고정됨).
+- 루트 `/`는 회원권 앱 홈이다(D-87, URL 변경 없이 렌더). 앱의 나머지 화면은 `/market/**`(`/market`은 `/`로 307). 기존 apple 스타일 화면(`/memberships`, `/groups`, `/deals`, `/me`, 운영자 콘솔)은 `GlobalNav`를 쓴다. 앱 화면은 `docs/DESIGN-APP.md`, 그 외는 `docs/DESIGN.md`.
 
 - UI는 `docs/DESIGN.md`를 따른다. 공통 컴포넌트는 `components/site/*`, 글자 크기는 토큰(`text-body` 등). 새 글자 크기 토큰을 만들면 `lib/utils.ts`의 tailwind-merge 설정에도 추가한다(안 하면 글자 색 클래스가 지워진다).
 - 마이그레이션을 추가하면 `node scripts/bundle-migrations.mjs --from <새 버전> > deploy/<날짜>-<순번>-<이름>.sql`로 운영 반영용 SQL을 함께 만들고 `deploy/README.md` 1-1 표에 추가한다(D-44). 오너가 SQL Editor에서 적용하면 표의 상태를 갱신한다.
@@ -102,8 +103,8 @@ pnpm seed:owner                       # 최초 owner(OWNER_EMAIL, service_role �
 
 ## 디렉터리
 
-- `app/(customer)`, `app/(admin)/admin`, `app/api` — M2부터
-- `lib/domain/{booking,membership}` — 도메인 로직(UI와 분리), `lib/supabase/{server,client,admin}.ts`
+- `app/page.tsx`(앱 홈), `app/market/**`(회원권 앱), `app/(customer)`, `app/(admin)/admin`, `app/api`
+- `lib/domain/{membership,market,community,...}` — 도메인 로직(UI와 분리), `lib/supabase/{server,client,admin}.ts`
 - `supabase/{migrations,tests,functions}`, `types/database.ts`(생성물, 직접 수정 금지)
 - `public/brand/` — 로고(`googolf-logo.svg` 워드마크, `googolf-mark.svg` 심볼)
 - `docs/` — 위 문서들, `docs/research/` 조사 자료

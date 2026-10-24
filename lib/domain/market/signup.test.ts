@@ -23,12 +23,14 @@ describe("welcomeLinks", () => {
   it("회원권 앱에서 왔으면 그 화면으로, 내 정보는 앱 마이페이지", () => {
     expect(welcomeLinks("/market/mypage")).toEqual({ browse: "/market/mypage", profile: "/market/mypage", resume: null });
     expect(welcomeLinks("/market")).toEqual({ browse: "/market", profile: "/market/mypage", resume: null });
+    expect(welcomeLinks("/")).toEqual({ browse: "/", profile: "/market/mypage", resume: null });
+    expect(welcomeLinks("/?tab=sell")).toEqual({ browse: "/?tab=sell", profile: "/market/mypage", resume: null });
   });
-  it("기본(/me)이면 회원권 홈과 /me", () => {
-    expect(welcomeLinks("/me")).toEqual({ browse: "/market", profile: "/me", resume: null });
+  it("기본(/me)이면 회원권 홈(/)과 /me", () => {
+    expect(welcomeLinks("/me")).toEqual({ browse: "/", profile: "/me", resume: null });
   });
   it("다른 화면에서 왔으면 이어서 하기 경로를 남긴다", () => {
-    expect(welcomeLinks("/bookings/new")).toEqual({ browse: "/market", profile: "/me", resume: "/bookings/new" });
-    expect(welcomeLinks("/marketing")).toEqual({ browse: "/market", profile: "/me", resume: "/marketing" });
+    expect(welcomeLinks("/groups/new")).toEqual({ browse: "/", profile: "/me", resume: "/groups/new" });
+    expect(welcomeLinks("/marketing")).toEqual({ browse: "/", profile: "/me", resume: "/marketing" });
   });
 });

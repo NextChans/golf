@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { REGIONS } from "@/lib/domain/course/schema";
-import { kstLocalToIso } from "@/lib/domain/booking/admin";
+import { kstLocalToIso } from "@/lib/format/kst";
 import { GROUP_ROLES, GROUP_TYPES, JOIN_POLICIES, REPORT_REASONS, REPORT_TARGETS } from "./labels";
 
 /**

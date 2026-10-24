@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/supabase/server";
 import { requireCustomer } from "@/lib/auth/guards";
 import { formatKst, formatKstDate } from "@/lib/format/kst";
-import { formatWon } from "@/lib/domain/booking/money";
+import { formatWon } from "@/lib/format/money";
 import { formatKoreanPrice } from "@/lib/domain/membership/schema";
 import {
   customerCanCancel, DEAL_SIDE_LABEL, DEAL_STAGES, DEAL_STATUS_LABEL, DEAL_STATUS_VARIANT, stageIndex,

@@ -40,7 +40,7 @@ export async function createBuyInquiry(_prev: CreateInquiryState, formData: Form
     p_note: v.note as string,
   });
   if (error || !data) return { error: toAppError(error).message };
-  // revalidatePath를 부르지 않는다: 클라이언트의 router.replace(상세 이동)와 경합한다(bookings/actions.ts 참고).
+  // revalidatePath를 부르지 않는다: 클라이언트의 router.replace(상세 이동)와 경합한다.
   // /deals 계열은 쿠키를 읽는 동적 페이지라 캐시되지 않는다.
   return { createdId: data.id };
 }

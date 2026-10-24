@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: "알림" };
 export default function NotificationsPage() {
   return (
     <AppScreen withTabBar={false}>
-      <TopBar title="알림" back="/market" />
+      <TopBar title="알림" back="/" />
       <main className="pb-10">
         {NOTIFICATIONS.length === 0 ? (
           <StateView title="새 알림이 없어요" />

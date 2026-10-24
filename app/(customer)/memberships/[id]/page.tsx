@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { getSession } from "@/lib/auth/guards";
 import { formatKstDate } from "@/lib/format/kst";
-import { formatWon } from "@/lib/domain/booking/money";
+import { formatWon } from "@/lib/format/money";
 import { REGION_LABEL } from "@/lib/domain/course/schema";
 import { formatKoreanPrice } from "@/lib/domain/membership/schema";
 import { DEAL_STATUS_LABEL, LISTING_STATUS_LABEL, PUBLIC_LISTING_STATUSES } from "@/lib/domain/membership/status";

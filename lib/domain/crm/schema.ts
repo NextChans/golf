@@ -6,7 +6,7 @@ export const NOTE_SUBJECT_TYPES = ["customer", "booking", "deal"] as const;
 export type NoteSubjectType = (typeof NOTE_SUBJECT_TYPES)[number];
 export const NOTE_SUBJECT_LABEL: Record<NoteSubjectType, string> = {
   customer: "고객",
-  booking: "부킹",
+  booking: "부킹", // 부킹 화면은 제거(D-87). 예전 메모 표시용으로 남긴다
   deal: "회원권",
 };
 

@@ -1,13 +1,14 @@
 import { expect, test } from "@playwright/test";
 import { createOnboardedCustomer, loginAsCustomer } from "./customer";
 
-// D-48: 휴대폰 인증을 생략하는 동안 연락처는 직접 입력받는다. 연락처 없이는 부킹 요청 불가.
-test("연락처가 없으면 요청 전에 입력을 안내하고, 입력 후 요청 폼이 열린다", async ({ page, context }) => {
+// D-48: 휴대폰 인증을 생략하는 동안 연락처는 직접 입력받는다. 연락처 없이는 상담 신청 불가.
+// 부킹 화면 제거(D-87) 뒤에는 같은 규칙이 적용되는 매도 상담(/memberships/sell)으로 확인한다.
+test("연락처가 없으면 상담 신청 전에 입력을 안내하고, 입력 후 신청 폼이 열린다", async ({ page, context }) => {
   await loginAsCustomer(context, await createOnboardedCustomer({ withContact: false }));
 
-  await page.goto("/bookings/new");
+  await page.goto("/memberships/sell");
   await expect(page.getByTestId("contact-required")).toBeVisible();
-  await expect(page.getByRole("button", { name: "부킹 요청하기" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "매도 상담 신청하기" })).toHaveCount(0);
 
   await page.getByRole("link", { name: "연락처 입력하기" }).click();
   await expect(page).toHaveURL(/\/me#contact$/);
@@ -18,8 +19,9 @@ test("연락처가 없으면 요청 전에 입력을 안내하고, 입력 후 �
   await page.getByRole("button", { name: "저장" }).click();
   await expect(page.getByTestId("contact-phone")).toHaveText("010-2345-6789");
 
-  await page.goto("/bookings/new");
-  await expect(page.getByRole("button", { name: "부킹 요청하기" })).toBeVisible();
+  await page.goto("/memberships/sell");
+  await expect(page.getByTestId("contact-required")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "매도 상담 신청하기" })).toBeVisible();
 });
 
 test("연락처는 내 정보에서 바꿀 수 있다", async ({ page, context }) => {

@@ -34,7 +34,7 @@ export function SearchFilter({ initial }: { initial: MarketFilter }) {
         onSubmit={(e) => { e.preventDefault(); submit(); }}
         className="mx-auto flex h-[76px] max-w-[480px] items-center gap-2 px-3"
       >
-        <Link href="/market" aria-label="뒤로" className="pressable flex size-11 shrink-0 items-center justify-center text-ink-sub">
+        <Link href="/" aria-label="뒤로" className="pressable flex size-11 shrink-0 items-center justify-center text-ink-sub">
           <ChevronLeft className="size-7" aria-hidden />
         </Link>
         <label className="flex h-12 flex-1 items-center gap-2 rounded-control border border-line bg-surface px-4 focus-within:border-brand">
