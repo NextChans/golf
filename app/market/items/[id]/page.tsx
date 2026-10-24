@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { FloatingInquiry } from "@/components/market/floating-inquiry";
 import { RecordView } from "@/components/market/recent";
 import { AppScreen, Divider } from "@/components/market/ui";
 import { Admission } from "@/components/market/detail/admission";
@@ -9,7 +10,6 @@ import { CourseInfo } from "@/components/market/detail/course-info";
 import { DealTables } from "@/components/market/detail/deals";
 import { DetailFaq } from "@/components/market/detail/faq";
 import { Features } from "@/components/market/detail/features";
-import { FloatingActions } from "@/components/market/detail/floating";
 import { DetailHero } from "@/components/market/detail/hero";
 import { PriceCard } from "@/components/market/detail/price-card";
 import { ReportBanner } from "@/components/market/detail/report-banner";
@@ -41,7 +41,7 @@ export default async function MarketItemPage({ params }: { params: Params }) {
   const quote = currentPrice(item);
 
   return (
-    <AppScreen withTabBar={false} className="pb-[calc(7rem+env(safe-area-inset-bottom))]">
+    <AppScreen withTabBar={false} className="pb-[calc(10rem+env(safe-area-inset-bottom))]">
       <DetailTopBar id={item.id} name={item.courseName} />
       <main>
         <RecordView id={item.id} />
@@ -91,7 +91,7 @@ export default async function MarketItemPage({ params }: { params: Params }) {
         <DetailFaq />
       </main>
 
-      <FloatingActions />
+      <FloatingInquiry position="cta" topButton />
       <BottomCta itemId={item.id} />
     </AppScreen>
   );

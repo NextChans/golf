@@ -3,7 +3,8 @@ import { createOnboardedCustomer, loginAsCustomer } from "./customer";
 import { brokerageFee, formatManWon } from "../lib/domain/market/schema";
 import { FEE_POLICY } from "../lib/mock/market";
 import { getMarketDetail } from "../lib/mock/market-detail";
-import { findMarketItem } from "../lib/mock/market";
+import { findMarketItem, MARKET_ITEMS } from "../lib/mock/market";
+import { groupByCourse, sortGroups } from "../lib/domain/market/group";
 
 /** 홈 팝업(공지 → 혜택 시트)을 차례로 닫는다 */
 async function closeHomePopups(page: import("@playwright/test").Page) {
@@ -66,7 +67,8 @@ test.describe("회원권 앱(홈 / 와 /market/**)", () => {
     await expect(page).toHaveURL(/\/market\/search\/results\?region=gangwon&band=1e-2e$/);
     await expect(page.getByText("회원권 2건")).toBeVisible();
 
-    await page.getByRole("link", { name: /백운파인CC/ }).click();
+    // 골프장 카드의 유형 행 링크(이름이 골프장명으로 시작). 헤더 링크는 "골프장 정보: …"라 구분된다(D-89)
+    await page.getByRole("link", { name: /^백운파인CC/ }).click();
     await expect(page.getByRole("heading", { name: "백운파인CC" })).toBeVisible();
   });
 
@@ -339,5 +341,164 @@ test.describe("회원권 상세(/market/items/[id])", () => {
 
     await page.goto("/market/items/m03");
     await expect(page.getByRole("combobox", { name: "회원권 종류" })).toBeDisabled();
+  });
+});
+
+// D-89: 검색 결과 골프장 단위 카드·정렬·필터 버튼·골프장 상세·상담 문의 플로팅
+test.describe("골프장 단위 검색 결과와 골프장 상세", () => {
+  const groups = groupByCourse(MARKET_ITEMS);
+  const cards = (page: import("@playwright/test").Page) => page.getByRole("list", { name: "골프장", exact: true }).locator(":scope > li");
+
+  test("검색 결과는 골프장 카드로 묶이고 같은 골프장의 유형 행이 2개 이상이다", async ({ page }) => {
+    await page.goto("/market/search/results");
+    await expect(page.getByText(`골프장 ${groups.length}곳 · 회원권 ${MARKET_ITEMS.length}건 · 이번 주 시세 기준`)).toBeVisible();
+    await expect(cards(page)).toHaveCount(groups.length);
+    const rows = page.getByRole("list", { name: "솔빛힐스CC 회원권 유형" }).getByRole("link");
+    await expect(rows).toHaveCount(2);
+    await expect(rows.first()).toHaveAccessibleName(/솔빛힐스CC .*[0-9]만원/);
+  });
+
+  test("정렬 아이콘 → 시트 → 가격 낮은순을 고르면 sort= 와 순서가 바뀐다", async ({ page }) => {
+    await page.goto("/market/search/results");
+    const firstName = async () => (await cards(page).first().getByRole("link", { name: /^골프장 정보:/ }).getAttribute("aria-label"))!;
+    expect(await firstName()).toBe(`골프장 정보: ${sortGroups(groups, "popular")[0]!.courseName}`);
+
+    await page.getByRole("button", { name: "정렬" }).click();
+    const dialog = page.getByRole("dialog", { name: "정렬" });
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole("link", { name: "인기순" })).toHaveAttribute("aria-current", "true");
+    await dialog.getByRole("link", { name: "가격 낮은순" }).click();
+    await expect(page).toHaveURL(/\/market\/search\/results\?sort=price_asc$/);
+    await expect(dialog).toBeHidden();
+    expect(await firstName()).toBe(`골프장 정보: ${sortGroups(groups, "price_asc")[0]!.courseName}`);
+
+    await page.getByRole("button", { name: "정렬" }).click();
+    await expect(page.getByRole("dialog", { name: "정렬" }).getByRole("link", { name: "가격 낮은순" })).toHaveAttribute("aria-current", "true");
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+
+    await page.goto("/market/search/results?sort=bogus");
+    await page.getByRole("button", { name: "정렬" }).click();
+    await expect(page.getByRole("dialog", { name: "정렬" }).getByRole("link", { name: "인기순" })).toHaveAttribute("aria-current", "true");
+  });
+
+  test("필터 버튼은 적용 개수를 보여 주고 조건 화면으로 조건을 들고 간다", async ({ page }) => {
+    await page.goto("/market/search/results");
+    await expect(page.getByRole("link", { name: "필터", exact: true })).toHaveAttribute("href", "/market/search");
+
+    await page.goto("/market/search/results?region=gangwon&band=1e-2e&sort=rise");
+    const filter = page.getByRole("link", { name: "필터 · 2개 적용됨" });
+    await expect(filter).toBeVisible();
+    await filter.click();
+    await expect(page).toHaveURL(/\/market\/search\?region=gangwon&band=1e-2e$/);
+    await expect(page.getByRole("button", { name: "강원", exact: true })).toHaveAttribute("aria-pressed", "true");
+  });
+
+  test("카드 헤더 › → 골프장 상세 → 유형 행 → 회원권 상세 → 골프장명 링크 → 골프장 상세", async ({ page }) => {
+    await page.goto("/market/search/results");
+    await page.getByRole("link", { name: "골프장 정보: 솔빛힐스CC" }).click();
+    await expect(page).toHaveURL(/\/market\/courses\/c01$/);
+    await expect(page.getByRole("heading", { level: 1, name: "솔빛힐스CC" })).toBeVisible();
+    await expect(page).toHaveTitle(/솔빛힐스CC/);
+    await page.getByRole("list", { name: "솔빛힐스CC 회원권 유형" }).getByRole("link", { name: /법인 정회원/ }).click();
+    await expect(page).toHaveURL(/\/market\/items\/m17$/);
+    await page.getByRole("link", { name: /골프장 정보 보기/ }).click();
+    await expect(page).toHaveURL(/\/market\/courses\/c01$/);
+    // 뒤로가기는 직전 화면(회원권 상세)
+    await page.getByRole("link", { name: "뒤로" }).click();
+    await expect(page).toHaveURL(/\/market\/items\/m17$/);
+  });
+
+  test("골프장 상세: 주소 복사, 하단 CTA, 없는 골프장은 404", async ({ page, context }) => {
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+    await page.goto("/market/courses/c05");
+    const d = getMarketDetail(findMarketItem("m05")!);
+    await expect(page.getByRole("heading", { name: "골프장 정보" })).toBeVisible();
+    await page.getByRole("button", { name: "주소 복사" }).click();
+    await expect(page.getByText("주소를 복사했어요")).toBeVisible();
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(d.address);
+    await expect(page.getByRole("link", { name: "지금 가장 핫한 매물 보러가기" })).toHaveAttribute("href", `/market/search/results?q=${encodeURIComponent("백운파인CC")}`);
+    await expect(page.getByRole("list", { name: "백운파인CC 회원권 유형" }).getByRole("link")).toHaveCount(2);
+
+    const res = await page.goto("/market/courses/zzz");
+    expect(res?.status()).toBe(404);
+    await expect(page.getByText("페이지를 찾을 수 없어요")).toBeVisible();
+    await expect(page.getByRole("link", { name: "회원권 홈으로" })).toHaveAttribute("href", "/");
+  });
+});
+
+test.describe("상담 문의 플로팅", () => {
+  const inquiry = (page: import("@playwright/test").Page) => page.getByRole("link", { name: "상담 문의" });
+
+  test("주요 화면에는 보이고 로그인·가입·고객센터 등에는 없다", async ({ page }) => {
+    await page.goto("/");
+    await closeHomePopups(page);
+    await expect(inquiry(page)).toBeVisible();
+    for (const path of ["/market/search/results", "/market/items/m01", "/market/courses/c01", "/market/mypage", "/market/my"]) {
+      await page.goto(path);
+      await expect(inquiry(page), path).toBeVisible();
+      await expect(inquiry(page), path).toHaveAttribute("href", "/market/mypage/support");
+    }
+    for (const path of ["/market/login", "/market/signup", "/market/signup/personal", "/market/welcome", "/market/mypage/support", "/market/notices/fee", "/market/guide/guarantee", "/market/notifications", "/market/search"]) {
+      await page.goto(path);
+      await expect(inquiry(page), path).toHaveCount(0);
+    }
+  });
+
+  test("스크롤을 내리면 아이콘만 남고, 멈추거나 위로 올리면 다시 펼쳐진다", async ({ page }) => {
+    await page.goto("/market/search/results");
+    const link = inquiry(page);
+    const width = async () => (await link.boundingBox())!.width;
+    await expect.poll(width).toBeGreaterThan(90);
+
+    await page.mouse.wheel(0, 700);
+    await expect.poll(width).toBeLessThan(60);
+    await expect(link).toHaveAccessibleName("상담 문의");
+    await expect(link.getByText("상담 문의")).toBeHidden(); // 글자는 폭 0으로 접힘
+
+    // 멈추면 약 1.2초 뒤 펼친다
+    await expect.poll(width, { timeout: 5000 }).toBeGreaterThan(90);
+
+    // 위로 스크롤하면 바로 펼친다
+    await page.mouse.wheel(0, 700);
+    await expect.poll(width).toBeLessThan(60);
+    await page.mouse.wheel(0, -300);
+    await expect.poll(width, { timeout: 800 }).toBeGreaterThan(90);
+  });
+
+  test("동작 줄이기면 접힘·펼침 전환이 없다", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/market/search/results");
+    const label = inquiry(page).locator("span");
+    await expect(label).toHaveCSS("transition-property", "none");
+  });
+
+  test("맨 아래까지 내려도 플로팅이 마지막 내용을 가리지 않는다", async ({ page }) => {
+    const bottomOf = async (loc: import("@playwright/test").Locator) => { const b = (await loc.boundingBox())!; return b.y + b.height; };
+    const topOf = async (loc: import("@playwright/test").Locator) => (await loc.boundingBox())!.y;
+    const toEnd = async () => {
+      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+      await page.waitForFunction(() => Math.abs(window.innerHeight + window.scrollY - document.documentElement.scrollHeight) < 2);
+    };
+
+    await page.goto("/market/search/results");
+    await toEnd();
+    const lastCard = page.getByRole("list", { name: "골프장", exact: true }).locator(":scope > li").last();
+    await expect(lastCard).toBeInViewport();
+    const floatTop = Math.min(await topOf(inquiry(page)), await topOf(page.getByRole("link", { name: "필터", exact: true })));
+    expect(await bottomOf(lastCard)).toBeLessThanOrEqual(floatTop);
+
+    for (const path of ["/market/items/m01", "/market/courses/c01"]) {
+      await page.goto(path);
+      await toEnd();
+      const main = page.locator("main");
+      const ctaTop = await topOf(page.getByRole("link", { name: /구매하기|핫한 매물/ }).first());
+      expect(await bottomOf(main), path).toBeLessThanOrEqual(Math.min(await topOf(inquiry(page)), ctaTop));
+    }
+
+    await page.goto("/");
+    await closeHomePopups(page);
+    await toEnd();
+    expect(await bottomOf(page.locator("footer").last())).toBeLessThanOrEqual(await topOf(inquiry(page)));
   });
 });

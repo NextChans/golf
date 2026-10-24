@@ -9,12 +9,14 @@ import { cn } from "@/lib/utils";
  */
 
 /** 앱 화면 틀: 모바일 폭(최대 480px) 중앙, 하단 탭 바 높이만큼 여백 */
-export function AppScreen({ children, tone = "surface", className, withTabBar = true }: {
+export function AppScreen({ children, tone = "surface", className, withTabBar = true, floating = false }: {
   children: React.ReactNode; tone?: "surface" | "canvas"; className?: string; withTabBar?: boolean;
+  /** 떠 있는 "상담 문의"가 있는 화면: 맨 아래에서 마지막 내용이 가려지지 않게 높이만큼 더 띄운다(D-89) */
+  floating?: boolean;
 }) {
   return (
     <div className={cn("min-h-dvh font-app tabular-nums", tone === "canvas" ? "bg-canvas" : "bg-surface")}>
-      <div className={cn("mx-auto min-h-dvh max-w-[480px] text-ink", withTabBar && "pb-[calc(4rem+env(safe-area-inset-bottom))]", className)}>
+      <div className={cn("mx-auto min-h-dvh max-w-[480px] text-ink", withTabBar && (floating ? "pb-[calc(8.5rem+env(safe-area-inset-bottom))]" : "pb-[calc(4rem+env(safe-area-inset-bottom))]"), className)}>
         {children}
       </div>
     </div>

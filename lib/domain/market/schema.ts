@@ -9,9 +9,13 @@ export type MembershipKind = "개인 정회원" | "법인 정회원" | "주중 �
 
 export type MarketItem = {
   id: string;
+  /** 골프장 id(같은 골프장의 유형들이 공유, 예 "c01") */
+  courseId: string;
   courseName: string;
   region: Region;
   kind: MembershipKind;
+  /** 유형 라벨(그린판다식, 예 "정회원 분1.5억"). 없으면 kind */
+  label?: string;
   holes: 18 | 27 | 36;
   /** 최근 12주 시세(원), 오래된 주 → 이번 주 */
   weekly: number[];
@@ -172,3 +176,6 @@ export function kstDateKey(now: Date): string {
 export function isDismissedToday(stored: string | null, now: Date): boolean {
   return stored === kstDateKey(now);
 }
+
+/** 목록·카드에 보이는 유형 이름: label이 있으면 label, 없으면 kind */
+export const itemLabel = (item: Pick<MarketItem, "kind" | "label">) => item.label ?? item.kind;

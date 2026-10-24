@@ -18,7 +18,7 @@ export default async function MyPage() {
   const coupons = COUPONS.filter((c) => !c.used).length;
 
   return (
-    <AppScreen>
+    <AppScreen floating>
       <TopBar title="마이페이지" />
       <main>
         {customer ? (

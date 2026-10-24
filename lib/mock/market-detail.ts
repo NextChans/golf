@@ -139,5 +139,14 @@ export function getMarketDetail(item: MarketItem): MarketDetail {
 
 /** 같은 골프장의 회원권 유형 목록(상세 화면 "회원권 종류" 선택) */
 export function siblingKinds(items: readonly MarketItem[], item: MarketItem): { id: string; kind: MarketItem["kind"] }[] {
-  return items.filter((i) => i.courseName === item.courseName).map((i) => ({ id: i.id, kind: i.kind }));
+  return items.filter((i) => i.courseId === item.courseId).map((i) => ({ id: i.id, kind: i.kind }));
+}
+
+/**
+ * 골프장 단위 상세(D-89): 주소·전화·회원수·개장일은 골프장 시드(`course:<이름>`)라 같은 골프장의 유형이 모두 같다.
+ * courseId에 해당하는 항목이 없으면 null.
+ */
+export function getCourseDetail(items: readonly MarketItem[], courseId: string): MarketDetail | null {
+  const first = items.find((i) => i.courseId === courseId);
+  return first ? getMarketDetail(first) : null;
 }
